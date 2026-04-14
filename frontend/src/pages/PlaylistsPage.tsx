@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 interface Playlist {
   id: number;
   name: string;
   description: string;
   videos: string[];
-  video_details?: any[];
 }
 
 function PlaylistsPage() {
@@ -20,7 +18,7 @@ function PlaylistsPage() {
 
   const fetchPlaylists = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/users/me/playlists?user_id=1');
+      const res = await fetch('https://letsfiohub-api.onrender.com/api/v1/users/me/playlists?user_id=1');
       const data = await res.json();
       setPlaylists(data);
     } catch (error) {
@@ -33,7 +31,7 @@ function PlaylistsPage() {
     if (!newPlaylistName.trim()) return;
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/playlists?user_id=1', {
+      const res = await fetch('https://letsfiohub-api.onrender.com/api/v1/playlists?user_id=1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newPlaylistName, description: '', is_public: true })

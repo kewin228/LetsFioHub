@@ -11,7 +11,7 @@ function ChannelPage() {
 
   const fetchChannel = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/users/1`);
+      const res = await fetch('https://letsfiohub-api.onrender.com/api/v1/users/1');
       const data = await res.json();
       setChannel(data);
     } catch (error) {
