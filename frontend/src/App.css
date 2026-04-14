@@ -1,0 +1,425 @@
+/* ========== ПЕРЕМЕННЫЕ ========== */
+:root {
+  --primary: #ff0000;
+  --primary-dark: #cc0000;
+  --bg-dark: #0f0f0f;
+  --bg-light: #f9f9f9;
+  --text-dark: #0f0f0f;
+  --text-light: #ffffff;
+  --gray: #606060;
+  --gray-light: #e5e5e5;
+}
+
+[data-theme="dark"] {
+  --bg: #0f0f0f;
+  --text: #ffffff;
+  --card-bg: #272727;
+  --border: #3f3f3f;
+}
+
+[data-theme="light"] {
+  --bg: #f9f9f9;
+  --text: #0f0f0f;
+  --card-bg: #ffffff;
+  --border: #e5e5e5;
+}
+
+/* ========== ОБЩИЕ СТИЛИ ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* ========== ШАПКА ========== */
+.header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.5rem 0;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: 90px;
+}
+
+/* ========== БОЛЬШОЙ ЛОГОТИП ========== */
+.logo {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-image {
+  height: 80px;
+  width: auto;
+  max-width: 300px;
+  object-fit: contain;
+  transition: transform 0.3s;
+  display: block;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+}
+
+/* ========== ПОИСК ========== */
+.search-form {
+  flex: 2;
+  max-width: 600px;
+  display: flex;
+}
+
+.search-form input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 40px 0 0 40px;
+  font-size: 1rem;
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.search-form button {
+  padding: 0.75rem 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 40px 40px 0;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* ========== НАВИГАЦИЯ ========== */
+.nav-links {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  padding: 0.5rem;
+  text-decoration: none;
+  color: var(--text);
+  border-radius: 50%;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+}
+
+.nav-link:hover {
+  background: var(--border);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 40px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+/* ========== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ========== */
+.theme-toggle {
+  background: var(--border);
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+  transform: rotate(15deg);
+}
+
+/* ========== ГЛАВНАЯ СТРАНИЦА ========== */
+.hero {
+  text-align: center;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, #ff000020, #ff444420);
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #ff0000, #ff4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--gray);
+}
+
+/* ========== ВКЛАДКИ ========== */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab, .tab-active {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.3s;
+}
+
+.tab-active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+/* ========== СЕТКА ВИДЕО ========== */
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.video-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.video-card {
+  background: var(--card-bg);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.video-card:hover {
+  transform: translateY(-4px);
+}
+
+.video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.video-info {
+  padding: 0.75rem;
+}
+
+.video-info h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-info p {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin-bottom: 0.25rem;
+}
+
+.video-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--gray);
+}
+
+/* ========== ПУСТОЕ СОСТОЯНИЕ ========== */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--gray);
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--gray);
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 1024px) {
+  .logo-image {
+    height: 60px;
+  }
+  
+  .header-content {
+    min-height: 75px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .header-content {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: auto;
+    padding: 0.5rem 0;
+  }
+  
+  .logo-image {
+    height: 45px;
+  }
+  
+  .search-form {
+    order: 3;
+    width: 100%;
+    max-width: none;
+  }
+  
+  .nav-links {
+    gap: 0.25rem;
+  }
+  
+  .nav-link, .theme-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .videos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-image {
+    height: 35px;
+  }
+}
+
+/* Логотип */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-image {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.logo-image:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .logo-image {
+    height: 40px;
+  }
+}
+
+/* Логотип - БЕЗ ФОНА */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  background: transparent !important;
+}
+
+.logo-image {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s;
+  background: transparent !important;
+  display: block;
+}
+
+.logo-image:hover {
+  transform: scale(1.02);
+}
+
+/* Убираем ВСЕ возможные фоны */
+.logo-wrapper,
+.logo-text,
+.logo-lets,
+.logo-figure,
+.logo-it,
+.logo-fiohub {
+  background: transparent !important;
+}
+
+/* Убираем красный фон из шапки если он есть */
+.header,
+.header-content,
+.container {
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .logo-image {
+    height: 40px;
+  }
+}
