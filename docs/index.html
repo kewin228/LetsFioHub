@@ -18,8 +18,20 @@
         .header-left { display: flex; align-items: center; gap: 16px; }
         .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
         .menu-btn:hover { background-color: #272727; }
-        .logo { display: flex; align-items: center; cursor: pointer; background: linear-gradient(135deg, #ff0000, #cc0000); width: 48px; height: 48px; border-radius: 50%; overflow: hidden; }
-        .logo-image { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Логотип - БЕЗ КРУГА, просто картинка */
+        .logo {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .logo-image {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+        
         .header-center { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
         .search-input { flex: 1; padding: 10px 16px; background-color: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
         .search-btn { background-color: #222; border: 1px solid #303030; border-left: none; border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white; }
@@ -77,6 +89,7 @@
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
             .header-center { display: none; }
+            .logo-image { height: 30px; }
         }
     </style>
 </head>
@@ -87,7 +100,7 @@
         <div class="header-left">
             <button class="menu-btn" id="menuToggle">☰</button>
             <div class="logo" id="logoHome">
-                <img src="logo.png" alt="Logo" class="logo-image" onerror="this.style.display='none'">
+                <img src="logo.png" alt="Let's figure it out" class="logo-image" onerror="this.style.display='none'">
             </div>
         </div>
         <div class="header-center">
@@ -160,7 +173,6 @@
     let currentPage = 'home';
     let currentChannelVideos = [];
 
-    // DOM элементы
     const uploadBtn = document.getElementById('uploadBtn');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -168,7 +180,6 @@
     const chipsContainer = document.getElementById('chipsContainer');
     const contentContainer = document.getElementById('contentContainer');
 
-    // Обновление UI в зависимости от авторизации
     function updateAuthUI() {
         if (token && currentUser) {
             uploadBtn.style.display = 'flex';
@@ -188,7 +199,6 @@
         }
     }
 
-    // Загрузка пользователя по токену
     async function loadCurrentUser() {
         if (!token) return;
         try {
@@ -206,7 +216,6 @@
         }
     }
 
-    // Регистрация
     async function register(username, email, password) {
         const response = await fetch(`${API_URL}/api/register`, {
             method: 'POST',
@@ -217,7 +226,6 @@
         return await response.json();
     }
 
-    // Вход
     async function login(email, password) {
         const formData = new URLSearchParams();
         formData.append('username', email);
@@ -240,10 +248,9 @@
         currentUser = null;
         localStorage.removeItem('token');
         updateAuthUI();
-        loadHomePage();
+        loadAllVideos();
     }
 
-    // Загрузка всех видео
     async function loadAllVideos() {
         try {
             const response = await fetch(`${API_URL}/api/videos`);
@@ -257,7 +264,6 @@
         }
     }
 
-    // Загрузка видео канала
     async function loadChannelVideos(username) {
         try {
             const response = await fetch(`${API_URL}/api/channels/${username}`);
@@ -271,7 +277,6 @@
         }
     }
 
-    // Удаление видео
     async function deleteVideo(videoId) {
         if (!confirm('Удалить видео?')) return;
         try {
@@ -293,7 +298,6 @@
         }
     }
 
-    // Загрузка видео
     async function uploadVideo(title, description, file) {
         const formData = new FormData();
         formData.append('title', title);
@@ -308,7 +312,6 @@
         return await response.json();
     }
 
-    // Массовая загрузка
     async function uploadMultipleVideos(titleBase, description, files) {
         let completed = 0, failed = 0;
         for (let i = 0; i < files.length; i++) {
@@ -327,7 +330,6 @@
         return { completed, failed };
     }
 
-    // Рендер главной страницы
     function renderHomePage() {
         let videos = [...allVideos];
         if (currentCategory === 'trending') {
@@ -363,7 +365,6 @@
         `;
     }
 
-    // Рендер страницы канала
     function renderChannelPage(channel) {
         chipsContainer.innerHTML = '';
         if (channel.videos.length === 0) {
@@ -396,6 +397,7 @@
     function renderCurrentPage() {
         if (currentPage === 'home') {
             renderHomePage();
+            renderChips();
         } else if (currentPage === 'my-channel' && currentUser) {
             loadChannelVideos(currentUser.username);
         }
@@ -418,7 +420,6 @@
         window.location.href = `/letsfiohub/watch.html?id=${videoId}`;
     }
 
-    // Поиск
     function searchVideos() {
         const query = document.getElementById('searchInput').value.toLowerCase();
         if (!query) return renderHomePage();
@@ -441,7 +442,6 @@
         }
     }
 
-    // Модальное окно авторизации
     const authModal = document.getElementById('authModal');
     let isLoginMode = true;
 
@@ -495,7 +495,6 @@
         }
     };
 
-    // Загрузка видео
     const uploadModal = document.getElementById('uploadModal');
     document.getElementById('uploadBtn').onclick = () => uploadModal.style.display = 'flex';
     const fileInput = document.getElementById('videoFiles');
@@ -527,7 +526,6 @@
         }, 2000);
     };
 
-    // Навигация
     document.getElementById('searchBtn').addEventListener('click', searchVideos);
     document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
     document.getElementById('logoHome').addEventListener('click', () => { currentPage = 'home'; loadAllVideos(); });
@@ -552,7 +550,6 @@
         });
     });
 
-    // Вкладки
     function renderChips() {
         if (currentPage !== 'home') {
             chipsContainer.innerHTML = '';
@@ -579,8 +576,6 @@
         document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible);
     });
 
-    // Инициализация
-    renderChips();
     loadCurrentUser().then(() => {
         loadAllVideos();
     });
