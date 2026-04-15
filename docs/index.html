@@ -343,6 +343,8 @@
             border-radius: 16px;
             width: 90%;
             max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .modal-content h2 {
             margin-bottom: 20px;
@@ -398,6 +400,13 @@
             font-size: 0.9rem;
             color: #aaaaaa;
         }
+        .queue-item {
+            background: #3f3f3f;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -429,20 +438,6 @@
         <div class="sidebar-title">Вам может понравиться</div>
         <div class="sidebar-item" data-nav="channel">
             <span>🎬</span><span>Let's FioHub</span>
-        </div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-title">Подписки</div>
-        <div class="sidebar-item" data-channel="topchiy">
-            <span>👤</span><span>Topchiy Dev</span>
-        </div>
-        <div class="sidebar-item" data-channel="cinema">
-            <span>🎥</span><span>Кинокомпания</span>
-        </div>
-        <div class="sidebar-item" data-channel="sektor">
-            <span>🎸</span><span>Сектор Газа</span>
-        </div>
-        <div class="sidebar-item" data-channel="krug">
-            <span>🎤</span><span>Михаил Круг</span>
         </div>
     </aside>
 
@@ -484,20 +479,21 @@
     </div>
 </div>
 
-<!-- Модальное окно загрузки -->
+<!-- Модальное окно загрузки (поддерживает несколько файлов) -->
 <div id="uploadModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2>📤 Загрузить видео</h2>
         <form id="uploadForm">
-            <input type="text" id="videoTitle" placeholder="Название видео *" required>
-            <textarea id="videoDescription" rows="3" placeholder="Описание видео"></textarea>
-            <input type="file" id="videoFile" accept="video/*" required>
+            <input type="text" id="videoTitle" placeholder="Название видео (для всех файлов)">
+            <textarea id="videoDescription" rows="3" placeholder="Описание (для всех файлов)"></textarea>
+            <input type="file" id="videoFiles" accept="video/*" multiple>
+            <div id="queueContainer"></div>
             <div class="progress-bar" id="progressBar" style="display: none;">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             <div class="upload-status" id="uploadStatus"></div>
-            <button type="submit">📤 Опубликовать</button>
+            <button type="submit">📤 Загрузить все видео</button>
         </form>
     </div>
 </div>
@@ -508,7 +504,6 @@
     let currentTab = 'all';
     let currentNav = 'home';
 
-    // Модальное окно
     const modal = document.getElementById('uploadModal');
     const uploadBtn = document.getElementById('uploadBtn');
     const closeModal = document.querySelector('.close-modal');
@@ -517,66 +512,92 @@
     closeModal.onclick = () => modal.style.display = 'none';
     window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
 
-    // Загрузка видео
+    // Отображение выбранных файлов
+    const fileInput = document.getElementById('videoFiles');
+    const queueContainer = document.getElementById('queueContainer');
+    
+    fileInput.onchange = () => {
+        const files = fileInput.files;
+        queueContainer.innerHTML = `<div class="sidebar-title">Выбрано файлов: ${files.length}</div>`;
+        for (let i = 0; i < files.length; i++) {
+            queueContainer.innerHTML += `<div class="queue-item">📹 ${files[i].name}</div>`;
+        }
+    };
+
+    // Массовая загрузка
     document.getElementById('uploadForm').onsubmit = async (e) => {
         e.preventDefault();
         
         const title = document.getElementById('videoTitle').value;
         const description = document.getElementById('videoDescription').value;
-        const file = document.getElementById('videoFile').files[0];
+        const files = fileInput.files;
         
-        if (!title || !file) {
-            alert('Заполните название и выберите видео файл');
+        if (!title || files.length === 0) {
+            alert('Заполните название и выберите хотя бы одно видео');
             return;
         }
-        
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('file', file);
         
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const statusDiv = document.getElementById('uploadStatus');
         
         progressBar.style.display = 'block';
-        statusDiv.innerHTML = 'Загрузка... 0%';
+        let completed = 0;
+        let failed = 0;
         
-        try {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', `${API_URL}/api/v1/videos/upload?user_id=1`);
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            formData.append('title', `${title} - ${file.name.replace(/\.[^/.]+$/, '')}`);
+            formData.append('description', description);
+            formData.append('file', file);
             
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    progressFill.style.width = percent + '%';
-                    statusDiv.innerHTML = `Загрузка... ${percent}%`;
-                }
-            };
+            statusDiv.innerHTML = `Загрузка ${i+1}/${files.length}: ${file.name}...`;
             
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    statusDiv.innerHTML = '✅ Видео успешно загружено!';
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        document.getElementById('uploadForm').reset();
-                        progressBar.style.display = 'none';
-                        progressFill.style.width = '0%';
-                        loadVideos();
-                    }, 1500);
-                } else {
-                    statusDiv.innerHTML = '❌ Ошибка загрузки';
-                }
-            };
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_URL}/api/v1/videos/upload?user_id=1`);
+                
+                await new Promise((resolve, reject) => {
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            progressFill.style.width = `${(i + percent/100) / files.length * 100}%`;
+                        }
+                    };
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            completed++;
+                            resolve();
+                        } else {
+                            failed++;
+                            resolve();
+                        }
+                    };
+                    xhr.onerror = () => {
+                        failed++;
+                        resolve();
+                    };
+                    xhr.send(formData);
+                });
+            } catch (err) {
+                failed++;
+            }
             
-            xhr.onerror = () => {
-                statusDiv.innerHTML = '❌ Ошибка сети';
-            };
-            
-            xhr.send(formData);
-        } catch (err) {
-            statusDiv.innerHTML = '❌ Ошибка: ' + err.message;
+            const percent = (i + 1) / files.length * 100;
+            progressFill.style.width = `${percent}%`;
+            statusDiv.innerHTML = `Загружено ${completed} из ${files.length}, ошибок: ${failed}`;
         }
+        
+        statusDiv.innerHTML = `✅ Завершено! Загружено: ${completed}, Ошибок: ${failed}`;
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('uploadForm').reset();
+            queueContainer.innerHTML = '';
+            progressBar.style.display = 'none';
+            progressFill.style.width = '0%';
+            loadVideos();
+        }, 2000);
     };
 
     async function loadVideosWithRetry(retries = 3) {
@@ -592,7 +613,6 @@
                     return;
                 }
             } catch (err) {
-                console.log(`Попытка ${i + 1} не удалась`);
                 if (i < retries - 1) {
                     container.innerHTML = `<div class="empty-state">⏳ Пробуждение сервера... (${i + 1}/${retries})</div>`;
                     await new Promise(resolve => setTimeout(resolve, 20000));
@@ -667,7 +687,6 @@
         window.location.href = `/letsfiohub/watch.html?id=${videoId}`;
     }
     
-    // Поиск
     function searchVideos() {
         const query = document.getElementById('searchInput').value.toLowerCase();
         if (!query) {
