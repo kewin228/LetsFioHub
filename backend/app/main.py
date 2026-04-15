@@ -1,25 +1,16 @@
-from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
-import uuid
+from fastapi.responses import FileResponse, JSONResponse
 import os
+import uuid
+from datetime import datetime
 
-# --- Конфигурация ---
-SECRET_KEY = "your-super-secret-key-change-this-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 дней
+app = FastAPI(title="Let's FioHub API", version="2.0.0")
 
-# Создаем папку для загрузок
+# Создаём папку для видео
 os.makedirs("uploads", exist_ok=True)
 
-app = FastAPI(title="Let's FioHub API")
-
-# Настройка CORS
+# Разрешаем CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,214 +19,73 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Хэширование паролей и JWT ---
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-# --- Pydantic модели ---
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class UserOut(BaseModel):
-    id: int
-    username: str
-    email: str
-    channel_name: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-# --- Хранилища (пока в памяти, потом заменим на БД) ---
-users_db = []
+# Хранилище метаданных видео
 videos_db = []
-channels_db = []
 
-user_counter = 1
-video_counter = 1
+@app.get("/")
+def root():
+    return {"message": "Let's FioHub API v2.0", "endpoints": "/docs"}
 
-# --- Вспомогательные функции ---
-def get_user_by_email(email: str):
-    for user in users_db:
-        if user["email"] == email:
-            return user
-    return None
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 
-def get_user_by_username(username: str):
-    for user in users_db:
-        if user["username"] == username:
-            return user
-    return None
+@app.get("/api/v1/videos")
+def get_videos():
+    return {"videos": videos_db, "total": len(videos_db)}
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    for user in users_db:
-        if user["id"] == user_id:
-            return user
-    raise credentials_exception
-
-# --- API Endpoints ---
-@app.post("/api/register", response_model=UserOut)
-async def register(user_data: UserCreate):
-    if get_user_by_email(user_data.email):
-        raise HTTPException(status_code=400, detail="Email already registered")
-    if get_user_by_username(user_data.username):
-        raise HTTPException(status_code=400, detail="Username already taken")
-    
-    global user_counter
-    hashed_password = get_password_hash(user_data.password)
-    new_user = {
-        "id": user_counter,
-        "username": user_data.username,
-        "email": user_data.email,
-        "hashed_password": hashed_password,
-        "channel_name": f"{user_data.username}'s Channel"
-    }
-    users_db.append(new_user)
-    
-    # Создаем канал для пользователя
-    channels_db.append({
-        "user_id": user_counter,
-        "channel_name": new_user["channel_name"],
-        "videos": []
-    })
-    
-    user_counter += 1
-    return {"id": new_user["id"], "username": new_user["username"], "email": new_user["email"], "channel_name": new_user["channel_name"]}
-
-@app.post("/api/token", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = get_user_by_email(form_data.username)
-    if not user or not verify_password(form_data.password, user["hashed_password"]):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    access_token = create_access_token(data={"sub": user["id"]})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.get("/api/users/me", response_model=UserOut)
-async def read_users_me(current_user: dict = Depends(get_current_user)):
-    return {"id": current_user["id"], "username": current_user["username"], "email": current_user["email"], "channel_name": current_user["channel_name"]}
-
-@app.get("/api/channels/{username}")
-async def get_channel(username: str):
-    user = get_user_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="Channel not found")
-    user_videos = [v for v in videos_db if v["uploader_id"] == user["id"]]
-    return {
-        "channel_name": user["channel_name"],
-        "username": user["username"],
-        "videos": user_videos
-    }
-
-@app.post("/api/videos/upload")
+@app.post("/api/v1/videos/upload")
 async def upload_video(
     title: str = Form(...),
     description: str = Form(""),
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user)
+    user_id: int = 1
 ):
-    global video_counter
+    # Генерируем уникальный ID
     video_id = str(uuid.uuid4())[:8]
-    file_path = f"uploads/{video_id}.mp4"
     
+    # Сохраняем файл
+    file_path = f"uploads/{video_id}.mp4"
     with open(file_path, "wb") as f:
         content = await file.read()
         f.write(content)
     
+    # Сохраняем метаданные
     new_video = {
         "id": video_id,
         "title": title,
         "description": description,
         "file_path": file_path,
-        "uploader_id": current_user["id"],
-        "uploader_name": current_user["username"],
         "views": 0,
         "likes": 0,
-        "created_at": datetime.utcnow().isoformat()
+        "uploader_id": user_id,
+        "created_at": datetime.now().isoformat()
     }
     videos_db.append(new_video)
-    video_counter += 1
+    
     return {"message": "Video uploaded", "video_id": video_id}
 
-@app.delete("/api/videos/{video_id}")
-async def delete_video(video_id: str, current_user: dict = Depends(get_current_user)):
-    global videos_db
-    for i, video in enumerate(videos_db):
-        if video["id"] == video_id:
-            if video["uploader_id"] != current_user["id"]:
-                raise HTTPException(status_code=403, detail="You can only delete your own videos")
-            # Удаляем файл
-            if os.path.exists(video["file_path"]):
-                os.remove(video["file_path"])
-            # Удаляем запись
-            videos_db.pop(i)
-            return {"message": "Video deleted"}
-    raise HTTPException(status_code=404, detail="Video not found")
-
-@app.get("/api/videos")
-async def get_all_videos():
-    # Возвращаем все видео с информацией о загрузившем
-    result = []
-    for video in videos_db:
-        user = get_user_by_username(video["uploader_name"])
-        result.append({
-            "id": video["id"],
-            "title": video["title"],
-            "description": video["description"],
-            "views": video["views"],
-            "likes": video["likes"],
-            "uploader_name": video["uploader_name"],
-            "created_at": video["created_at"]
-        })
-    return {"videos": result, "total": len(result)}
-
-@app.get("/api/videos/{video_id}")
-async def get_video(video_id: str):
+@app.get("/api/v1/videos/{video_id}")
+def get_video(video_id: str):
     for video in videos_db:
         if video["id"] == video_id:
             video["views"] += 1
             return video
-    raise HTTPException(status_code=404, detail="Video not found")
+    return JSONResponse(status_code=404, content={"error": "Video not found"})
 
-@app.get("/api/videos/{video_id}/stream")
-async def stream_video(video_id: str):
+@app.get("/api/v1/videos/{video_id}/stream")
+def stream_video(video_id: str):
     for video in videos_db:
         if video["id"] == video_id:
             file_path = video["file_path"]
             if os.path.exists(file_path):
                 return FileResponse(file_path, media_type="video/mp4")
-    raise HTTPException(status_code=404, detail="Video file not found")
+    return JSONResponse(status_code=404, content={"error": "Video file not found"})
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+@app.post("/api/v1/videos/{video_id}/like")
+def like_video(video_id: str, user_id: int = 1):
+    for video in videos_db:
+        if video["id"] == video_id:
+            video["likes"] += 1
+            return {"message": "Liked", "likes": video["likes"]}
+    return JSONResponse(status_code=404, content={"error": "Video not found"})
