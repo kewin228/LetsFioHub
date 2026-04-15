@@ -1,1 +1,50 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"/><title>Let's FioHub</title><script defer="defer" src="./static/js/main.49107103.js"></script></head><body><div id="root"></div></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Let's FioHub</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        video { max-width: 100%; margin: 10px 0; }
+        .video { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 8px; }
+        h1 { color: #ff0000; }
+        a { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🎬 Let's FioHub</h1>
+    <p>Ваш видеохостинг работает!</p>
+    <p>🔗 API: <a href="https://letsfiohub-api.onrender.com" target="_blank">letsfiohub-api.onrender.com</a></p>
+    <p>📚 <a href="https://letsfiohub-api.onrender.com/docs" target="_blank">Документация API</a></p>
+    <hr>
+    <h2>📹 Ваши видео</h2>
+    <div id="videos">Загрузка видео...</div>
+
+    <script>
+        fetch('https://letsfiohub-api.onrender.com/api/v1/videos')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('videos');
+                if (!data.videos || data.videos.length === 0) {
+                    container.innerHTML = '<p>📭 Нет видео. <a href="https://letsfiohub-api.onrender.com/docs" target="_blank">Загрузите первое видео через API</a></p>';
+                    return;
+                }
+                container.innerHTML = '';
+                data.videos.forEach(video => {
+                    container.innerHTML += `
+                        <div class="video">
+                            <h3>${video.title || 'Без названия'}</h3>
+                            <p>${video.description || 'Нет описания'}</p>
+                            <video controls>
+                                <source src="https://letsfiohub-api.onrender.com/api/v1/videos/${video.id}/stream">
+                            </video>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                document.getElementById('videos').innerHTML = '<p>❌ Ошибка подключения к API</p>';
+            });
+    </script>
+</body>
+</html>
