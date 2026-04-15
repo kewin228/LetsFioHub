@@ -62,19 +62,36 @@
             background-color: #272727;
         }
 
-        /* Логотип - картинка */
+        /* Логотип - увеличенный и круглый */
         .logo {
             display: flex;
             align-items: center;
+            justify-content: center;
             text-decoration: none;
             cursor: pointer;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .logo-image {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Текстовый логотип (если картинка не загрузится) */
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
         }
 
         .header-center {
@@ -423,8 +440,9 @@
             .header-center {
                 display: none;
             }
-            .logo-image {
-                height: 30px;
+            .logo {
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -436,7 +454,8 @@
         <div class="header-left">
             <button class="menu-btn" id="menuToggle">☰</button>
             <div class="logo" id="logoHome">
-                <img src="logo.png" alt="Let's figure it out" class="logo-image">
+                <img src="logo.png" alt="Let's figure it out" class="logo-image" onerror="this.style.display='none'; this.nextSibling.style.display='flex';">
+                <div class="logo-text" style="display: none;">🎬</div>
             </div>
         </div>
         <div class="header-center">
