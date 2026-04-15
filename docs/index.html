@@ -17,7 +17,6 @@
             color: #ffffff;
         }
 
-        /* Боковое меню */
         .layout {
             display: flex;
         }
@@ -75,14 +74,12 @@
             letter-spacing: 1px;
         }
 
-        /* Основной контент */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding-top: 56px;
         }
 
-        /* Шапка */
         .header {
             position: fixed;
             top: 0;
@@ -123,26 +120,27 @@
             align-items: baseline;
             gap: 4px;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .logo-lets {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
         }
 
         .logo-figure {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #aaaaaa;
         }
 
         .logo-it {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #888888;
         }
 
         .logo-fiohub {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #ff0000;
             margin-left: 4px;
         }
@@ -212,9 +210,9 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        /* Контент */
         .content {
             padding: 24px;
         }
@@ -246,7 +244,6 @@
             background: #3f3f3f;
         }
 
-        /* Сетка видео */
         .videos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -327,7 +324,6 @@
             margin-top: 16px;
         }
 
-        /* Адаптивность */
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -344,70 +340,66 @@
 <body>
 
 <div class="layout">
-    <!-- Боковое меню -->
     <aside class="sidebar">
-        <div class="sidebar-item active">
+        <div class="sidebar-item active" data-nav="home">
             <span>🏠</span><span>Главная</span>
         </div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-nav="shorts">
             <span>🔥</span><span>Shorts</span>
         </div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-nav="subscriptions">
             <span>📺</span><span>Подписки</span>
         </div>
         <div class="sidebar-divider"></div>
         <div class="sidebar-title">Вам может понравиться</div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-nav="channel">
             <span>🎬</span><span>Let's FioHub</span>
         </div>
         <div class="sidebar-divider"></div>
         <div class="sidebar-title">Подписки</div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-channel="topchiy">
             <span>👤</span><span>Topchiy Dev</span>
         </div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-channel="cinema">
             <span>🎥</span><span>Кинокомпания</span>
         </div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-channel="sektor">
             <span>🎸</span><span>Сектор Газа</span>
         </div>
-        <div class="sidebar-item">
+        <div class="sidebar-item" data-channel="krug">
             <span>🎤</span><span>Михаил Круг</span>
         </div>
     </aside>
 
-    <!-- Основной контент -->
     <div class="main-content">
-        <!-- Шапка -->
         <header class="header">
             <div class="logo-area">
-                <button class="menu-btn">☰</button>
-                <a href="/letsfiohub" class="logo">
+                <button class="menu-btn" id="menuToggle">☰</button>
+                <div class="logo" id="logoHome">
                     <span class="logo-lets">Let's</span>
                     <span class="logo-figure">figure</span>
                     <span class="logo-it">it out</span>
                     <span class="logo-fiohub">FioHub</span>
-                </a>
+                </div>
             </div>
 
             <div class="search-area">
-                <input type="text" class="search-input" placeholder="Поиск...">
-                <button class="search-btn">🔍</button>
+                <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
+                <button class="search-btn" id="searchBtn">🔍</button>
             </div>
 
             <div class="user-area">
-                <button class="icon-btn">📤</button>
+                <button class="icon-btn" id="uploadBtn">📤</button>
                 <button class="icon-btn">🔔</button>
-                <div class="avatar">U</div>
+                <div class="avatar" id="avatarBtn">U</div>
             </div>
         </header>
 
-        <!-- Контент -->
         <div class="content">
             <div class="tabs">
-                <button class="tab active">📺 Все видео</button>
-                <button class="tab">🔥 Тренды</button>
-                <button class="tab">👍 Рекомендации</button>
+                <button class="tab active" data-tab="all">📺 Все видео</button>
+                <button class="tab" data-tab="trending">🔥 Тренды</button>
+                <button class="tab" data-tab="recommended">👍 Рекомендации</button>
             </div>
 
             <div id="videos-container">
@@ -421,18 +413,36 @@
     const API_URL = 'https://letsfiohub-api.onrender.com';
     let allVideos = [];
     let currentTab = 'all';
+    let currentNav = 'home';
+
+    // Функция загрузки видео с повторными попытками
+    async function loadVideosWithRetry(retries = 3) {
+        const container = document.getElementById('videos-container');
+        
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(`${API_URL}/api/v1/videos`);
+                if (response.ok) {
+                    const data = await response.json();
+                    allVideos = data.videos || [];
+                    renderVideos();
+                    return;
+                }
+            } catch (err) {
+                console.log(`Попытка ${i + 1} не удалась`);
+                if (i < retries - 1) {
+                    container.innerHTML = `<div class="empty-state">⏳ Пробуждение сервера... (${i + 1}/${retries})</div>`;
+                    await new Promise(resolve => setTimeout(resolve, 20000)); // ждём 20 секунд
+                }
+            }
+        }
+        container.innerHTML = `<div class="empty-state"><p>❌ Сервер не отвечает</p><button class="btn-upload" onclick="location.reload()">Обновить страницу</button></div>`;
+    }
 
     async function loadVideos() {
         const container = document.getElementById('videos-container');
-        
-        try {
-            const response = await fetch(`${API_URL}/api/v1/videos`);
-            const data = await response.json();
-            allVideos = data.videos || [];
-            renderVideos();
-        } catch (err) {
-            container.innerHTML = `<div class="empty-state"><p>❌ Сервер просыпается...</p><button class="btn-upload" onclick="loadVideos()">Повторить</button></div>`;
-        }
+        container.innerHTML = '<div class="empty-state">⏳ Загрузка видео...</div>';
+        await loadVideosWithRetry(3);
     }
 
     function renderVideos() {
@@ -494,6 +504,74 @@
         window.location.href = `/letsfiohub/watch.html?id=${videoId}`;
     }
     
+    // Поиск
+    function searchVideos() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if (!query) {
+            renderVideos();
+            return;
+        }
+        const filtered = allVideos.filter(v => v.title?.toLowerCase().includes(query));
+        const container = document.getElementById('videos-container');
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state">🔍 Ничего не найдено</div>';
+        } else {
+            container.innerHTML = `
+                <div class="videos-grid">
+                    ${filtered.map(video => `
+                        <div class="video-card" onclick="openVideo('${video.id}')">
+                            <div class="thumbnail">🎬</div>
+                            <div class="video-info">
+                                <div class="channel-avatar">📺</div>
+                                <div class="video-details">
+                                    <h3>${escapeHtml(video.title)}</h3>
+                                    <p>Let's FioHub</p>
+                                    <div class="video-stats">
+                                        <span>👁️ ${formatViews(video.views || 0)}</span>
+                                        <span>❤️ ${video.likes || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    }
+    
+    // Кнопки
+    document.getElementById('searchBtn').addEventListener('click', searchVideos);
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchVideos();
+    });
+    
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+        window.open(`${API_URL}/docs`, '_blank');
+    });
+    
+    document.getElementById('logoHome').addEventListener('click', () => {
+        currentNav = 'home';
+        loadVideos();
+    });
+    
+    document.getElementById('avatarBtn').addEventListener('click', () => {
+        window.open(`${API_URL}/docs`, '_blank');
+    });
+    
+    // Боковое меню
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            if (item.dataset.nav === 'home') {
+                loadVideos();
+            } else {
+                const container = document.getElementById('videos-container');
+                container.innerHTML = `<div class="empty-state">🚧 В разработке</div>`;
+            }
+        });
+    });
+    
     // Вкладки
     document.querySelectorAll('.tab').forEach((tab, index) => {
         tab.addEventListener('click', () => {
@@ -505,39 +583,19 @@
         });
     });
     
-    // Поиск
-    document.querySelector('.search-btn').addEventListener('click', () => {
-        const query = document.querySelector('.search-input').value.toLowerCase();
-        if (query) {
-            const filtered = allVideos.filter(v => 
-                v.title?.toLowerCase().includes(query)
-            );
-            const container = document.getElementById('videos-container');
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state">🔍 Ничего не найдено</div>';
-            } else {
-                container.innerHTML = `
-                    <div class="videos-grid">
-                        ${filtered.map(video => `
-                            <div class="video-card" onclick="openVideo('${video.id}')">
-                                <div class="thumbnail">🎬</div>
-                                <div class="video-info">
-                                    <div class="channel-avatar">📺</div>
-                                    <div class="video-details">
-                                        <h3>${escapeHtml(video.title)}</h3>
-                                        <p>Let's FioHub</p>
-                                        <div class="video-stats">
-                                            <span>👁️ ${formatViews(video.views || 0)}</span>
-                                            <span>❤️ ${video.likes || 0}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
+    // Меню (адаптивность)
+    let sidebarVisible = true;
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        if (sidebarVisible) {
+            sidebar.style.display = 'none';
+            mainContent.style.marginLeft = '0';
+        } else {
+            sidebar.style.display = 'block';
+            mainContent.style.marginLeft = '240px';
         }
+        sidebarVisible = !sidebarVisible;
     });
     
     loadVideos();
