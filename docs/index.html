@@ -324,6 +324,81 @@
             margin-top: 16px;
         }
 
+        /* Модальное окно загрузки */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #272727;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #121212;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+        .modal-content button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .modal-content button:hover {
+            background: #cc0000;
+        }
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaaaaa;
+        }
+        .close-modal:hover {
+            color: white;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #3f3f3f;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #ff0000;
+            transition: width 0.3s;
+        }
+        .upload-status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #aaaaaa;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -409,13 +484,101 @@
     </div>
 </div>
 
+<!-- Модальное окно загрузки -->
+<div id="uploadModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>📤 Загрузить видео</h2>
+        <form id="uploadForm">
+            <input type="text" id="videoTitle" placeholder="Название видео *" required>
+            <textarea id="videoDescription" rows="3" placeholder="Описание видео"></textarea>
+            <input type="file" id="videoFile" accept="video/*" required>
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="upload-status" id="uploadStatus"></div>
+            <button type="submit">📤 Опубликовать</button>
+        </form>
+    </div>
+</div>
+
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
     let allVideos = [];
     let currentTab = 'all';
     let currentNav = 'home';
 
-    // Функция загрузки видео с повторными попытками
+    // Модальное окно
+    const modal = document.getElementById('uploadModal');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const closeModal = document.querySelector('.close-modal');
+    
+    uploadBtn.onclick = () => modal.style.display = 'flex';
+    closeModal.onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+    // Загрузка видео
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const title = document.getElementById('videoTitle').value;
+        const description = document.getElementById('videoDescription').value;
+        const file = document.getElementById('videoFile').files[0];
+        
+        if (!title || !file) {
+            alert('Заполните название и выберите видео файл');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('file', file);
+        
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const statusDiv = document.getElementById('uploadStatus');
+        
+        progressBar.style.display = 'block';
+        statusDiv.innerHTML = 'Загрузка... 0%';
+        
+        try {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${API_URL}/api/v1/videos/upload?user_id=1`);
+            
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    progressFill.style.width = percent + '%';
+                    statusDiv.innerHTML = `Загрузка... ${percent}%`;
+                }
+            };
+            
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    statusDiv.innerHTML = '✅ Видео успешно загружено!';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        document.getElementById('uploadForm').reset();
+                        progressBar.style.display = 'none';
+                        progressFill.style.width = '0%';
+                        loadVideos();
+                    }, 1500);
+                } else {
+                    statusDiv.innerHTML = '❌ Ошибка загрузки';
+                }
+            };
+            
+            xhr.onerror = () => {
+                statusDiv.innerHTML = '❌ Ошибка сети';
+            };
+            
+            xhr.send(formData);
+        } catch (err) {
+            statusDiv.innerHTML = '❌ Ошибка: ' + err.message;
+        }
+    };
+
     async function loadVideosWithRetry(retries = 3) {
         const container = document.getElementById('videos-container');
         
@@ -432,7 +595,7 @@
                 console.log(`Попытка ${i + 1} не удалась`);
                 if (i < retries - 1) {
                     container.innerHTML = `<div class="empty-state">⏳ Пробуждение сервера... (${i + 1}/${retries})</div>`;
-                    await new Promise(resolve => setTimeout(resolve, 20000)); // ждём 20 секунд
+                    await new Promise(resolve => setTimeout(resolve, 20000));
                 }
             }
         }
@@ -459,7 +622,7 @@
             container.innerHTML = `
                 <div class="empty-state">
                     <p>📭 Пока нет видео</p>
-                    <button class="btn-upload" onclick="window.open('${API_URL}/docs', '_blank')">📤 Загрузить видео</button>
+                    <button class="btn-upload" onclick="document.getElementById('uploadBtn').click()">📤 Загрузить первое видео</button>
                 </div>
             `;
             return;
@@ -539,14 +702,9 @@
         }
     }
     
-    // Кнопки
     document.getElementById('searchBtn').addEventListener('click', searchVideos);
     document.getElementById('searchInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchVideos();
-    });
-    
-    document.getElementById('uploadBtn').addEventListener('click', () => {
-        window.open(`${API_URL}/docs`, '_blank');
     });
     
     document.getElementById('logoHome').addEventListener('click', () => {
@@ -555,10 +713,9 @@
     });
     
     document.getElementById('avatarBtn').addEventListener('click', () => {
-        window.open(`${API_URL}/docs`, '_blank');
+        modal.style.display = 'flex';
     });
     
-    // Боковое меню
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', () => {
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
@@ -572,7 +729,6 @@
         });
     });
     
-    // Вкладки
     document.querySelectorAll('.tab').forEach((tab, index) => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -583,7 +739,6 @@
         });
     });
     
-    // Меню (адаптивность)
     let sidebarVisible = true;
     document.getElementById('menuToggle').addEventListener('click', () => {
         const sidebar = document.querySelector('.sidebar');
