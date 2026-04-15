@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's FioHub</title>
     <style>
+        /* ---------- YouTube стили ---------- */
         * {
             margin: 0;
             padding: 0;
@@ -12,90 +13,34 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: #0f0f0f;
-            color: #ffffff;
+            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #f1f1f1;
         }
 
-        .layout {
+        /* ----- Layout ----- */
+        .app {
             display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
-        .sidebar {
-            width: 240px;
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            background: #0f0f0f;
-            padding: 12px 0;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        .sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            padding: 8px 24px;
-            cursor: pointer;
-            border-radius: 10px;
-            margin: 2px 8px;
-            color: #ffffff;
-            transition: background 0.2s;
-        }
-
-        .sidebar-item:hover {
-            background: #272727;
-        }
-
-        .sidebar-item.active {
-            background: #272727;
-        }
-
-        .sidebar-item span:first-child {
-            font-size: 1.5rem;
-            width: 24px;
-        }
-
-        .sidebar-item span:last-child {
-            font-size: 0.9rem;
-        }
-
-        .sidebar-divider {
-            height: 1px;
-            background: #3f3f3f;
-            margin: 12px 12px;
-        }
-
-        .sidebar-title {
-            color: #aaaaaa;
-            font-size: 0.8rem;
-            padding: 8px 24px;
-            letter-spacing: 1px;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 240px;
-            padding-top: 56px;
-        }
-
+        /* ----- Header ----- */
         .header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: 56px;
-            background: #0f0f0f;
+            background-color: #0f0f0f;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 16px;
             z-index: 100;
-            border-bottom: 1px solid #3f3f3f;
         }
 
-        .logo-area {
+        .header-left {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -105,14 +50,18 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 24px;
             cursor: pointer;
-            padding: 8px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .menu-btn:hover {
-            background: #272727;
+            background-color: #272727;
         }
 
         .logo {
@@ -123,29 +72,12 @@
             cursor: pointer;
         }
 
-        .logo-lets {
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-        }
+        .logo-lets { font-size: 1.1rem; font-weight: 600; color: white; }
+        .logo-figure { font-size: 1rem; color: #aaa; }
+        .logo-it { font-size: 0.95rem; color: #888; }
+        .logo-fiohub { font-size: 0.75rem; color: #ff0000; margin-left: 4px; }
 
-        .logo-figure {
-            font-size: 0.9rem;
-            color: #aaaaaa;
-        }
-
-        .logo-it {
-            font-size: 0.85rem;
-            color: #888888;
-        }
-
-        .logo-fiohub {
-            font-size: 0.7rem;
-            color: #ff0000;
-            margin-left: 4px;
-        }
-
-        .search-area {
+        .header-center {
             flex: 1;
             max-width: 600px;
             margin: 0 32px;
@@ -155,56 +87,58 @@
         .search-input {
             flex: 1;
             padding: 10px 16px;
-            background: #121212;
-            border: 1px solid #3f3f3f;
+            background-color: #121212;
+            border: 1px solid #303030;
             border-radius: 40px 0 0 40px;
             color: white;
-            font-size: 1rem;
+            font-size: 16px;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #1a73e8;
+            border-color: #1c62b9;
         }
 
         .search-btn {
-            padding: 10px 24px;
-            background: #272727;
-            border: 1px solid #3f3f3f;
+            background-color: #222;
+            border: 1px solid #303030;
             border-left: none;
             border-radius: 0 40px 40px 0;
+            padding: 0 20px;
             cursor: pointer;
             color: white;
+            font-size: 18px;
         }
 
         .search-btn:hover {
-            background: #3f3f3f;
+            background-color: #3f3f3f;
         }
 
-        .user-area {
+        .header-right {
             display: flex;
-            gap: 16px;
             align-items: center;
+            gap: 8px;
         }
 
         .icon-btn {
             background: none;
             border: none;
             color: white;
-            font-size: 1.3rem;
+            font-size: 20px;
             cursor: pointer;
-            padding: 8px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
         }
 
         .icon-btn:hover {
-            background: #272727;
+            background-color: #272727;
         }
 
         .avatar {
             width: 32px;
             height: 32px;
-            background: #ff0000;
+            background-color: #ff0000;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -213,40 +147,113 @@
             cursor: pointer;
         }
 
-        .content {
-            padding: 24px;
+        /* ----- Sidebar ----- */
+        .sidebar {
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            left: 0;
+            width: 240px;
+            background-color: #0f0f0f;
+            padding: 12px 0;
+            overflow-y: auto;
+            z-index: 90;
+            transition: transform 0.3s ease;
         }
 
-        .tabs {
+        .sidebar.closed {
+            transform: translateX(-240px);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 8px 24px;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 2px 8px;
+            color: #f1f1f1;
+        }
+
+        .sidebar-item:hover {
+            background-color: #272727;
+        }
+
+        .sidebar-item.active {
+            background-color: #272727;
+        }
+
+        .sidebar-item span:first-child {
+            font-size: 24px;
+            width: 24px;
+        }
+
+        .sidebar-item span:last-child {
+            font-size: 14px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background-color: #303030;
+            margin: 12px 12px;
+        }
+
+        .sidebar-title {
+            color: #aaa;
+            font-size: 12px;
+            padding: 8px 24px;
+        }
+
+        /* ----- Main Content ----- */
+        .main-content {
+            margin-left: 240px;
+            margin-top: 56px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* ----- Tabs (Chips) ----- */
+        .chips {
             display: flex;
             gap: 12px;
             margin-bottom: 24px;
             flex-wrap: wrap;
+            position: sticky;
+            top: 56px;
+            background-color: #0f0f0f;
+            padding: 12px 0;
+            z-index: 80;
         }
 
-        .tab {
+        .chip {
             padding: 8px 16px;
-            background: #272727;
+            background-color: #272727;
             border: none;
             border-radius: 40px;
-            color: white;
+            color: #f1f1f1;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
         }
 
-        .tab.active {
-            background: white;
+        .chip.active {
+            background-color: #f1f1f1;
             color: #0f0f0f;
         }
 
-        .tab:hover {
-            background: #3f3f3f;
+        .chip:hover {
+            background-color: #3f3f3f;
         }
 
-        .videos-grid {
+        /* ----- Video Grid ----- */
+        .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 24px;
         }
 
@@ -258,36 +265,36 @@
 
         .thumbnail {
             width: 100%;
-            aspect-ratio: 16/9;
+            aspect-ratio: 16 / 9;
             background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 48px;
             margin-bottom: 8px;
+            position: relative;
         }
 
-        .video-info {
+        .video-details {
             display: flex;
             gap: 12px;
             margin-top: 8px;
         }
 
-        .channel-avatar {
+        .channel-icon {
             width: 36px;
             height: 36px;
-            background: #ff0000;
+            background-color: #ff0000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
             flex-shrink: 0;
         }
 
-        .video-details h3 {
-            font-size: 1rem;
+        .video-text h3 {
+            font-size: 16px;
             margin-bottom: 4px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -295,36 +302,20 @@
             overflow: hidden;
         }
 
-        .video-details p {
-            font-size: 0.8rem;
-            color: #aaaaaa;
+        .video-text p {
+            font-size: 14px;
+            color: #aaa;
             margin-bottom: 2px;
         }
 
         .video-stats {
-            font-size: 0.75rem;
-            color: #aaaaaa;
+            font-size: 12px;
+            color: #aaa;
             display: flex;
             gap: 8px;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #aaaaaa;
-        }
-
-        .btn-upload {
-            background: #ff0000;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            margin-top: 16px;
-        }
-
-        /* Модальное окно загрузки */
+        /* ----- Modal ----- */
         .modal {
             display: none;
             position: fixed;
@@ -332,99 +323,126 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 200;
             justify-content: center;
             align-items: center;
         }
+
         .modal-content {
-            background: #272727;
-            padding: 30px;
+            background-color: #272727;
+            padding: 24px;
             border-radius: 16px;
             width: 90%;
             max-width: 500px;
             max-height: 80vh;
             overflow-y: auto;
         }
+
         .modal-content h2 {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
+
         .modal-content input, .modal-content textarea {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            background: #121212;
+            margin: 8px 0;
+            background-color: #121212;
             border: 1px solid #3f3f3f;
             border-radius: 8px;
             color: white;
-            font-size: 1rem;
         }
+
         .modal-content button {
-            background: #ff0000;
+            background-color: #ff0000;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px;
             border-radius: 40px;
             cursor: pointer;
-            margin-top: 10px;
             width: 100%;
+            margin-top: 16px;
         }
-        .modal-content button:hover {
-            background: #cc0000;
-        }
+
         .close-modal {
             float: right;
-            font-size: 28px;
+            font-size: 24px;
             cursor: pointer;
-            color: #aaaaaa;
+            color: #aaa;
         }
-        .close-modal:hover {
-            color: white;
+
+        .queue-item {
+            background-color: #3f3f3f;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 8px;
+            font-size: 12px;
         }
+
         .progress-bar {
             width: 100%;
             height: 4px;
-            background: #3f3f3f;
+            background-color: #3f3f3f;
             border-radius: 2px;
-            margin-top: 10px;
-            overflow: hidden;
+            margin-top: 12px;
         }
+
         .progress-fill {
             width: 0%;
             height: 100%;
-            background: #ff0000;
+            background-color: #ff0000;
+            border-radius: 2px;
             transition: width 0.3s;
         }
-        .upload-status {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #aaaaaa;
-        }
-        .queue-item {
-            background: #3f3f3f;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
-            font-size: 0.8rem;
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #aaa;
         }
 
         @media (max-width: 768px) {
             .sidebar {
-                display: none;
+                transform: translateX(-240px);
+            }
+            .sidebar.open {
+                transform: translateX(0);
             }
             .main-content {
                 margin-left: 0;
             }
-            .search-area {
+            .header-center {
                 display: none;
             }
         }
     </style>
 </head>
 <body>
+<div class="app">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo" id="logoHome">
+                <span class="logo-lets">Let's</span>
+                <span class="logo-figure">figure</span>
+                <span class="logo-it">it out</span>
+                <span class="logo-fiohub">FioHub</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
+            <button class="search-btn" id="searchBtn">🔍</button>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" id="uploadBtn">📤</button>
+            <button class="icon-btn">🔔</button>
+            <div class="avatar" id="avatarBtn">U</div>
+        </div>
+    </header>
 
-<div class="layout">
-    <aside class="sidebar">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-item active" data-nav="home">
             <span>🏠</span><span>Главная</span>
         </div>
@@ -439,59 +457,32 @@
         <div class="sidebar-item" data-nav="channel">
             <span>🎬</span><span>Let's FioHub</span>
         </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-title">Подписки</div>
+        <div class="sidebar-item" data-channel="topchiy"><span>👤</span><span>Topchiy Dev</span></div>
+        <div class="sidebar-item" data-channel="cinema"><span>🎥</span><span>Кинокомпания</span></div>
+        <div class="sidebar-item" data-channel="sektor"><span>🎸</span><span>Сектор Газа</span></div>
+        <div class="sidebar-item" data-channel="krug"><span>🎤</span><span>Михаил Круг</span></div>
     </aside>
 
-    <div class="main-content">
-        <header class="header">
-            <div class="logo-area">
-                <button class="menu-btn" id="menuToggle">☰</button>
-                <div class="logo" id="logoHome">
-                    <span class="logo-lets">Let's</span>
-                    <span class="logo-figure">figure</span>
-                    <span class="logo-it">it out</span>
-                    <span class="logo-fiohub">FioHub</span>
-                </div>
-            </div>
-
-            <div class="search-area">
-                <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
-                <button class="search-btn" id="searchBtn">🔍</button>
-            </div>
-
-            <div class="user-area">
-                <button class="icon-btn" id="uploadBtn">📤</button>
-                <button class="icon-btn">🔔</button>
-                <div class="avatar" id="avatarBtn">U</div>
-            </div>
-        </header>
-
-        <div class="content">
-            <div class="tabs">
-                <button class="tab active" data-tab="all">📺 Все видео</button>
-                <button class="tab" data-tab="trending">🔥 Тренды</button>
-                <button class="tab" data-tab="recommended">👍 Рекомендации</button>
-            </div>
-
-            <div id="videos-container">
-                <div class="empty-state">⏳ Загрузка видео...</div>
-            </div>
-        </div>
-    </div>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div class="chips" id="chipsContainer"></div>
+        <div id="videosContainer"></div>
+    </main>
 </div>
 
-<!-- Модальное окно загрузки (поддерживает несколько файлов) -->
+<!-- Upload Modal -->
 <div id="uploadModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2>📤 Загрузить видео</h2>
         <form id="uploadForm">
-            <input type="text" id="videoTitle" placeholder="Название видео (для всех файлов)">
-            <textarea id="videoDescription" rows="3" placeholder="Описание (для всех файлов)"></textarea>
-            <input type="file" id="videoFiles" accept="video/*" multiple>
+            <input type="text" id="videoTitle" placeholder="Общее название (добавится имя файла)" required>
+            <textarea id="videoDescription" rows="3" placeholder="Общее описание"></textarea>
+            <input type="file" id="videoFiles" accept="video/*" multiple required>
             <div id="queueContainer"></div>
-            <div class="progress-bar" id="progressBar" style="display: none;">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+            <div class="progress-bar" id="progressBar" style="display: none;"><div class="progress-fill" id="progressFill"></div></div>
             <div class="upload-status" id="uploadStatus"></div>
             <button type="submit">📤 Загрузить все видео</button>
         </form>
@@ -501,279 +492,164 @@
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
     let allVideos = [];
-    let currentTab = 'all';
+    let currentCategory = 'all';
     let currentNav = 'home';
 
-    const modal = document.getElementById('uploadModal');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const closeModal = document.querySelector('.close-modal');
-    
-    uploadBtn.onclick = () => modal.style.display = 'flex';
-    closeModal.onclick = () => modal.style.display = 'none';
-    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+    // Элементы DOM
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const chipsContainer = document.getElementById('chipsContainer');
+    const videosContainer = document.getElementById('videosContainer');
 
-    // Отображение выбранных файлов
-    const fileInput = document.getElementById('videoFiles');
-    const queueContainer = document.getElementById('queueContainer');
-    
-    fileInput.onchange = () => {
-        const files = fileInput.files;
-        queueContainer.innerHTML = `<div class="sidebar-title">Выбрано файлов: ${files.length}</div>`;
-        for (let i = 0; i < files.length; i++) {
-            queueContainer.innerHTML += `<div class="queue-item">📹 ${files[i].name}</div>`;
-        }
-    };
-
-    // Массовая загрузка
-    document.getElementById('uploadForm').onsubmit = async (e) => {
-        e.preventDefault();
-        
-        const title = document.getElementById('videoTitle').value;
-        const description = document.getElementById('videoDescription').value;
-        const files = fileInput.files;
-        
-        if (!title || files.length === 0) {
-            alert('Заполните название и выберите хотя бы одно видео');
-            return;
-        }
-        
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-        const statusDiv = document.getElementById('uploadStatus');
-        
-        progressBar.style.display = 'block';
-        let completed = 0;
-        let failed = 0;
-        
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const formData = new FormData();
-            formData.append('title', `${title} - ${file.name.replace(/\.[^/.]+$/, '')}`);
-            formData.append('description', description);
-            formData.append('file', file);
-            
-            statusDiv.innerHTML = `Загрузка ${i+1}/${files.length}: ${file.name}...`;
-            
-            try {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', `${API_URL}/api/v1/videos/upload?user_id=1`);
-                
-                await new Promise((resolve, reject) => {
-                    xhr.upload.onprogress = (event) => {
-                        if (event.lengthComputable) {
-                            const percent = Math.round((event.loaded / event.total) * 100);
-                            progressFill.style.width = `${(i + percent/100) / files.length * 100}%`;
-                        }
-                    };
-                    xhr.onload = () => {
-                        if (xhr.status === 200) {
-                            completed++;
-                            resolve();
-                        } else {
-                            failed++;
-                            resolve();
-                        }
-                    };
-                    xhr.onerror = () => {
-                        failed++;
-                        resolve();
-                    };
-                    xhr.send(formData);
-                });
-            } catch (err) {
-                failed++;
+    // --- Функции работы с API и UI ---
+    async function loadVideos() {
+        videosContainer.innerHTML = '<div class="empty-state">⏳ Загрузка видео...</div>';
+        try {
+            const response = await fetch(`${API_URL}/api/v1/videos`);
+            if (response.ok) {
+                const data = await response.json();
+                allVideos = data.videos || [];
+                renderUI();
+            } else {
+                throw new Error('API error');
             }
-            
-            const percent = (i + 1) / files.length * 100;
-            progressFill.style.width = `${percent}%`;
-            statusDiv.innerHTML = `Загружено ${completed} из ${files.length}, ошибок: ${failed}`;
+        } catch (err) {
+            videosContainer.innerHTML = `<div class="empty-state"><p>❌ Сервер просыпается...</p><button class="chip" onclick="loadVideos()">Повторить</button></div>`;
         }
-        
-        statusDiv.innerHTML = `✅ Завершено! Загружено: ${completed}, Ошибок: ${failed}`;
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.getElementById('uploadForm').reset();
-            queueContainer.innerHTML = '';
-            progressBar.style.display = 'none';
-            progressFill.style.width = '0%';
-            loadVideos();
-        }, 2000);
-    };
-
-    async function loadVideosWithRetry(retries = 3) {
-        const container = document.getElementById('videos-container');
-        
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetch(`${API_URL}/api/v1/videos`);
-                if (response.ok) {
-                    const data = await response.json();
-                    allVideos = data.videos || [];
-                    renderVideos();
-                    return;
-                }
-            } catch (err) {
-                if (i < retries - 1) {
-                    container.innerHTML = `<div class="empty-state">⏳ Пробуждение сервера... (${i + 1}/${retries})</div>`;
-                    await new Promise(resolve => setTimeout(resolve, 20000));
-                }
-            }
-        }
-        container.innerHTML = `<div class="empty-state"><p>❌ Сервер не отвечает</p><button class="btn-upload" onclick="location.reload()">Обновить страницу</button></div>`;
     }
 
-    async function loadVideos() {
-        const container = document.getElementById('videos-container');
-        container.innerHTML = '<div class="empty-state">⏳ Загрузка видео...</div>';
-        await loadVideosWithRetry(3);
+    function renderUI() {
+        renderChips();
+        renderVideos();
+    }
+
+    function renderChips() {
+        const chips = ['Все видео', 'Тренды', 'Рекомендации'];
+        chipsContainer.innerHTML = chips.map((chip, idx) => {
+            const category = ['all', 'trending', 'recommended'][idx];
+            return `<button class="chip ${currentCategory === category ? 'active' : ''}" data-category="${category}">${chip}</button>`;
+        }).join('');
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                currentCategory = e.currentTarget.dataset.category;
+                renderUI();
+            });
+        });
     }
 
     function renderVideos() {
-        const container = document.getElementById('videos-container');
         let videos = [...allVideos];
-        
-        if (currentTab === 'trending') {
-            videos.sort((a, b) => (b.views || 0) - (a.views || 0));
-        } else if (currentTab === 'recommended') {
-            videos.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        }
-        
+        if (currentCategory === 'trending') videos.sort((a,b) => (b.views||0) - (a.views||0));
+        if (currentCategory === 'recommended') videos.sort((a,b) => (b.likes||0) - (a.likes||0));
+
         if (videos.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <p>📭 Пока нет видео</p>
-                    <button class="btn-upload" onclick="document.getElementById('uploadBtn').click()">📤 Загрузить первое видео</button>
-                </div>
-            `;
+            videosContainer.innerHTML = `<div class="empty-state"><p>📭 Нет видео</p><button class="chip" id="emptyUploadBtn">📤 Загрузить</button></div>`;
+            document.getElementById('emptyUploadBtn')?.addEventListener('click', () => modal.style.display = 'flex');
             return;
         }
-        
-        container.innerHTML = `
-            <div class="videos-grid">
-                ${videos.map(video => `
-                    <div class="video-card" onclick="openVideo('${video.id}')">
-                        <div class="thumbnail">🎬</div>
-                        <div class="video-info">
-                            <div class="channel-avatar">📺</div>
-                            <div class="video-details">
-                                <h3>${escapeHtml(video.title) || 'Без названия'}</h3>
-                                <p>Let's FioHub</p>
-                                <div class="video-stats">
-                                    <span>👁️ ${formatViews(video.views || 0)}</span>
-                                    <span>❤️ ${video.likes || 0}</span>
-                                </div>
-                            </div>
-                        </div>
+
+        videosContainer.innerHTML = `<div class="video-grid">${videos.map(video => `
+            <div class="video-card" onclick="openVideo('${video.id}')">
+                <div class="thumbnail">🎬</div>
+                <div class="video-details">
+                    <div class="channel-icon">📺</div>
+                    <div class="video-text">
+                        <h3>${escapeHtml(video.title) || 'Без названия'}</h3>
+                        <p>Let's FioHub</p>
+                        <div class="video-stats"><span>👁️ ${formatViews(video.views||0)}</span><span>❤️ ${video.likes||0}</span></div>
                     </div>
-                `).join('')}
+                </div>
             </div>
-        `;
+        `).join('')}</div>`;
     }
-    
+
     function formatViews(views) {
-        if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
-        if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+        if (views >= 1e6) return (views/1e6).toFixed(1) + 'M';
+        if (views >= 1e3) return (views/1e3).toFixed(1) + 'K';
         return views;
     }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    function openVideo(videoId) {
-        window.location.href = `/letsfiohub/watch.html?id=${videoId}`;
-    }
-    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function openVideo(id) { window.location.href = `/letsfiohub/watch.html?id=${id}`; }
+
+    // --- Поиск ---
     function searchVideos() {
         const query = document.getElementById('searchInput').value.toLowerCase();
-        if (!query) {
-            renderVideos();
-            return;
-        }
+        if (!query) return renderVideos();
         const filtered = allVideos.filter(v => v.title?.toLowerCase().includes(query));
-        const container = document.getElementById('videos-container');
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">🔍 Ничего не найдено</div>';
-        } else {
-            container.innerHTML = `
-                <div class="videos-grid">
-                    ${filtered.map(video => `
-                        <div class="video-card" onclick="openVideo('${video.id}')">
-                            <div class="thumbnail">🎬</div>
-                            <div class="video-info">
-                                <div class="channel-avatar">📺</div>
-                                <div class="video-details">
-                                    <h3>${escapeHtml(video.title)}</h3>
-                                    <p>Let's FioHub</p>
-                                    <div class="video-stats">
-                                        <span>👁️ ${formatViews(video.views || 0)}</span>
-                                        <span>❤️ ${video.likes || 0}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+        videosContainer.innerHTML = filtered.length ? `<div class="video-grid">${filtered.map(v => `<div class="video-card" onclick="openVideo('${v.id}')"><div class="thumbnail">🎬</div><div class="video-details"><div class="channel-icon">📺</div><div class="video-text"><h3>${escapeHtml(v.title)}</h3><p>Let's FioHub</p><div class="video-stats"><span>👁️ ${formatViews(v.views||0)}</span><span>❤️ ${v.likes||0}</span></div></div></div></div>`).join('')}</div>` : '<div class="empty-state">🔍 Ничего не найдено</div>';
     }
-    
+
+    // --- Массовая загрузка ---
+    const modal = document.getElementById('uploadModal');
+    document.getElementById('uploadBtn').onclick = () => modal.style.display = 'flex';
+    document.querySelector('.close-modal').onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+    const fileInput = document.getElementById('videoFiles');
+    fileInput.onchange = () => {
+        const files = fileInput.files;
+        const container = document.getElementById('queueContainer');
+        container.innerHTML = `<div class="sidebar-title">Выбрано: ${files.length}</div>`;
+        for (let f of files) container.innerHTML += `<div class="queue-item">📹 ${f.name}</div>`;
+    };
+
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const titleBase = document.getElementById('videoTitle').value;
+        const description = document.getElementById('videoDescription').value;
+        const files = fileInput.files;
+        if (!titleBase || !files.length) return alert('Укажите название и файлы');
+
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const statusDiv = document.getElementById('uploadStatus');
+        progressBar.style.display = 'block';
+        let completed = 0, failed = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+            formData.append('title', `${titleBase} - ${nameWithoutExt}`);
+            formData.append('description', description);
+            formData.append('file', file);
+            statusDiv.innerHTML = `Загрузка ${i+1}/${files.length}: ${file.name}`;
+            try {
+                await fetch(`${API_URL}/api/v1/videos/upload?user_id=1`, { method: 'POST', body: formData });
+                completed++;
+            } catch { failed++; }
+            const percent = ((i+1)/files.length)*100;
+            progressFill.style.width = `${percent}%`;
+            statusDiv.innerHTML = `✅ Готово: ${completed}, ❌ Ошибок: ${failed}`;
+        }
+        statusDiv.innerHTML = `✅ Завершено! Загружено: ${completed}, Ошибок: ${failed}`;
+        setTimeout(() => { modal.style.display = 'none'; loadVideos(); }, 2000);
+    };
+
+    // --- Навигация и меню ---
     document.getElementById('searchBtn').addEventListener('click', searchVideos);
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchVideos();
-    });
-    
-    document.getElementById('logoHome').addEventListener('click', () => {
-        currentNav = 'home';
-        loadVideos();
-    });
-    
-    document.getElementById('avatarBtn').addEventListener('click', () => {
-        modal.style.display = 'flex';
-    });
-    
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
+    document.getElementById('logoHome').addEventListener('click', () => { currentNav = 'home'; loadVideos(); });
+    document.getElementById('avatarBtn').addEventListener('click', () => modal.style.display = 'flex');
+
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', () => {
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            if (item.dataset.nav === 'home') {
-                loadVideos();
-            } else {
-                const container = document.getElementById('videos-container');
-                container.innerHTML = `<div class="empty-state">🚧 В разработке</div>`;
-            }
+            const nav = item.dataset.nav;
+            if (nav === 'home') loadVideos();
+            else videosContainer.innerHTML = '<div class="empty-state">🚧 В разработке</div>';
         });
     });
-    
-    document.querySelectorAll('.tab').forEach((tab, index) => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            const tabs = ['all', 'trending', 'recommended'];
-            currentTab = tabs[index];
-            renderVideos();
-        });
-    });
-    
+
     let sidebarVisible = true;
     document.getElementById('menuToggle').addEventListener('click', () => {
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-        if (sidebarVisible) {
-            sidebar.style.display = 'none';
-            mainContent.style.marginLeft = '0';
-        } else {
-            sidebar.style.display = 'block';
-            mainContent.style.marginLeft = '240px';
-        }
         sidebarVisible = !sidebarVisible;
+        sidebar.classList.toggle('closed', !sidebarVisible);
+        mainContent.classList.toggle('expanded', !sidebarVisible);
     });
-    
+
     loadVideos();
 </script>
-
 </body>
 </html>
