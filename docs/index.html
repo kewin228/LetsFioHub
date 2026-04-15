@@ -8,27 +8,38 @@
         video { max-width: 100%; margin: 10px 0; }
         .video { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 8px; }
         h1 { color: #ff0000; }
-        a { color: #ff0000; }
+        .loading { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
     <h1>🎬 Let's FioHub</h1>
     <p>Ваш видеохостинг работает!</p>
     <p>🔗 API: <a href="https://letsfiohub-api.onrender.com" target="_blank">letsfiohub-api.onrender.com</a></p>
-    <p>📚 <a href="https://letsfiohub-api.onrender.com/docs" target="_blank">Документация API</a></p>
     <hr>
     <h2>📹 Ваши видео</h2>
-    <div id="videos">Загрузка видео...</div>
+    <div id="videos" class="loading">⏳ Пробуждение сервера... (до 60 секунд)</div>
 
     <script>
-        fetch('https://letsfiohub-api.onrender.com/api/v1/videos')
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('videos');
+        async function loadVideos() {
+            const container = document.getElementById('videos');
+            container.innerHTML = '⏳ Сервер просыпается, подождите... (до 60 секунд)';
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 секунд таймаут
+                
+                const response = await fetch('https://letsfiohub-api.onrender.com/api/v1/videos', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                
+                const data = await response.json();
+                
                 if (!data.videos || data.videos.length === 0) {
                     container.innerHTML = '<p>📭 Нет видео. <a href="https://letsfiohub-api.onrender.com/docs" target="_blank">Загрузите первое видео через API</a></p>';
                     return;
                 }
+                
                 container.innerHTML = '';
                 data.videos.forEach(video => {
                     container.innerHTML += `
@@ -41,10 +52,12 @@
                         </div>
                     `;
                 });
-            })
-            .catch(err => {
-                document.getElementById('videos').innerHTML = '<p>❌ Ошибка подключения к API</p>';
-            });
+            } catch (err) {
+                container.innerHTML = '<p>❌ Сервер просыпается. <button onclick="location.reload()">Обновить страницу</button> через 30 секунд.</p>';
+            }
+        }
+        
+        loadVideos();
     </script>
 </body>
 </html>
