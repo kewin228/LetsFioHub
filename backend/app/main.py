@@ -1,22 +1,25 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 import os
 import uuid
 from datetime import datetime
 
 app = FastAPI(title="Let's FioHub API", version="2.0.0")
 
-# Разрешаем CORS для всех источников
+# Создаём папку для видео
+os.makedirs("uploads", exist_ok=True)
+
+# Разрешаем CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Разрешаем все источники
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Временное хранилище видео
+# Хранилище метаданных видео
 videos_db = []
 
 @app.get("/")
@@ -38,14 +41,21 @@ async def upload_video(
     file: UploadFile = File(...),
     user_id: int = 1
 ):
+    # Генерируем уникальный ID
     video_id = str(uuid.uuid4())[:8]
     
-    # Сохраняем информацию о видео
+    # Сохраняем файл
+    file_path = f"uploads/{video_id}.mp4"
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    
+    # Сохраняем метаданные
     new_video = {
         "id": video_id,
         "title": title,
         "description": description,
-        "file_path": f"uploads/{video_id}.mp4",
+        "file_path": file_path,
         "views": 0,
         "likes": 0,
         "uploader_id": user_id,
@@ -65,7 +75,12 @@ def get_video(video_id: str):
 
 @app.get("/api/v1/videos/{video_id}/stream")
 def stream_video(video_id: str):
-    return JSONResponse(status_code=501, content={"error": "Streaming not implemented yet"})
+    for video in videos_db:
+        if video["id"] == video_id:
+            file_path = video["file_path"]
+            if os.path.exists(file_path):
+                return FileResponse(file_path, media_type="video/mp4")
+    return JSONResponse(status_code=404, content={"error": "Video file not found"})
 
 @app.post("/api/v1/videos/{video_id}/like")
 def like_video(video_id: str, user_id: int = 1):
