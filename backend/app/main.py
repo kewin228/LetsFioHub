@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional, List
 import uuid
 import os
@@ -12,7 +12,7 @@ import os
 # --- Конфигурация ---
 SECRET_KEY = "your-super-secret-key-change-this-in-production"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 дней
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 os.makedirs("uploads", exist_ok=True)
 
@@ -47,7 +47,7 @@ def create_access_token(data: dict):
 # --- Pydantic модели ---
 class UserCreate(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     password: str
 
 class UserOut(BaseModel):
@@ -60,7 +60,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-# --- Хранилища (в памяти) ---
+# --- Хранилища ---
 users_db = []
 videos_db = []
 user_counter = 1
@@ -95,7 +95,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             return user
     raise credentials_exception
 
-# --- API Endpoints ---
+# --- API ---
 @app.post("/api/register", response_model=UserOut)
 async def register(user_data: UserCreate):
     if get_user_by_email(user_data.email):
@@ -207,8 +207,9 @@ async def get_video(video_id: str):
 async def stream_video(video_id: str):
     for video in videos_db:
         if video["id"] == video_id:
-            if os.path.exists(video["file_path"]):
-                return FileResponse(video["file_path"], media_type="video/mp4")
+            file_path = video["file_path"]
+            if os.path.exists(file_path):
+                return FileResponse(file_path, media_type="video/mp4")
     raise HTTPException(status_code=404, detail="Video file not found")
 
 @app.get("/health")
