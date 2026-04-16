@@ -16,7 +16,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 os.makedirs("uploads", exist_ok=True)
 
-app = FastAPI(title="Let's FioHub API")
+app = FastAPI(title="Let's FioHub API", version="2.0.0")
 
 # CORS
 app.add_middleware(
@@ -96,6 +96,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     raise credentials_exception
 
 # --- API ---
+@app.get("/")
+def root():
+    return {"message": "Let's FioHub API v2.0", "endpoints": "/docs"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
 @app.post("/api/register", response_model=UserOut)
 async def register(user_data: UserCreate):
     if get_user_by_email(user_data.email):
@@ -140,7 +148,7 @@ async def get_channel(username: str):
         "videos": user_videos
     }
 
-@app.post("/api/videos/upload")
+@app.post("/api/v1/videos/upload")
 async def upload_video(
     title: str = Form(...),
     description: str = Form(""),
@@ -167,7 +175,7 @@ async def upload_video(
     videos_db.append(new_video)
     return {"message": "Video uploaded", "video_id": video_id}
 
-@app.delete("/api/videos/{video_id}")
+@app.delete("/api/v1/videos/{video_id}")
 async def delete_video(video_id: str, current_user: dict = Depends(get_current_user)):
     global videos_db
     for i, video in enumerate(videos_db):
@@ -180,7 +188,7 @@ async def delete_video(video_id: str, current_user: dict = Depends(get_current_u
             return {"message": "Video deleted"}
     raise HTTPException(status_code=404, detail="Video not found")
 
-@app.get("/api/videos")
+@app.get("/api/v1/videos")
 async def get_all_videos():
     result = []
     for video in videos_db:
@@ -195,7 +203,7 @@ async def get_all_videos():
         })
     return {"videos": result, "total": len(result)}
 
-@app.get("/api/videos/{video_id}")
+@app.get("/api/v1/videos/{video_id}")
 async def get_video(video_id: str):
     for video in videos_db:
         if video["id"] == video_id:
@@ -203,7 +211,7 @@ async def get_video(video_id: str):
             return video
     raise HTTPException(status_code=404, detail="Video not found")
 
-@app.get("/api/videos/{video_id}/stream")
+@app.get("/api/v1/videos/{video_id}/stream")
 async def stream_video(video_id: str):
     for video in videos_db:
         if video["id"] == video_id:
@@ -212,6 +220,10 @@ async def stream_video(video_id: str):
                 return FileResponse(file_path, media_type="video/mp4")
     raise HTTPException(status_code=404, detail="Video file not found")
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+@app.post("/api/v1/videos/{video_id}/like")
+async def like_video(video_id: str, user_id: int = 1):
+    for video in videos_db:
+        if video["id"] == video_id:
+            video["likes"] += 1
+            return {"message": "Liked", "likes": video["likes"]}
+    raise HTTPException(status_code=404, detail="Video not found")
