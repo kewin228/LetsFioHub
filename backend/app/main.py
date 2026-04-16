@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import FileResponse
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -80,6 +81,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+@app.get("/")
+def root():
+    return {"message": "Let's FioHub API"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
 @app.post("/api/register", response_model=UserOut)
 async def register(user: UserCreate):
     if get_user_by_email(user.email):
@@ -146,6 +155,10 @@ async def stream(video_id: str):
             return FileResponse(v["file_path"], media_type="video/mp4")
     raise HTTPException(404, "Not found")
 
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
+@app.post("/api/v1/videos/{video_id}/like")
+async def like_video(video_id: str):
+    for v in videos_db:
+        if v["id"] == video_id:
+            v["likes"] += 1
+            return {"likes": v["likes"]}
+    raise HTTPException(404, "Not found")
