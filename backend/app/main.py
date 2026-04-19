@@ -277,39 +277,52 @@ def get_settings(authorization: str = Header(...)):
 
 # --- ПОДПИСКИ ---
 @app.post("/api/subscribe/{channel_id}")
-def subscribe(channel_id: int, authorization: str = Header(...)):
+def subscribe_channel(channel_id: int, authorization: str = Header(...)):
+    print(f"Subscribe request: channel_id={channel_id}")
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
-    subscriber_id = decode_token(token)
-    if not subscriber_id:
+    user_id = decode_token(token)
+    print(f"User ID: {user_id}")
+    if not user_id:
         raise HTTPException(401, "Invalid token")
-    if subscriber_id == channel_id:
+    if user_id == channel_id:
         raise HTTPException(400, "Cannot subscribe to yourself")
-    if is_subscribed(subscriber_id, channel_id):
+    
+    channel = get_user_by_id(channel_id)
+    if not channel:
+        raise HTTPException(404, "Channel not found")
+    
+    if is_subscribed(user_id, channel_id):
         raise HTTPException(400, "Already subscribed")
-    subscriptions_db.append({"subscriber_id": subscriber_id, "channel_id": channel_id, "created_at": datetime.now().isoformat()})
-    for user in users_db:
-        if user["id"] == channel_id:
-            user["subscribers_count"] = user.get("subscribers_count", 0) + 1
-            break
-    return {"message": "Subscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
+    
+    subscriptions_db.append({
+        "subscriber_id": user_id,
+        "channel_id": channel_id,
+        "created_at": datetime.now().isoformat()
+    })
+    
+    channel["subscribers_count"] = channel.get("subscribers_count", 0) + 1
+    
+    return {"message": "Subscribed", "subscribers_count": channel["subscribers_count"]}
 
 @app.delete("/api/subscribe/{channel_id}")
-def unsubscribe(channel_id: int, authorization: str = Header(...)):
+def unsubscribe_channel(channel_id: int, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
-    subscriber_id = decode_token(token)
-    if not subscriber_id:
+    user_id = decode_token(token)
+    if not user_id:
         raise HTTPException(401, "Invalid token")
+    
     global subscriptions_db
-    subscriptions_db = [s for s in subscriptions_db if not (s["subscriber_id"] == subscriber_id and s["channel_id"] == channel_id)]
-    for user in users_db:
-        if user["id"] == channel_id:
-            user["subscribers_count"] = max(0, user.get("subscribers_count", 0) - 1)
-            break
-    return {"message": "Unsubscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
+    subscriptions_db = [s for s in subscriptions_db if not (s["subscriber_id"] == user_id and s["channel_id"] == channel_id)]
+    
+    channel = get_user_by_id(channel_id)
+    if channel:
+        channel["subscribers_count"] = max(0, channel.get("subscribers_count", 0) - 1)
+    
+    return {"message": "Unsubscribed", "subscribers_count": channel["subscribers_count"] if channel else 0}
 
 @app.get("/api/subscribers/{channel_id}")
 def get_subscribers_count(channel_id: int):
@@ -347,10 +360,10 @@ def check_subscribed(channel_id: int, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
         return {"subscribed": False}
     token = authorization.replace("Bearer ", "")
-    subscriber_id = decode_token(token)
-    if not subscriber_id:
+    user_id = decode_token(token)
+    if not user_id:
         return {"subscribed": False}
-    return {"subscribed": is_subscribed(subscriber_id, channel_id)}
+    return {"subscribed": is_subscribed(user_id, channel_id)}
 
 # --- ВИДЕО ---
 @app.get("/api/videos")
@@ -480,7 +493,7 @@ def like_video(video_id: str, authorization: str = Header(...)):
 
 @app.post("/api/videos/{video_id}/dislike")
 def dislike_video(video_id: str, authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
+    if not authorization.startswith("Bearer ""):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
@@ -607,38 +620,14 @@ def delete_comment(comment_id: int, authorization: str = Header(...)):
     raise HTTPException(404, "Comment not found")
 
 @app.get("/api/channel/{username}")
-
 def get_channel(username: str):
-
     user = get_user_by_username(username)
-
     if not user:
-
         raise HTTPException(404, "Channel not found")
-
     user_videos = [v for v in videos_db if v["uploader_name"] == user["username"]]
-
     user_quick = [v for v in quick_videos_db if v["uploader_name"] == user["username"]]
-
     return {
-
         "id": user["id"],
-
-        "channel_name": user["channel_name"],
-
-        "username": user["username"],
-
-        "channel_description": user.get("channel_description", ""),
-
-        "channel_cover": user.get("channel_cover"),
-
-        "subscribers_count": user.get("subscribers_count", 0),
-
-        "videos": user_videos,
-
-        "quick_videos": user_quick
-
-    }
         "channel_name": user["channel_name"],
         "username": user["username"],
         "channel_description": user.get("channel_description", ""),
