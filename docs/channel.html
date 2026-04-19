@@ -160,11 +160,15 @@
             if (res.ok) {
                 const data = await res.json();
                 isSubscribed = data.subscribed;
+                console.log("Check subscribed result:", isSubscribed);
             }
-        } catch(e) {}
+        } catch(e) {
+            console.error("Check subscribed error:", e);
+        }
     }
 
     async function subscribeToChannel() {
+        console.log("Channel subscribe clicked");
         if (!token) { alert('Войдите, чтобы подписаться'); return; }
         if (currentUser && currentUser.username === username) {
             alert('Нельзя подписаться на самого себя');
@@ -172,21 +176,29 @@
         }
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
+            console.log("Method:", method);
             const res = await fetch(`${API_URL}/api/subscribe/${channelData.id}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            console.log("Response status:", res.status);
             if (res.ok) {
                 const data = await res.json();
                 isSubscribed = !isSubscribed;
                 subscriberCount = data.subscribers_count;
+                console.log("New subscription status:", isSubscribed, "Subscribers:", subscriberCount);
                 updateSubscribeButton();
                 alert(isSubscribed ? 'Вы подписались!' : 'Вы отписались');
+                // Принудительно обновляем страницу, чтобы синхронизировать
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
             } else {
                 const error = await res.json();
                 alert('Ошибка: ' + (error.detail || 'Неизвестная ошибка'));
             }
         } catch(err) {
+            console.error("Subscribe error:", err);
             alert('Ошибка: ' + err.message);
         }
     }
@@ -194,6 +206,7 @@
     function updateSubscribeButton() {
         const subBtn = document.getElementById('subscribeChannelBtn');
         const statsSpan = document.getElementById('channelStats');
+        console.log("Updating button, isSubscribed:", isSubscribed);
         if (subBtn) {
             subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
             if (isSubscribed) subBtn.classList.add('subscribed');
@@ -282,12 +295,18 @@
         }
         
         if (!isOwnChannel && token) {
-            document.getElementById('subscribeChannelBtn')?.addEventListener('click', subscribeToChannel);
+            const btn = document.getElementById('subscribeChannelBtn');
+            if (btn) {
+                btn.addEventListener('click', subscribeToChannel);
+            }
         }
         if (!token) {
-            document.getElementById('loginToSubscribeBtn')?.addEventListener('click', () => {
-                alert('Войдите, чтобы подписаться на канал');
-            });
+            const btn = document.getElementById('loginToSubscribeBtn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    alert('Войдите, чтобы подписаться на канал');
+                });
+            }
         }
         
         document.querySelectorAll('.tab').forEach(tab => {

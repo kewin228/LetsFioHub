@@ -401,7 +401,7 @@
                 updateSubscribeButton();
                 // Сохраняем состояние в localStorage для синхронизации с каналом
                 localStorage.setItem(`sub_${currentVideo.uploader_id}`, isSubscribed ? 'true' : 'false');
-                alert(isSubscribed ? 'Вы подписались!' : 'Вы отписались');
+                alert(isSubscribed ? 'Вы подписались! Страница обновится' : 'Вы отписались! Страница обновится'); setTimeout(() => { location.reload(); }, 500);
             } else {
                 const error = await res.json();
                 alert('Ошибка: ' + (error.detail || 'Неизвестная ошибка'));
