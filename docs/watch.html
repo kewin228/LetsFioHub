@@ -22,9 +22,9 @@
         .video-player video { width: 100%; max-height: 70vh; }
         .watch-title { font-size: 20px; font-weight: 600; margin: 16px 0 12px; }
         .watch-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #303030; border-bottom: 1px solid #303030; flex-wrap: wrap; gap: 12px; }
-        .like-btn { background: #272727; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .like-btn { background: #272727; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; transition: all 0.2s; }
         .like-btn.liked { background: #ff0000; }
-        .subscribe-btn { background: #ff0000; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .subscribe-btn { background: #ff0000; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; transition: all 0.2s; }
         .subscribe-btn.subscribed { background: #272727; }
         .watch-description { background: #272727; padding: 16px; border-radius: 12px; margin: 16px 0; }
         .comments-section { margin-top: 32px; }
@@ -69,6 +69,8 @@
     let comments = [];
     let hasLiked = false;
     let isSubscribed = false;
+    let likeCount = 0;
+    let subscriberCount = 0;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -89,6 +91,7 @@
             const response = await fetch(`${API_URL}/api/videos/${videoId}`);
             if (response.ok) {
                 currentVideo = await response.json();
+                likeCount = currentVideo.likes || 0;
                 if (token) {
                     await checkLiked();
                     await checkSubscribed();
@@ -125,6 +128,12 @@
                 const data = await res.json();
                 isSubscribed = data.subscribed;
             }
+            // Получаем количество подписчиков
+            const subRes = await fetch(`${API_URL}/api/subscribers/${currentVideo.uploader_id}`);
+            if (subRes.ok) {
+                const subData = await subRes.json();
+                subscriberCount = subData.count;
+            }
         } catch(e) {}
     }
 
@@ -137,8 +146,10 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
+                const data = await res.json();
                 hasLiked = true;
-                await loadVideo();
+                likeCount = data.likes;
+                updateLikeButton();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -152,8 +163,10 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
+                const data = await res.json();
                 isSubscribed = !isSubscribed;
-                renderPage();
+                subscriberCount = data.subscribers_count;
+                updateSubscribeButton();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -178,7 +191,7 @@
             if (res.ok) {
                 document.getElementById('commentText').value = '';
                 await loadComments();
-                renderPage();
+                renderComments();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -191,7 +204,7 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             await loadComments();
-            renderPage();
+            renderComments();
         } catch(err) {}
     }
 
@@ -206,6 +219,48 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    function updateLikeButton() {
+        const likeBtn = document.querySelector('.like-btn');
+        if (likeBtn) {
+            likeBtn.textContent = `👍 ${likeCount}`;
+            if (hasLiked) {
+                likeBtn.classList.add('liked');
+            }
+        }
+    }
+
+    function updateSubscribeButton() {
+        const subBtn = document.querySelector('.subscribe-btn');
+        const subText = document.querySelector('.subscriber-text');
+        if (subBtn) {
+            subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
+            if (isSubscribed) {
+                subBtn.classList.add('subscribed');
+            } else {
+                subBtn.classList.remove('subscribed');
+            }
+        }
+        if (subText) {
+            subText.textContent = `${subscriberCount} подписчиков`;
+        }
+    }
+
+    function renderComments() {
+        const commentsList = document.getElementById('commentsList');
+        if (commentsList) {
+            commentsList.innerHTML = comments.map(c => `
+                <div class="comment">
+                    <div class="comment-author">${escapeHtml(c.author_name)}</div>
+                    <div class="comment-text">${escapeHtml(c.text)}</div>
+                    <div class="comment-meta">
+                        <span>📅 ${new Date(c.created_at).toLocaleDateString()}</span>
+                        <span class="comment-like" onclick="likeComment(${c.id})">❤️ ${c.likes || 0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
     function renderPage() {
@@ -224,10 +279,13 @@
             <div class="watch-meta">
                 <div class="watch-stats">
                     <span>👁️ ${formatViews(currentVideo.views)} просмотров</span>
-                    <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="likeVideo()">👍 ${currentVideo.likes || 0}</button>
+                    <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="likeVideo()">👍 ${likeCount}</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <span>📺 ${escapeHtml(currentVideo.uploader_name)}</span>
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <span>📺 ${escapeHtml(currentVideo.uploader_name)}</span>
+                        <span class="subscriber-text" style="margin-left: 8px; color: #aaa;">${subscriberCount} подписчиков</span>
+                    </div>
                     ${currentUser && currentUser.id !== currentVideo.uploader_id ? `<button class="subscribe-btn ${isSubscribed ? 'subscribed' : ''}" onclick="subscribe()">${isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться'}</button>` : ''}
                 </div>
             </div>
@@ -242,20 +300,11 @@
                         <button onclick="addComment()">Отправить</button>
                     </div>
                 ` : '<p style="margin: 16px 0;"><a href="#" onclick="document.getElementById(\'loginModal\').style.display=\'flex\'; return false;">Войдите</a>, чтобы оставить комментарий</p>'}
-                <div id="commentsList">
-                    ${comments.map(c => `
-                        <div class="comment">
-                            <div class="comment-author">${escapeHtml(c.author_name)}</div>
-                            <div class="comment-text">${escapeHtml(c.text)}</div>
-                            <div class="comment-meta">
-                                <span>📅 ${new Date(c.created_at).toLocaleDateString()}</span>
-                                <span class="comment-like" onclick="likeComment(${c.id})">❤️ ${c.likes || 0}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
+                <div id="commentsList"></div>
             </div>
         `;
+        
+        renderComments();
     }
 
     async function init() {
