@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's FioHub</title>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s; }
         body.light { background: #f9f9f9; color: #0f0f0f; }
+        body.light .sidebar, body.light .header, body.light .modal-content { background: #fff; border-color: #e5e5e5; }
+        
+        .font-gamer { font-family: 'NeedForSpeed', 'Impact', sans-serif; letter-spacing: 1px; }
+        .font-slang { font-family: 'Comic Neue', cursive; }
+        .font-kids { font-family: 'Fredoka One', cursive; }
         
         .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #0f0f0f; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 100; border-bottom: 1px solid #303030; }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -104,8 +110,51 @@
 
 <div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><button type="submit">📤 Загрузить</button></form></div></div>
 
-<div id="settingsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>⚙️ Настройки</h2><div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div><div class="settings-group"><label>🌐 Язык</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div><div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div><button id="saveSettingsBtn">Сохранить</button></div></div>
-<div class="settings-group"><label>✍️ Шрифт</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>⚙️ Настройки</h2>
+        <div class="settings-group">
+            <label>🎨 Тема</label>
+            <select id="themeSelect">
+                <option value="dark">Тёмная</option>
+                <option value="light">Светлая</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label>🌐 Языки интерфейса</label>
+            <select id="languageSelect">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label>✍️ Шрифты интерфейса</label>
+            <select id="fontSelect">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский (Need for Speed)</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label>📹 Качество видео</label>
+            <select id="qualitySelect">
+                <option value="auto">Авто</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <span>📝 Субтитры</span>
+            <label><input type="checkbox" id="subtitlesCheckbox"> Включить</label>
+        </div>
+        <button id="saveSettingsBtn">Сохранить настройки</button>
+    </div>
+</div>
 
 <div id="notificationsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🔔 Уведомления</h2><div id="notificationsList"></div></div></div>
 
@@ -122,14 +171,23 @@ let watchHistory = [];
 let currentPage = 'home';
 let currentTab = 'all';
 let currentLanguage = localStorage.getItem('language') || 'professional';
+let currentFont = localStorage.getItem('font') || 'professional';
 let myChannelVideos = [];
 let myChannelQuick = [];
 
+function applyFont(font) {
+    document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
+    if (font === 'gamer') document.body.classList.add('font-gamer');
+    if (font === 'slang') document.body.classList.add('font-slang');
+    if (font === 'kids') document.body.classList.add('font-kids');
+    localStorage.setItem('font', font);
+}
+
 const translations = {
-    professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' },
-    gamer: { home: 'Лобби', quick: 'Шустрые', myChannel: 'Мой стрим', subscriptions: 'Фоллоу', history: 'Реплеи', subscribers: 'Фолловеры', noVideos: 'Нет видосов', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы' },
-    slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы' },
-    kids: { home: 'Домик', quick: 'Быстрые видео', myChannel: 'Мой канал', subscriptions: 'Друзья', history: 'Что смотрели', subscribers: 'Друзья', noVideos: 'Нет видео', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' }
+    professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', editChannel: 'Редактировать канал' },
+    gamer: { home: 'Лобби', quick: 'Шустрые', myChannel: 'Мой стрим', subscriptions: 'Фоллоу', history: 'Реплеи', subscribers: 'Фолловеры', noVideos: 'Нет видосов', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы', editChannel: 'Настроить стрим' },
+    slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы', editChannel: 'Настроить канал' },
+    kids: { home: 'Домик', quick: 'Быстрые видео', myChannel: 'Мой канал', subscriptions: 'Друзья', history: 'Что смотрели', subscribers: 'Друзья', noVideos: 'Нет видео', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', editChannel: 'Настроить канал' }
 };
 
 function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
@@ -224,11 +282,11 @@ async function renderPage() {
     else if (currentPage === 'my-channel') {
         if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
         await loadMyChannelVideos();
-        let html = `<div class="channel-cover">🎬 ${escapeHtml(currentUser.channel_name)}</div>`;
+        let html = `<div class="channel-cover">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
         html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
         html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
         html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
-        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ Редактировать канал</button>`;
+        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
         if (myChannelVideos.length > 0) html += `<div class="section-title">📹 ${t('regularVideos')}</div>${renderVideosGrid(myChannelVideos, true, false)}`;
         if (myChannelQuick.length > 0) html += `<div class="section-title">⚡ ${t('quickVideos')}</div>${renderVideosGrid(myChannelQuick, true, true)}`;
         if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
@@ -267,12 +325,12 @@ function updateAuthUI() { const u = document.getElementById('uploadBtn'), l = do
 
 async function loadSettings() {
     if (!token) return;
-    try { const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) { const s = await res.json(); document.getElementById('themeSelect').value = s.theme || 'dark'; document.getElementById('languageSelect').value = s.language || 'professional'; document.getElementById('qualitySelect').value = s.video_quality || 'auto'; document.getElementById('subtitlesCheckbox').checked = s.subtitles || false; currentLanguage = s.language || 'professional'; if (s.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); } } catch(e) {}
+    try { const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) { const s = await res.json(); document.getElementById('themeSelect').value = s.theme || 'dark'; document.getElementById('languageSelect').value = s.language || 'professional'; document.getElementById('fontSelect').value = s.font_style || 'professional'; document.getElementById('qualitySelect').value = s.video_quality || 'auto'; document.getElementById('subtitlesCheckbox').checked = s.subtitles || false; currentLanguage = s.language || 'professional'; applyFont(s.font_style || 'professional'); if (s.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); } } catch(e) {}
 }
 async function saveSettings() {
     if (!token) return;
-    const settings = { theme: document.getElementById('themeSelect').value, language: document.getElementById('languageSelect').value, video_quality: document.getElementById('qualitySelect').value, subtitles: document.getElementById('subtitlesCheckbox').checked };
-    try { const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) }); if (res.ok) { currentLanguage = settings.language; if (settings.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); alert('Настройки сохранены'); renderPage(); } } catch(e) { alert('Ошибка'); }
+    const settings = { theme: document.getElementById('themeSelect').value, language: document.getElementById('languageSelect').value, font_style: document.getElementById('fontSelect').value, video_quality: document.getElementById('qualitySelect').value, subtitles: document.getElementById('subtitlesCheckbox').checked };
+    try { const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) }); if (res.ok) { currentLanguage = settings.language; applyFont(settings.font_style); if (settings.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); alert('Настройки сохранены'); renderPage(); } } catch(e) { alert('Ошибка'); }
 }
 
 document.getElementById('uploadForm').onsubmit = async (e) => { e.preventDefault(); const title = document.getElementById('videoTitle').value; const desc = document.getElementById('videoDescription').value; const isQuick = document.getElementById('isQuick').checked; const file = document.getElementById('videoFile').files[0]; if (!title || !file) return alert('Заполните название и выберите видео'); const fd = new FormData(); fd.append('title', title); fd.append('description', desc); fd.append('file', file); fd.append('is_quick', isQuick); try { const res = await fetch(`${API_URL}/api/videos/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd }); if (res.ok) { alert('Видео загружено!'); document.getElementById('uploadModal').style.display = 'none'; document.getElementById('uploadForm').reset(); renderPage(); } else alert('Ошибка загрузки'); } catch(err) { alert('Ошибка'); } };
@@ -301,6 +359,7 @@ if (document.getElementById('menuToggle')) {
     document.getElementById('menuToggle').addEventListener('click', () => { sidebarVisible = !sidebarVisible; document.getElementById('sidebar').classList.toggle('closed', !sidebarVisible); document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible); });
 }
 
+applyFont(currentFont);
 loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(loadNotifications, 30000); });
 </script>
 </body>
