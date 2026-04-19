@@ -7,13 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f0f;
-            color: #f1f1f1;
-        }
+        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #f1f1f1; }
         body.light { background: #f9f9f9; color: #0f0f0f; }
-        body.light .header, body.light .video-info-card, body.light .comment { background: #fff; border-color: #e5e5e5; }
         
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
@@ -23,7 +18,7 @@
         }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logo img { height: 32px; }
-        .back-link { margin-left: 24px; color: #aaa; text-decoration: none; font-size: 14px; }
+        .back-link { margin-left: 24px; color: #aaa; text-decoration: none; }
         .back-link:hover { color: white; }
         
         .container {
@@ -35,21 +30,11 @@
             gap: 24px;
         }
         
-        .video-wrapper {
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-        }
-        .video-wrapper video { width: 100%; max-height: 70vh; cursor: pointer; }
+        .video-wrapper { background: #000; border-radius: 16px; overflow: hidden; }
+        .video-wrapper video { width: 100%; max-height: 70vh; }
         
-        .video-info-card {
-            background: #1a1a1a;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-        .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
+        .video-info-card { background: #1a1a1a; border-radius: 16px; padding: 20px; margin-top: 16px; }
+        .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
         
         .stats-row {
             display: flex;
@@ -60,8 +45,6 @@
             padding-bottom: 16px;
             border-bottom: 1px solid #303030;
         }
-        .stats-left { display: flex; gap: 16px; align-items: center; }
-        .stat-item { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #aaa; }
         .action-buttons { display: flex; gap: 12px; align-items: center; }
         .action-btn {
             background: #272727;
@@ -71,13 +54,12 @@
             border-radius: 40px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
         }
-        .action-btn:hover { background: #3f3f3f; transform: scale(1.02); }
+        .action-btn:hover { background: #3f3f3f; }
         .action-btn.liked { background: #ff0000; }
         .action-btn.disliked { background: #3f3f3f; color: #ff0000; }
         
@@ -87,9 +69,8 @@
             align-items: center;
             padding: 16px 0;
             border-bottom: 1px solid #303030;
-            cursor: pointer;
         }
-        .channel-info { display: flex; align-items: center; gap: 12px; }
+        .channel-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .channel-avatar {
             width: 48px;
             height: 48px;
@@ -99,7 +80,6 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            font-weight: bold;
         }
         .channel-name { font-weight: 600; font-size: 16px; }
         .channel-subscribers { font-size: 12px; color: #aaa; }
@@ -111,16 +91,12 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
         }
         .subscribe-btn.subscribed { background: #272727; }
-        .subscribe-btn:hover { transform: scale(1.02); }
         
-        .description { padding: 16px 0; font-size: 14px; line-height: 1.5; color: #ccc; }
+        .description { padding: 16px 0; font-size: 14px; color: #ccc; }
         
         .comments-section { margin-top: 24px; }
-        .comments-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-        .comments-header h3 { font-size: 18px; font-weight: 600; }
         .comment-form { display: flex; gap: 12px; margin-bottom: 24px; }
         .comment-form textarea {
             flex: 1;
@@ -131,7 +107,6 @@
             color: white;
             font-family: inherit;
             resize: vertical;
-            font-size: 14px;
         }
         .comment-form button {
             background: #ff0000;
@@ -140,17 +115,10 @@
             border-radius: 40px;
             cursor: pointer;
             color: white;
-            font-weight: 600;
         }
-        .comment {
-            background: #1a1a1a;
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 12px;
-        }
+        .comment { background: #1a1a1a; padding: 16px; border-radius: 16px; margin-bottom: 12px; }
         .comment-author { font-weight: 600; margin-bottom: 8px; color: #ff0000; }
-        .comment-text { margin-bottom: 8px; font-size: 14px; line-height: 1.4; }
-        .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; }
+        .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; margin-top: 8px; }
         .comment-like { cursor: pointer; }
         .comment-like:hover { color: #ff0000; }
         
@@ -161,7 +129,6 @@
             gap: 12px;
             margin-bottom: 16px;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
         .recommend-card:hover { opacity: 0.8; }
         .recommend-thumb {
@@ -173,7 +140,6 @@
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            flex-shrink: 0;
         }
         .recommend-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
         .recommend-info p { font-size: 12px; color: #aaa; }
@@ -188,7 +154,6 @@
             display: flex;
             gap: 12px;
             z-index: 200;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .settings-panel button {
             background: none;
@@ -198,9 +163,6 @@
             font-size: 20px;
             padding: 8px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .settings-panel button:hover { background: #3f3f3f; }
         
@@ -214,7 +176,6 @@
             z-index: 201;
             display: none;
             flex-direction: column;
-            gap: 4px;
         }
         .quality-menu button, .subtitle-menu button {
             background: none;
@@ -223,14 +184,11 @@
             padding: 8px 20px;
             cursor: pointer;
             border-radius: 8px;
-            font-size: 14px;
         }
         .quality-menu button:hover, .subtitle-menu button:hover { background: #3f3f3f; }
         
-        .loading { text-align: center; padding: 60px; color: #aaa; }
-        
         @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar-videos { display: none; } }
-        @media (max-width: 768px) { .container { padding: 0 16px; } .stats-row { flex-direction: column; align-items: flex-start; } }
+        @media (max-width: 768px) { .container { padding: 0 16px; } }
     </style>
 </head>
 <body>
@@ -238,8 +196,8 @@
 <header class="header">
     <div style="display: flex; align-items: center;">
         <div class="logo" onclick="window.location.href='/letsfiohub'">
-            <img src="logo.png" alt="Logo" style="height: 32px;">
-            <span style="font-weight: bold;">Let's FioHub</span>
+            <img src="logo.png" alt="Logo">
+            <span>Let's FioHub</span>
         </div>
         <a href="/letsfiohub" class="back-link">← На главную</a>
     </div>
@@ -251,22 +209,19 @@
         <div class="video-wrapper">
             <video id="videoPlayer" controls autoplay></video>
         </div>
-        
-        <div class="video-info-card" id="videoInfo">
+        <div class="video-info-card">
             <h1 class="video-title" id="videoTitle">Загрузка...</h1>
             <div class="stats-row">
-                <div class="stats-left">
-                    <span class="stat-item" id="viewsCount">👁️ 0 просмотров</span>
-                </div>
+                <span id="viewsCount">👁️ 0 просмотров</span>
                 <div class="action-buttons">
                     <button class="action-btn" id="likeBtn">👍 <span id="likeCount">0</span></button>
                     <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">0</span></button>
                     <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
                 </div>
             </div>
-            <div class="channel-row" id="channelRow">
-                <div class="channel-info">
-                    <div class="channel-avatar" id="channelAvatar">📺</div>
+            <div class="channel-row">
+                <div class="channel-info" id="channelLink">
+                    <div class="channel-avatar">📺</div>
                     <div>
                         <div class="channel-name" id="channelName"></div>
                         <div class="channel-subscribers" id="channelSubs"></div>
@@ -276,12 +231,8 @@
             </div>
             <div class="description" id="videoDescription"></div>
         </div>
-        
         <div class="comments-section">
-            <div class="comments-header">
-                <h3>💬 Комментарии</h3>
-                <span id="commentsCount">0</span>
-            </div>
+            <h3 style="margin-bottom: 16px;">💬 Комментарии <span id="commentsCount">0</span></h3>
             <div class="comment-form" id="commentForm" style="display: none;">
                 <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
                 <button id="submitCommentBtn">Отправить</button>
@@ -289,7 +240,6 @@
             <div id="commentsList"></div>
         </div>
     </div>
-    
     <div class="sidebar-videos">
         <div class="sidebar-title">🔥 Рекомендации</div>
         <div id="recommendations"></div>
@@ -327,6 +277,7 @@
     let dislikeCount = 0;
     let subscriberCount = 0;
     let allVideos = [];
+    let videoPlayer = null;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -439,7 +390,7 @@
                 hasDisliked = false;
                 likeCount = data.likes;
                 dislikeCount = data.dislikes;
-                updateButtons();
+                updateUIAfterAction();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -458,7 +409,7 @@
                 hasLiked = false;
                 likeCount = data.likes;
                 dislikeCount = data.dislikes;
-                updateButtons();
+                updateUIAfterAction();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -475,12 +426,12 @@
                 const data = await res.json();
                 isSubscribed = !isSubscribed;
                 subscriberCount = data.subscribers_count;
-                updateSubscribeButton();
+                updateUIAfterAction();
             }
         } catch(err) { alert('Ошибка'); }
     }
 
-    async function goToChannel() {
+    function goToChannel() {
         if (currentVideo && currentVideo.uploader_name) {
             window.location.href = `/letsfiohub/channel.html?username=${currentVideo.uploader_name}`;
         }
@@ -530,8 +481,8 @@
     }
 
     function formatViews(views) {
-        if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
-        if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+        if (views >= 1000000) return (views/1000000).toFixed(1) + 'M';
+        if (views >= 1000) return (views/1000).toFixed(1) + 'K';
         return views;
     }
 
@@ -542,26 +493,22 @@
         return div.innerHTML;
     }
 
-    function updateButtons() {
-        const likeBtn = document.getElementById('likeBtn');
-        const dislikeBtn = document.getElementById('dislikeBtn');
+    function updateUIAfterAction() {
         document.getElementById('likeCount').textContent = likeCount;
         document.getElementById('dislikeCount').textContent = dislikeCount;
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
         if (hasLiked) likeBtn.classList.add('liked');
         else likeBtn.classList.remove('liked');
         if (hasDisliked) dislikeBtn.classList.add('disliked');
         else dislikeBtn.classList.remove('disliked');
-    }
-
-    function updateSubscribeButton() {
+        
         const subBtn = document.getElementById('subscribeBtn');
         const subsSpan = document.getElementById('channelSubs');
-        if (subBtn) {
-            subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
-            if (isSubscribed) subBtn.classList.add('subscribed');
-            else subBtn.classList.remove('subscribed');
-        }
-        if (subsSpan) subsSpan.textContent = `${subscriberCount} подписчиков`;
+        subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
+        if (isSubscribed) subBtn.classList.add('subscribed');
+        else subBtn.classList.remove('subscribed');
+        subsSpan.textContent = `${subscriberCount} подписчиков`;
     }
 
     function renderComments() {
@@ -594,21 +541,21 @@
         document.getElementById('videoDescription').innerHTML = escapeHtml(currentVideo.description) || 'Нет описания';
         document.getElementById('commentForm').style.display = token ? 'flex' : 'none';
         
-        updateButtons();
-        updateSubscribeButton();
+        updateUIAfterAction();
         renderComments();
         
-        const videoElement = document.getElementById('videoPlayer');
-        videoElement.src = `${API_URL}/api/videos/${videoId}/stream`;
-        videoElement.load();
+        if (!videoPlayer) {
+            videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.src = `${API_URL}/api/videos/${videoId}/stream`;
+            videoPlayer.load();
+        }
         
-        // Привязываем обработчики
         document.getElementById('likeBtn').onclick = likeVideo;
         document.getElementById('dislikeBtn').onclick = dislikeVideo;
         document.getElementById('subscribeBtn').onclick = subscribe;
         document.getElementById('shareBtn').onclick = shareVideo;
         document.getElementById('submitCommentBtn').onclick = addComment;
-        document.getElementById('channelRow').onclick = goToChannel;
+        document.getElementById('channelLink').onclick = goToChannel;
         
         // Настройки
         const settingsBtn = document.getElementById('settingsBtn');
@@ -617,28 +564,15 @@
         const qualityBtn = document.getElementById('qualityBtn');
         const subtitleBtn = document.getElementById('subtitleBtn');
         
-        settingsBtn.onclick = () => {
-            window.location.href = '/letsfiohub';
-        };
-        
-        qualityBtn.onclick = (e) => {
-            e.stopPropagation();
-            qualityMenu.style.display = qualityMenu.style.display === 'flex' ? 'none' : 'flex';
-            subtitleMenu.style.display = 'none';
-        };
-        
-        subtitleBtn.onclick = (e) => {
-            e.stopPropagation();
-            subtitleMenu.style.display = subtitleMenu.style.display === 'flex' ? 'none' : 'flex';
-            qualityMenu.style.display = 'none';
-        };
+        settingsBtn.onclick = () => { window.location.href = '/letsfiohub'; };
+        qualityBtn.onclick = (e) => { e.stopPropagation(); qualityMenu.style.display = qualityMenu.style.display === 'flex' ? 'none' : 'flex'; subtitleMenu.style.display = 'none'; };
+        subtitleBtn.onclick = (e) => { e.stopPropagation(); subtitleMenu.style.display = subtitleMenu.style.display === 'flex' ? 'none' : 'flex'; qualityMenu.style.display = 'none'; };
         
         document.querySelectorAll('#qualityMenu button').forEach(btn => {
             btn.onclick = (e) => {
-                const quality = btn.dataset.quality;
-                localStorage.setItem('videoQuality', quality);
+                localStorage.setItem('videoQuality', btn.dataset.quality);
                 qualityMenu.style.display = 'none';
-                alert(`Качество изменено на ${quality}`);
+                alert(`Качество изменено на ${btn.dataset.quality}`);
             };
         });
         
