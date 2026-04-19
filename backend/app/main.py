@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import uuid
 import os
+import shutil
 
 SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
@@ -15,8 +16,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 UPLOAD_DIR = "uploads"
 QUICK_DIR = "uploads/quick"
+COVERS_DIR = "uploads/covers"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(QUICK_DIR, exist_ok=True)
+os.makedirs(COVERS_DIR, exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
 
@@ -61,6 +64,10 @@ class SettingsUpdate(BaseModel):
     language: str = "professional"
     video_quality: str = "auto"
     subtitles: bool = False
+    font_style: str = "professional"
+
+class ChannelUpdate(BaseModel):
+    description: str = ""
 
 # --- ХРАНИЛИЩА ---
 users_db = []
@@ -68,6 +75,7 @@ videos_db = []
 quick_videos_db = []
 comments_db = []
 likes_db = []
+dislikes_db = []
 subscriptions_db = []
 watch_history_db = []
 notifications_db = []
@@ -97,6 +105,12 @@ def get_user_by_id(user_id: int):
 def has_liked(user_id: int, video_id: str):
     for like in likes_db:
         if like["user_id"] == user_id and like["video_id"] == video_id:
+            return True
+    return False
+
+def has_disliked(user_id: int, video_id: str):
+    for dislike in dislikes_db:
+        if dislike["user_id"] == user_id and dislike["video_id"] == video_id:
             return True
     return False
 
@@ -141,12 +155,15 @@ def register(user: UserRegister):
         "email": user.email,
         "password": user.password,
         "channel_name": f"{user.username}'s Channel",
+        "channel_description": "",
+        "channel_cover": None,
         "subscribers_count": 0,
         "settings": {
             "theme": "dark",
             "language": "professional",
             "video_quality": "auto",
-            "subtitles": False
+            "subtitles": False,
+            "font_style": "professional"
         }
     }
     users_db.append(new_user)
@@ -156,7 +173,8 @@ def register(user: UserRegister):
         "id": new_user["id"],
         "username": new_user["username"],
         "email": new_user["email"],
-        "channel_name": new_user["channel_name"]
+        "channel_name": new_user["channel_name"],
+        "channel_description": new_user["channel_description"]
     }
 
 @app.post("/api/login")
@@ -174,6 +192,8 @@ def login(user: UserLogin):
             "username": db_user["username"],
             "email": db_user["email"],
             "channel_name": db_user["channel_name"],
+            "channel_description": db_user.get("channel_description", ""),
+            "channel_cover": db_user.get("channel_cover"),
             "settings": db_user.get("settings", {})
         }
     }
@@ -194,9 +214,37 @@ def get_me(authorization: Optional[str] = Header(None)):
         "username": user["username"],
         "email": user["email"],
         "channel_name": user["channel_name"],
+        "channel_description": user.get("channel_description", ""),
+        "channel_cover": user.get("channel_cover"),
         "subscribers_count": user.get("subscribers_count", 0),
         "settings": user.get("settings", {})
     }
+
+@app.put("/api/channel")
+def update_channel(
+    description: str = Form(""),
+    cover: Optional[UploadFile] = File(None),
+    authorization: str = Header(...)
+):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    
+    for user in users_db:
+        if user["id"] == user_id:
+            user["channel_description"] = description
+            if cover:
+                cover_id = str(uuid.uuid4())[:8]
+                cover_path = f"{COVERS_DIR}/{cover_id}.jpg"
+                content = cover.file.read()
+                with open(cover_path, "wb") as f:
+                    f.write(content)
+                user["channel_cover"] = f"/covers/{cover_id}.jpg"
+            return {"message": "Channel updated", "channel_description": user["channel_description"], "channel_cover": user.get("channel_cover")}
+    raise HTTPException(404, "User not found")
 
 @app.put("/api/settings")
 def update_settings(settings: SettingsUpdate, authorization: str = Header(...)):
@@ -223,7 +271,7 @@ def get_settings(authorization: str = Header(...)):
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(404, "User not found")
-    return user.get("settings", {"theme": "dark", "language": "professional", "video_quality": "auto", "subtitles": False})
+    return user.get("settings", {"theme": "dark", "language": "professional", "video_quality": "auto", "subtitles": False, "font_style": "professional"})
 
 # --- ПОДПИСКИ ---
 @app.post("/api/subscribe/{channel_id}")
@@ -362,6 +410,7 @@ async def upload_video(
         "description": description,
         "views": 0,
         "likes": 0,
+        "dislikes": 0,
         "uploader_id": user["id"],
         "uploader_name": user["username"],
         "created_at": datetime.now().isoformat(),
@@ -387,7 +436,6 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
     for v in videos_db:
         if v["id"] == video_id:
             v["views"] += 1
-            # Добавляем в историю просмотров, если есть токен
             if authorization and authorization.startswith("Bearer "):
                 token = authorization.replace("Bearer ", "")
                 user_id = decode_token(token)
@@ -398,10 +446,8 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
                         "video_title": v["title"],
                         "watched_at": datetime.now().isoformat()
                     })
-                    print(f"✅ История добавлена: user {user_id}, video {video_id}")
             return v
     
-    # Ищем в коротких видео
     for v in quick_videos_db:
         if v["id"] == video_id:
             v["views"] += 1
@@ -421,14 +467,12 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
 
 @app.get("/api/videos/{video_id}/stream")
 def stream_video(video_id: str):
-    # Ищем в обычных видео
     for v in videos_db:
         if v["id"] == video_id:
             file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
             if os.path.exists(file_path):
                 return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
     
-    # Ищем в коротких видео
     for v in quick_videos_db:
         if v["id"] == video_id:
             file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
@@ -437,70 +481,7 @@ def stream_video(video_id: str):
     
     raise HTTPException(404, "File not found")
 
-# --- ИСТОРИЯ ПРОСМОТРОВ ---
-@app.get("/api/history")
-def get_watch_history(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Not authenticated")
-    token = authorization.replace("Bearer ", "")
-    user_id = decode_token(token)
-    if not user_id:
-        raise HTTPException(401, "Invalid token")
-    history = [h for h in watch_history_db if h["user_id"] == user_id]
-    history.sort(key=lambda x: x["watched_at"], reverse=True)
-    return {"history": history}
-
-@app.delete("/api/history")
-def clear_history(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Not authenticated")
-    token = authorization.replace("Bearer ", "")
-    user_id = decode_token(token)
-    if not user_id:
-        raise HTTPException(401, "Invalid token")
-    global watch_history_db
-    watch_history_db = [h for h in watch_history_db if h["user_id"] != user_id]
-    return {"message": "History cleared"}
-
-# --- УВЕДОМЛЕНИЯ ---
-@app.get("/api/notifications")
-def get_notifications(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Not authenticated")
-    token = authorization.replace("Bearer ", "")
-    user_id = decode_token(token)
-    if not user_id:
-        raise HTTPException(401, "Invalid token")
-    user_notifications = [n for n in notifications_db if n["user_id"] == user_id]
-    user_notifications.sort(key=lambda x: x["created_at"], reverse=True)
-    return {"notifications": user_notifications}
-
-@app.post("/api/notifications/{notification_id}/read")
-def mark_notification_read(notification_id: int, authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(401, "Not authenticated")
-    token = authorization.replace("Bearer ", "")
-    user_id = decode_token(token)
-    if not user_id:
-        raise HTTPException(401, "Invalid token")
-    for n in notifications_db:
-        if n["id"] == notification_id and n["user_id"] == user_id:
-            n["read"] = True
-            return {"message": "Marked as read"}
-    raise HTTPException(404, "Notification not found")
-
-@app.get("/api/notifications/unread_count")
-def get_unread_count(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        return {"count": 0}
-    token = authorization.replace("Bearer ", "")
-    user_id = decode_token(token)
-    if not user_id:
-        return {"count": 0}
-    count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
-    return {"count": count}
-
-# --- ЛАЙКИ ---
+# --- ЛАЙКИ И ДИЗЛАЙКИ ---
 @app.post("/api/videos/{video_id}/like")
 def like_video(video_id: str, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -513,37 +494,117 @@ def like_video(video_id: str, authorization: str = Header(...)):
     if has_liked(user_id, video_id):
         raise HTTPException(400, "You already liked this video")
     
+    # Если был дизлайк, убираем его
+    if has_disliked(user_id, video_id):
+        for i, d in enumerate(dislikes_db):
+            if d["user_id"] == user_id and d["video_id"] == video_id:
+                dislikes_db.pop(i)
+                for v in videos_db:
+                    if v["id"] == video_id:
+                        v["dislikes"] = max(0, v["dislikes"] - 1)
+                        break
+                for v in quick_videos_db:
+                    if v["id"] == video_id:
+                        v["dislikes"] = max(0, v["dislikes"] - 1)
+                        break
+                break
+    
     for v in videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
-            likes_db.append({
-                "user_id": user_id,
-                "video_id": video_id,
-                "created_at": datetime.now().isoformat()
-            })
-            return {"likes": v["likes"], "message": "Liked"}
+            likes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
+            return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Liked"}
     
     for v in quick_videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
-            likes_db.append({
-                "user_id": user_id,
-                "video_id": video_id,
-                "created_at": datetime.now().isoformat()
-            })
-            return {"likes": v["likes"], "message": "Liked"}
+            likes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
+            return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Liked"}
+    
+    raise HTTPException(404, "Video not found")
+
+@app.post("/api/videos/{video_id}/dislike")
+def dislike_video(video_id: str, authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    
+    if has_disliked(user_id, video_id):
+        raise HTTPException(400, "You already disliked this video")
+    
+    # Если был лайк, убираем его
+    if has_liked(user_id, video_id):
+        for i, l in enumerate(likes_db):
+            if l["user_id"] == user_id and l["video_id"] == video_id:
+                likes_db.pop(i)
+                for v in videos_db:
+                    if v["id"] == video_id:
+                        v["likes"] = max(0, v["likes"] - 1)
+                        break
+                for v in quick_videos_db:
+                    if v["id"] == video_id:
+                        v["likes"] = max(0, v["likes"] - 1)
+                        break
+                break
+    
+    for v in videos_db:
+        if v["id"] == video_id:
+            v["dislikes"] += 1
+            dislikes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
+            return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Disliked"}
+    
+    for v in quick_videos_db:
+        if v["id"] == video_id:
+            v["dislikes"] += 1
+            dislikes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
+            return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Disliked"}
     
     raise HTTPException(404, "Video not found")
 
 @app.get("/api/videos/{video_id}/has_liked")
 def check_liked(video_id: str, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
-        return {"liked": False}
+        return {"liked": False, "disliked": False}
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
     if not user_id:
-        return {"liked": False}
-    return {"liked": has_liked(user_id, video_id)}
+        return {"liked": False, "disliked": False}
+    return {"liked": has_liked(user_id, video_id), "disliked": has_disliked(user_id, video_id)}
+
+# --- УДАЛЕНИЕ ВИДЕО ---
+@app.delete("/api/videos/{video_id}")
+def delete_video(video_id: str, authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    
+    for i, v in enumerate(videos_db):
+        if v["id"] == video_id:
+            if v["uploader_id"] != user_id:
+                raise HTTPException(403, "You can only delete your own videos")
+            file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            videos_db.pop(i)
+            return {"message": "Video deleted"}
+    
+    for i, v in enumerate(quick_videos_db):
+        if v["id"] == video_id:
+            if v["uploader_id"] != user_id:
+                raise HTTPException(403, "You can only delete your own videos")
+            file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            quick_videos_db.pop(i)
+            return {"message": "Video deleted"}
+    
+    raise HTTPException(404, "Video not found")
 
 # --- КОММЕНТАРИИ ---
 @app.post("/api/videos/{video_id}/comments")
@@ -629,42 +690,72 @@ def get_channel(username: str):
     return {
         "channel_name": user["channel_name"],
         "username": user["username"],
+        "channel_description": user.get("channel_description", ""),
+        "channel_cover": user.get("channel_cover"),
         "subscribers_count": user.get("subscribers_count", 0),
         "videos": user_videos,
         "quick_videos": user_quick
     }
 
-# --- УДАЛЕНИЕ ВИДЕО ---
-@app.delete("/api/videos/{video_id}")
-def delete_video(video_id: str, authorization: str = Header(...)):
+# --- ИСТОРИЯ ---
+@app.get("/api/history")
+def get_watch_history(authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
-    # Ищем в обычных видео
-    for i, v in enumerate(videos_db):
-        if v["id"] == video_id:
-            if v["uploader_id"] != user_id:
-                raise HTTPException(403, "You can only delete your own videos")
-            # Удаляем файл
-            file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            videos_db.pop(i)
-            return {"message": "Video deleted"}
-    
-    # Ищем в коротких видео
-    for i, v in enumerate(quick_videos_db):
-        if v["id"] == video_id:
-            if v["uploader_id"] != user_id:
-                raise HTTPException(403, "You can only delete your own videos")
-            file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            quick_videos_db.pop(i)
-            return {"message": "Video deleted"}
-    
-    raise HTTPException(404, "Video not found")
+    history = [h for h in watch_history_db if h["user_id"] == user_id]
+    history.sort(key=lambda x: x["watched_at"], reverse=True)
+    return {"history": history}
+
+@app.delete("/api/history")
+def clear_history(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    global watch_history_db
+    watch_history_db = [h for h in watch_history_db if h["user_id"] != user_id]
+    return {"message": "History cleared"}
+
+# --- УВЕДОМЛЕНИЯ ---
+@app.get("/api/notifications")
+def get_notifications(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    user_notifications = [n for n in notifications_db if n["user_id"] == user_id]
+    user_notifications.sort(key=lambda x: x["created_at"], reverse=True)
+    return {"notifications": user_notifications}
+
+@app.post("/api/notifications/{notification_id}/read")
+def mark_notification_read(notification_id: int, authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    for n in notifications_db:
+        if n["id"] == notification_id and n["user_id"] == user_id:
+            n["read"] = True
+            return {"message": "Marked as read"}
+    raise HTTPException(404, "Notification not found")
+
+@app.get("/api/notifications/unread_count")
+def get_unread_count(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        return {"count": 0}
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        return {"count": 0}
+    count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
+    return {"count": count}
