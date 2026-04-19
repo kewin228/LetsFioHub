@@ -377,40 +377,34 @@
 
     async function subscribe() {
         console.log("Subscribe button clicked");
-        console.log("Token:", token);
         if (!token) { 
             alert('Войдите, чтобы подписаться'); 
             return; 
         }
-        if (!currentVideo) {
-            console.log("No current video");
+        if (!currentVideo) return;
+        if (currentUser && currentUser.id === currentVideo.uploader_id) {
+            alert('Нельзя подписаться на самого себя');
             return;
         }
-        console.log("Channel ID:", currentVideo.uploader_id);
-        console.log("Current subscription status:", isSubscribed);
         
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
-            const url = `${API_URL}/api/subscribe/${currentVideo.uploader_id}`;
-            console.log("Request URL:", url);
-            console.log("Method:", method);
-            
-            const res = await fetch(url, {
+            const res = await fetch(`${API_URL}/api/subscribe/${currentVideo.uploader_id}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
-            console.log("Response status:", res.status);
-            const data = await res.json();
-            console.log("Response data:", data);
-            
             if (res.ok) {
+                const data = await res.json();
                 isSubscribed = !isSubscribed;
-                subscriberCount = data.subscribers_count || subscriberCount + (isSubscribed ? 1 : -1);
+                subscriberCount = data.subscribers_count;
                 updateSubscribeButton();
+                // Сохраняем состояние в localStorage для синхронизации с каналом
+                localStorage.setItem(`sub_${currentVideo.uploader_id}`, isSubscribed ? 'true' : 'false');
                 alert(isSubscribed ? 'Вы подписались!' : 'Вы отписались');
             } else {
-                alert('Ошибка: ' + (data.detail || 'Неизвестная ошибка'));
+                const error = await res.json();
+                alert('Ошибка: ' + (error.detail || 'Неизвестная ошибка'));
             }
         } catch(err) { 
             console.error("Subscribe error:", err); 
@@ -494,7 +488,6 @@
     function updateSubscribeButton() {
         const subBtn = document.getElementById('subscribeBtn');
         const subsSpan = document.getElementById('channelSubs');
-        console.log("Updating subscribe button, isSubscribed:", isSubscribed);
         if (subBtn) {
             subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
             if (isSubscribed) subBtn.classList.add('subscribed');
@@ -524,6 +517,9 @@
     function renderPage() {
         if (!currentVideo) return;
         
+        // Проверяем, не свой ли канал
+        const isOwnChannel = currentUser && currentUser.id === currentVideo.uploader_id;
+        
         document.getElementById('videoTitle').textContent = currentVideo.title || 'Без названия';
         document.getElementById('viewsCount').innerHTML = `👁️ ${formatViews(currentVideo.views)} просмотров`;
         document.getElementById('likeCount').textContent = likeCount;
@@ -532,6 +528,14 @@
         document.getElementById('channelSubs').textContent = `${subscriberCount} подписчиков`;
         document.getElementById('videoDescription').innerHTML = escapeHtml(currentVideo.description) || 'Нет описания';
         document.getElementById('commentForm').style.display = token ? 'flex' : 'none';
+        
+        // Скрываем кнопку подписки, если это свой канал
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        if (isOwnChannel) {
+            subscribeBtn.style.display = 'none';
+        } else {
+            subscribeBtn.style.display = 'flex';
+        }
         
         updateButtons();
         updateSubscribeButton();
