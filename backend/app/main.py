@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 import uuid
 import os
-import shutil
 
 SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
@@ -24,7 +23,6 @@ os.makedirs(COVERS_DIR, exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
 
-# Статика для заставок
 app.mount("/covers", StaticFiles(directory=COVERS_DIR), name="covers")
 
 app.add_middleware(
@@ -174,8 +172,7 @@ def register(user: UserRegister):
         "id": new_user["id"],
         "username": new_user["username"],
         "email": new_user["email"],
-        "channel_name": new_user["channel_name"],
-        "channel_description": new_user["channel_description"]
+        "channel_name": new_user["channel_name"]
     }
 
 @app.post("/api/login")
@@ -244,7 +241,6 @@ async def update_channel(
                 with open(cover_path, "wb") as f:
                     f.write(content)
                 user["channel_cover"] = f"/covers/{cover_id}.jpg"
-                print(f"✅ Cover saved: {user['channel_cover']}")
             return {
                 "message": "Channel updated", 
                 "channel_description": user["channel_description"], 
@@ -279,7 +275,7 @@ def get_settings(authorization: str = Header(...)):
         raise HTTPException(404, "User not found")
     return user.get("settings", {"theme": "dark", "language": "professional", "video_quality": "auto", "subtitles": False, "font_style": "professional"})
 
-# --- ПОДПИСКИ (сокращено для краткости, остальное без изменений) ---
+# --- ПОДПИСКИ ---
 @app.post("/api/subscribe/{channel_id}")
 def subscribe(channel_id: int, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -356,7 +352,7 @@ def check_subscribed(channel_id: int, authorization: str = Header(...)):
         return {"subscribed": False}
     return {"subscribed": is_subscribed(subscriber_id, channel_id)}
 
-# --- ВИДЕО (сокращено, основные эндпоинты) ---
+# --- ВИДЕО ---
 @app.get("/api/videos")
 def get_all_videos(limit: int = 20, offset: int = 0):
     sorted_videos = sorted(videos_db, key=lambda x: x["created_at"], reverse=True)

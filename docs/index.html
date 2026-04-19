@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's FioHub — видеохостинг</title>
+    <title>Let's FioHub</title>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s, color 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s; }
         body.light { background: #f9f9f9; color: #0f0f0f; }
-        body.light .sidebar, body.light .header, body.light .modal-content { background: #fff; border-color: #e5e5e5; }
         .font-gamer { font-family: 'NeedForSpeed', 'Impact', sans-serif; letter-spacing: 1px; }
         .font-slang { font-family: 'Comic Neue', cursive; }
         .font-kids { font-family: 'Fredoka One', cursive; }
@@ -23,7 +22,7 @@
         .search-btn { background: #222; border: 1px solid #303030; border-left: none; border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white; }
         .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; position: relative; }
         .icon-btn:hover { background: #272727; }
-        .notification-badge { position: absolute; top: 0; right: 0; background: #ff0000; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
+        .notification-badge { position: absolute; top: 0; right: 0; background: #ff0000; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; display: none; }
         
         .sidebar { position: fixed; top: 56px; bottom: 0; left: 0; width: 260px; background: #0f0f0f; padding: 16px 0; overflow-y: auto; transition: transform 0.3s; z-index: 90; }
         .sidebar.closed { transform: translateX(-260px); }
@@ -32,7 +31,6 @@
         .sidebar-item.active { background: #272727; }
         .sidebar-item span:first-child { font-size: 22px; width: 28px; }
         .sidebar-divider { height: 1px; background: #303030; margin: 12px 16px; }
-        .sidebar-title { color: #aaa; font-size: 12px; font-weight: 600; letter-spacing: 1px; padding: 8px 24px; }
         
         .main-content { margin-left: 260px; margin-top: 56px; padding: 24px; transition: margin-left 0.3s; min-height: calc(100vh - 56px); }
         .main-content.expanded { margin-left: 0; }
@@ -61,15 +59,12 @@
         .close-modal { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
         
         .settings-group { margin: 20px 0; }
-        .settings-group label { display: block; margin-bottom: 8px; font-weight: 600; }
         .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #303030; }
         
         .empty-state { text-align: center; padding: 60px; color: #aaa; }
         .subscriber-item { display: flex; align-items: center; gap: 16px; padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 8px; }
         .section-title { font-size: 20px; font-weight: 600; margin: 20px 0 16px; }
         .channel-cover { width: 100%; height: 150px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
-        .share-btn { background: #272727; border: none; color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; margin-left: 8px; }
-        .share-btn:hover { background: #3f3f3f; }
         
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-260px); }
@@ -83,17 +78,11 @@
 
 <div class="app">
     <header class="header">
-        <div class="logo" id="logoHome">
-            <img src="logo.png" alt="Logo">
-            <span>Let's FioHub</span>
-        </div>
-        <div class="search-form">
-            <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
-            <button class="search-btn" id="searchBtn">🔍</button>
-        </div>
+        <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+        <div class="search-form"><input type="text" class="search-input" id="searchInput" placeholder="Поиск..."><button class="search-btn" id="searchBtn">🔍</button></div>
         <div>
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
-            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button>
             <button class="icon-btn" id="settingsBtn">⚙️</button>
             <button class="icon-btn" id="loginBtn">👤</button>
             <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
@@ -110,17 +99,15 @@
         <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
     </aside>
 
-    <main class="main-content" id="mainContent">
-        <div id="content"></div>
-    </main>
+    <main class="main-content" id="mainContent"><div id="content"></div></main>
 </div>
 
 <!-- Модальные окна -->
 <div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2 id="authTitle">Вход</h2><form id="authForm"><input type="text" id="authUsername" placeholder="Имя" style="display:none"><input type="email" id="authEmail" placeholder="Email" required><input type="password" id="authPassword" placeholder="Пароль" required><button type="submit" id="authSubmitBtn">Войти</button></form><p style="margin-top:16px;text-align:center"><span id="authSwitchText">Нет аккаунта?</span> <button id="authSwitchBtn" style="background:none;border:none;color:#ff0000;cursor:pointer">Регистрация</button></p></div></div>
 
-<div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><div class="progress-bar" style="display:none;height:4px;background:#3f3f3f;margin-top:12px"><div class="progress-fill" style="width:0%;height:100%;background:#ff0000"></div></div><div id="uploadStatus"></div><button type="submit">📤 Загрузить</button></form></div></div>
+<div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><button type="submit">📤 Загрузить</button></form></div></div>
 
-<div id="settingsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>⚙️ Настройки</h2><div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div><div class="settings-group"><label>🌐 Язык интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>✍️ Шрифт</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div><div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div><button id="saveSettingsBtn">Сохранить настройки</button></div></div>
+<div id="settingsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>⚙️ Настройки</h2><div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div><div class="settings-group"><label>🌐 Язык интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>✍️ Шрифт</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div><div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div><button id="saveSettingsBtn">Сохранить настройки</button></div></div>
 
 <div id="notificationsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🔔 Уведомления</h2><div id="notificationsList"></div></div></div>
 
@@ -142,20 +129,18 @@ let myChannelVideos = [];
 let myChannelQuick = [];
 
 function applyFont(font) {
-    const body = document.body;
-    body.classList.remove('font-gamer', 'font-slang', 'font-kids');
-    if (font === 'gamer') body.classList.add('font-gamer');
-    if (font === 'slang') body.classList.add('font-slang');
-    if (font === 'kids') body.classList.add('font-kids');
-    currentFont = font;
+    document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
+    if (font === 'gamer') document.body.classList.add('font-gamer');
+    if (font === 'slang') document.body.classList.add('font-slang');
+    if (font === 'kids') document.body.classList.add('font-kids');
     localStorage.setItem('font', font);
 }
 
 const translations = {
-    professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', share: 'Поделиться', editChannel: 'Редактировать канал' },
-    gamer: { home: 'Лобби', quick: 'Шустрые', myChannel: 'Мой стрим', subscriptions: 'Фоллоу', history: 'Реплеи', subscribers: 'Фолловеры', noVideos: 'Нет видосов', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы', share: 'Поделиться', editChannel: 'Настроить стрим' },
-    slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы', share: 'Поделиться', editChannel: 'Настроить канал' },
-    kids: { home: 'Домик', quick: 'Быстрые видео', myChannel: 'Мой канал', subscriptions: 'Друзья', history: 'Что смотрели', subscribers: 'Друзья', noVideos: 'Нет видео', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', share: 'Поделиться', editChannel: 'Настроить канал' }
+    professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' },
+    gamer: { home: 'Лобби', quick: 'Шустрые', myChannel: 'Мой стрим', subscriptions: 'Фоллоу', history: 'Реплеи', subscribers: 'Фолловеры', noVideos: 'Нет видосов', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы' },
+    slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы' },
+    kids: { home: 'Домик', quick: 'Быстрые видео', myChannel: 'Мой канал', subscriptions: 'Друзья', history: 'Что смотрели', subscribers: 'Друзья', noVideos: 'Нет видео', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' }
 };
 
 function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
@@ -255,7 +240,7 @@ async function renderPage() {
         html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
         html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
         html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
-        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
+        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ Редактировать канал</button>`;
         if (myChannelVideos.length > 0) html += `<div class="section-title">📹 ${t('regularVideos')}</div>${renderVideosGrid(myChannelVideos, true, false)}`;
         if (myChannelQuick.length > 0) html += `<div class="section-title">⚡ ${t('quickVideos')}</div>${renderVideosGrid(myChannelQuick, true, true)}`;
         if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
@@ -287,13 +272,11 @@ window.clearHistory = async function() { if (!confirm('Очистить исто
 
 async function searchVideos() { const q = document.getElementById('searchInput').value.toLowerCase(); if (!q) { renderPage(); return; } await loadAllVideos(); const f = allVideos.filter(v => v.title?.toLowerCase().includes(q)); document.getElementById('content').innerHTML = f.length ? renderVideosGrid(f, false) : '<div class="empty-state">🔍 Ничего не найдено</div>'; }
 
-// Авторизация
 async function register(username, email, password) { const res = await fetch(`${API_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) }); if (!res.ok) throw new Error(await res.text()); return await res.json(); }
 async function login(email, password) { const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }); if (!res.ok) throw new Error('Неверный email или пароль'); const data = await res.json(); token = data.access_token; currentUser = data.user; localStorage.setItem('token', token); updateAuthUI(); return true; }
 function logout() { token = null; currentUser = null; localStorage.removeItem('token'); updateAuthUI(); renderPage(); }
 function updateAuthUI() { const u = document.getElementById('uploadBtn'), l = document.getElementById('loginBtn'), lo = document.getElementById('logoutBtn'); if (token && currentUser) { u.style.display = 'inline-block'; l.style.display = 'none'; lo.style.display = 'inline-block'; } else { u.style.display = 'none'; l.style.display = 'inline-block'; lo.style.display = 'none'; } }
 
-// Настройки
 async function loadSettings() {
     if (!token) return;
     try { const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) { const s = await res.json(); document.getElementById('themeSelect').value = s.theme || 'dark'; document.getElementById('languageSelect').value = s.language || 'professional'; document.getElementById('fontSelect').value = s.font_style || 'professional'; document.getElementById('qualitySelect').value = s.video_quality || 'auto'; document.getElementById('subtitlesCheckbox').checked = s.subtitles || false; currentLanguage = s.language || 'professional'; applyFont(s.font_style || 'professional'); if (s.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); } } catch(e) {}
@@ -304,13 +287,10 @@ async function saveSettings() {
     try { const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) }); if (res.ok) { currentLanguage = settings.language; applyFont(settings.font_style); if (settings.theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); alert('Настройки сохранены'); renderPage(); } } catch(e) { alert('Ошибка'); }
 }
 
-// Загрузка видео
 document.getElementById('uploadForm').onsubmit = async (e) => { e.preventDefault(); const title = document.getElementById('videoTitle').value; const desc = document.getElementById('videoDescription').value; const isQuick = document.getElementById('isQuick').checked; const file = document.getElementById('videoFile').files[0]; if (!title || !file) return alert('Заполните название и выберите видео'); const fd = new FormData(); fd.append('title', title); fd.append('description', desc); fd.append('file', file); fd.append('is_quick', isQuick); try { const res = await fetch(`${API_URL}/api/videos/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd }); if (res.ok) { alert('Видео загружено!'); document.getElementById('uploadModal').style.display = 'none'; document.getElementById('uploadForm').reset(); renderPage(); } else alert('Ошибка загрузки'); } catch(err) { alert('Ошибка'); } };
 
-// Редактирование канала
 document.getElementById('editChannelForm').onsubmit = async (e) => { e.preventDefault(); const desc = document.getElementById('channelDesc').value; const cover = document.getElementById('channelCover').files[0]; const ok = await updateChannel(desc, cover); if (ok) { alert('Канал обновлён!'); document.getElementById('editChannelModal').style.display = 'none'; await loadCurrentUser(); renderPage(); } else alert('Ошибка обновления'); };
 
-// Навигация
 document.getElementById('logoHome').onclick = () => { currentPage = 'home'; renderPage(); };
 document.getElementById('searchBtn').onclick = searchVideos;
 document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
@@ -329,7 +309,9 @@ document.getElementById('authSwitchBtn').onclick = () => { isLogin = !isLogin; c
 document.getElementById('authForm').onsubmit = async (e) => { e.preventDefault(); const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value; try { if (isLogin) { await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } else { const username = document.getElementById('authUsername').value; await register(username, email, password); await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } } catch(err) { alert('Ошибка: ' + err.message); } };
 
 let sidebarVisible = true;
-document.getElementById('menuToggle')?.addEventListener('click', () => { sidebarVisible = !sidebarVisible; document.getElementById('sidebar').classList.toggle('closed', !sidebarVisible); document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible); });
+if (document.getElementById('menuToggle')) {
+    document.getElementById('menuToggle').addEventListener('click', () => { sidebarVisible = !sidebarVisible; document.getElementById('sidebar').classList.toggle('closed', !sidebarVisible); document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible); });
+}
 
 applyFont(currentFont);
 loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(loadNotifications, 30000); });
