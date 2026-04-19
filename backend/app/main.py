@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import FileResponse
@@ -14,7 +14,9 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 UPLOAD_DIR = "uploads"
+QUICK_DIR = "uploads/quick"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(QUICK_DIR, exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
 
@@ -52,14 +54,24 @@ class UserLogin(BaseModel):
 class CommentCreate(BaseModel):
     text: str
 
+class SettingsUpdate(BaseModel):
+    theme: str = "dark"
+    language: str = "professional"
+    video_quality: str = "auto"
+    subtitles: bool = False
+
 # --- ХРАНИЛИЩА ---
 users_db = []
 videos_db = []
+quick_videos_db = []
 comments_db = []
 likes_db = []
 subscriptions_db = []
+watch_history_db = []
+notifications_db = []
 user_counter = 1
 comment_counter = 1
+notification_counter = 1
 
 # --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 def get_user_by_email(email: str):
@@ -92,6 +104,18 @@ def is_subscribed(subscriber_id: int, channel_id: int):
             return True
     return False
 
+def add_notification(user_id: int, message: str, video_id: str = None):
+    global notification_counter
+    notifications_db.append({
+        "id": notification_counter,
+        "user_id": user_id,
+        "message": message,
+        "video_id": video_id,
+        "read": False,
+        "created_at": datetime.now().isoformat()
+    })
+    notification_counter += 1
+
 # --- ПОЛЬЗОВАТЕЛИ ---
 @app.get("/")
 def root():
@@ -115,7 +139,13 @@ def register(user: UserRegister):
         "email": user.email,
         "password": user.password,
         "channel_name": f"{user.username}'s Channel",
-        "subscribers_count": 0
+        "subscribers_count": 0,
+        "settings": {
+            "theme": "dark",
+            "language": "professional",
+            "video_quality": "auto",
+            "subtitles": False
+        }
     }
     users_db.append(new_user)
     user_counter += 1
@@ -141,7 +171,8 @@ def login(user: UserLogin):
             "id": db_user["id"],
             "username": db_user["username"],
             "email": db_user["email"],
-            "channel_name": db_user["channel_name"]
+            "channel_name": db_user["channel_name"],
+            "settings": db_user.get("settings", {})
         }
     }
 
@@ -156,20 +187,26 @@ def get_me(token: str = Depends(oauth2_scheme)):
         "username": user["username"],
         "email": user["email"],
         "channel_name": user["channel_name"],
-        "subscribers_count": user.get("subscribers_count", 0)
+        "subscribers_count": user.get("subscribers_count", 0),
+        "settings": user.get("settings", {})
     }
 
-@app.get("/api/users/{user_id}")
-def get_user(user_id: int):
+@app.put("/api/settings")
+def update_settings(settings: SettingsUpdate, token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    for user in users_db:
+        if user["id"] == user_id:
+            user["settings"] = settings.dict()
+            return {"message": "Settings updated", "settings": user["settings"]}
+    raise HTTPException(404, "User not found")
+
+@app.get("/api/settings")
+def get_settings(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(404, "User not found")
-    return {
-        "id": user["id"],
-        "username": user["username"],
-        "channel_name": user["channel_name"],
-        "subscribers_count": user.get("subscribers_count", 0)
-    }
+    return user.get("settings", {"theme": "dark", "language": "professional", "video_quality": "auto", "subtitles": False})
 
 # --- ПОДПИСКИ ---
 @app.post("/api/subscribe/{channel_id}")
@@ -225,6 +262,21 @@ def get_subscribers_list(channel_id: int):
                 })
     return {"subscribers": subscribers}
 
+@app.get("/api/subscriptions")
+def get_my_subscriptions(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    subscriptions = []
+    for sub in subscriptions_db:
+        if sub["subscriber_id"] == user_id:
+            channel = get_user_by_id(sub["channel_id"])
+            if channel:
+                subscriptions.append({
+                    "id": channel["id"],
+                    "username": channel["username"],
+                    "channel_name": channel["channel_name"]
+                })
+    return {"subscriptions": subscriptions}
+
 @app.get("/api/is_subscribed/{channel_id}")
 def check_subscribed(channel_id: int, token: str = Depends(oauth2_scheme)):
     subscriber_id = decode_token(token)
@@ -232,14 +284,21 @@ def check_subscribed(channel_id: int, token: str = Depends(oauth2_scheme)):
 
 # --- ВИДЕО ---
 @app.get("/api/videos")
-def get_all_videos():
-    return {"videos": videos_db, "total": len(videos_db)}
+def get_all_videos(limit: int = 20, offset: int = 0):
+    sorted_videos = sorted(videos_db, key=lambda x: x["created_at"], reverse=True)
+    return {"videos": sorted_videos[offset:offset+limit], "total": len(videos_db)}
+
+@app.get("/api/quick")
+def get_quick_videos(limit: int = 20, offset: int = 0):
+    sorted_videos = sorted(quick_videos_db, key=lambda x: x["created_at"], reverse=True)
+    return {"videos": sorted_videos[offset:offset+limit], "total": len(quick_videos_db)}
 
 @app.post("/api/videos/upload")
 async def upload_video(
     title: str = Form(...),
     description: str = Form(""),
     file: UploadFile = File(...),
+    is_quick: bool = Form(False),
     token: str = Depends(oauth2_scheme)
 ):
     user_id = decode_token(token)
@@ -248,7 +307,8 @@ async def upload_video(
         raise HTTPException(401, "Unauthorized")
     
     video_id = str(uuid.uuid4())[:8]
-    file_path = f"{UPLOAD_DIR}/{video_id}.mp4"
+    upload_dir = QUICK_DIR if is_quick else UPLOAD_DIR
+    file_path = f"{upload_dir}/{video_id}.mp4"
     
     content = await file.read()
     with open(file_path, "wb") as f:
@@ -263,30 +323,118 @@ async def upload_video(
         "uploader_id": user["id"],
         "uploader_name": user["username"],
         "created_at": datetime.now().isoformat(),
-        "file_path": file_path
+        "file_path": file_path,
+        "is_quick": is_quick
     }
-    videos_db.append(new_video)
     
-    return {"message": "Uploaded", "video_id": video_id, "file_size": len(content)}
+    if is_quick:
+        quick_videos_db.append(new_video)
+    else:
+        videos_db.append(new_video)
+    
+    # Уведомляем подписчиков
+    for sub in subscriptions_db:
+        if sub["channel_id"] == user_id:
+            add_notification(sub["subscriber_id"], f"Новое видео от {user['username']}: {title}", video_id)
+    
+    return {"message": "Uploaded", "video_id": video_id, "file_size": len(content), "is_quick": is_quick}
 
 @app.get("/api/videos/{video_id}")
-def get_video(video_id: str):
+def get_video(video_id: str, token: Optional[str] = None):
+    # Ищем в обычных видео
     for v in videos_db:
         if v["id"] == video_id:
             v["views"] += 1
+            # Добавляем в историю просмотров, если есть токен
+            if token:
+                try:
+                    user_id = decode_token(token)
+                    watch_history_db.append({
+                        "user_id": user_id,
+                        "video_id": video_id,
+                        "video_title": v["title"],
+                        "watched_at": datetime.now().isoformat()
+                    })
+                except:
+                    pass
             return v
+    
+    # Ищем в коротких видео
+    for v in quick_videos_db:
+        if v["id"] == video_id:
+            v["views"] += 1
+            if token:
+                try:
+                    user_id = decode_token(token)
+                    watch_history_db.append({
+                        "user_id": user_id,
+                        "video_id": video_id,
+                        "video_title": v["title"],
+                        "watched_at": datetime.now().isoformat()
+                    })
+                except:
+                    pass
+            return v
+    
     raise HTTPException(404, "Video not found")
 
 @app.get("/api/videos/{video_id}/stream")
 def stream_video(video_id: str):
+    # Ищем в обычных видео
     for v in videos_db:
         if v["id"] == video_id:
             file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
             if os.path.exists(file_path):
                 return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
+    
+    # Ищем в коротких видео
+    for v in quick_videos_db:
+        if v["id"] == video_id:
+            file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
+            if os.path.exists(file_path):
+                return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
+    
     raise HTTPException(404, "File not found")
 
-# --- ЛАЙКИ (без перезагрузки) ---
+# --- ИСТОРИЯ ПРОСМОТРОВ ---
+@app.get("/api/history")
+def get_watch_history(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    history = [h for h in watch_history_db if h["user_id"] == user_id]
+    history.sort(key=lambda x: x["watched_at"], reverse=True)
+    return {"history": history}
+
+@app.delete("/api/history")
+def clear_history(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    global watch_history_db
+    watch_history_db = [h for h in watch_history_db if h["user_id"] != user_id]
+    return {"message": "History cleared"}
+
+# --- УВЕДОМЛЕНИЯ ---
+@app.get("/api/notifications")
+def get_notifications(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    user_notifications = [n for n in notifications_db if n["user_id"] == user_id]
+    user_notifications.sort(key=lambda x: x["created_at"], reverse=True)
+    return {"notifications": user_notifications}
+
+@app.post("/api/notifications/{notification_id}/read")
+def mark_notification_read(notification_id: int, token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    for n in notifications_db:
+        if n["id"] == notification_id and n["user_id"] == user_id:
+            n["read"] = True
+            return {"message": "Marked as read"}
+    raise HTTPException(404, "Notification not found")
+
+@app.get("/api/notifications/unread_count")
+def get_unread_count(token: str = Depends(oauth2_scheme)):
+    user_id = decode_token(token)
+    count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
+    return {"count": count}
+
+# --- ЛАЙКИ ---
 @app.post("/api/videos/{video_id}/like")
 def like_video(video_id: str, token: str = Depends(oauth2_scheme)):
     user_id = decode_token(token)
@@ -294,7 +442,19 @@ def like_video(video_id: str, token: str = Depends(oauth2_scheme)):
     if has_liked(user_id, video_id):
         raise HTTPException(400, "You already liked this video")
     
+    # Ищем в обычных видео
     for v in videos_db:
+        if v["id"] == video_id:
+            v["likes"] += 1
+            likes_db.append({
+                "user_id": user_id,
+                "video_id": video_id,
+                "created_at": datetime.now().isoformat()
+            })
+            return {"likes": v["likes"], "message": "Liked"}
+    
+    # Ищем в коротких видео
+    for v in quick_videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
             likes_db.append({
@@ -376,9 +536,11 @@ def get_channel(username: str):
         raise HTTPException(404, "Channel not found")
     
     user_videos = [v for v in videos_db if v["uploader_name"] == user["username"]]
+    user_quick = [v for v in quick_videos_db if v["uploader_name"] == user["username"]]
     return {
         "channel_name": user["channel_name"],
         "username": user["username"],
         "subscribers_count": user.get("subscribers_count", 0),
-        "videos": user_videos
+        "videos": user_videos,
+        "quick_videos": user_quick
     }
