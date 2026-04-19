@@ -1,9 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import FileResponse
 import jwt
-import bcrypt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 import uuid
@@ -26,13 +25,6 @@ app.add_middleware(
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode(), salt).decode()
-
-def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 def create_token(user_id: int) -> str:
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -96,7 +88,7 @@ def register(user: UserRegister):
         "id": user_counter,
         "username": user.username,
         "email": user.email,
-        "password_hash": hash_password(user.password),
+        "password": user.password,
         "channel_name": f"{user.username}'s Channel"
     }
     users_db.append(new_user)
@@ -112,7 +104,7 @@ def register(user: UserRegister):
 @app.post("/api/login")
 def login(user: UserLogin):
     db_user = get_user_by_email(user.email)
-    if not db_user or not verify_password(user.password, db_user["password_hash"]):
+    if not db_user or db_user["password"] != user.password:
         raise HTTPException(401, "Invalid email or password")
     
     token = create_token(db_user["id"])
