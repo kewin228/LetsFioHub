@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's FioHub — просмотр видео</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #f1f1f1; }
-        body.light { background: #f9f9f9; color: #0f0f0f; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
         
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
@@ -22,18 +20,23 @@
         .back-link:hover { color: white; }
         
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 72px auto 0;
             padding: 0 24px;
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 24px;
         }
-        
-        .video-wrapper { background: #000; border-radius: 16px; overflow: hidden; }
+        .video-wrapper {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+        }
         .video-wrapper video { width: 100%; max-height: 70vh; }
         
-        .video-info-card { background: #1a1a1a; border-radius: 16px; padding: 20px; margin-top: 16px; }
+        .video-info-card {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+        }
         .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
         
         .stats-row {
@@ -118,76 +121,13 @@
         }
         .comment { background: #1a1a1a; padding: 16px; border-radius: 16px; margin-bottom: 12px; }
         .comment-author { font-weight: 600; margin-bottom: 8px; color: #ff0000; }
+        .comment-text { margin-bottom: 8px; }
         .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; margin-top: 8px; }
         .comment-like { cursor: pointer; }
         .comment-like:hover { color: #ff0000; }
         
-        .sidebar-videos { position: sticky; top: 72px; }
-        .sidebar-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-        .recommend-card {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-        .recommend-card:hover { opacity: 0.8; }
-        .recommend-thumb {
-            width: 168px;
-            height: 94px;
-            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-        }
-        .recommend-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-        .recommend-info p { font-size: 12px; color: #aaa; }
+        .loading { text-align: center; padding: 60px; color: #aaa; }
         
-        .settings-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1a1a1a;
-            border-radius: 40px;
-            padding: 8px 16px;
-            display: flex;
-            gap: 12px;
-            z-index: 200;
-        }
-        .settings-panel button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 8px;
-            border-radius: 50%;
-        }
-        .settings-panel button:hover { background: #3f3f3f; }
-        
-        .quality-menu, .subtitle-menu {
-            position: fixed;
-            bottom: 70px;
-            right: 20px;
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 8px;
-            z-index: 201;
-            display: none;
-            flex-direction: column;
-        }
-        .quality-menu button, .subtitle-menu button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            cursor: pointer;
-            border-radius: 8px;
-        }
-        .quality-menu button:hover, .subtitle-menu button:hover { background: #3f3f3f; }
-        
-        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar-videos { display: none; } }
         @media (max-width: 768px) { .container { padding: 0 16px; } }
     </style>
 </head>
@@ -204,63 +144,9 @@
     <button class="action-btn" id="settingsBtn" style="background: none; font-size: 20px;">⚙️</button>
 </header>
 
-<div class="container">
-    <div>
-        <div class="video-wrapper">
-            <video id="videoPlayer" controls autoplay></video>
-        </div>
-        <div class="video-info-card">
-            <h1 class="video-title" id="videoTitle">Загрузка...</h1>
-            <div class="stats-row">
-                <span id="viewsCount">👁️ 0 просмотров</span>
-                <div class="action-buttons">
-                    <button class="action-btn" id="likeBtn">👍 <span id="likeCount">0</span></button>
-                    <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">0</span></button>
-                    <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
-                </div>
-            </div>
-            <div class="channel-row">
-                <div class="channel-info" id="channelLink">
-                    <div class="channel-avatar">📺</div>
-                    <div>
-                        <div class="channel-name" id="channelName"></div>
-                        <div class="channel-subscribers" id="channelSubs"></div>
-                    </div>
-                </div>
-                <button class="subscribe-btn" id="subscribeBtn">🔔 Подписаться</button>
-            </div>
-            <div class="description" id="videoDescription"></div>
-        </div>
-        <div class="comments-section">
-            <h3 style="margin-bottom: 16px;">💬 Комментарии <span id="commentsCount">0</span></h3>
-            <div class="comment-form" id="commentForm" style="display: none;">
-                <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
-                <button id="submitCommentBtn">Отправить</button>
-            </div>
-            <div id="commentsList"></div>
-        </div>
-    </div>
-    <div class="sidebar-videos">
-        <div class="sidebar-title">🔥 Рекомендации</div>
-        <div id="recommendations"></div>
-    </div>
-</div>
-
-<div class="settings-panel">
-    <button id="qualityBtn">📹</button>
-    <button id="subtitleBtn">📝</button>
-</div>
-<div class="quality-menu" id="qualityMenu">
-    <button data-quality="auto">Авто</button>
-    <button data-quality="1080p">1080p</button>
-    <button data-quality="720p">720p</button>
-    <button data-quality="480p">480p</button>
-</div>
-<div class="subtitle-menu" id="subtitleMenu">
-    <button data-subtitle="off">Выключить</button>
-    <button data-subtitle="ru">Русские</button>
-    <button data-subtitle="en">English</button>
-</div>
+<main class="container" id="app">
+    <div class="loading">⏳ Загрузка видео...</div>
+</main>
 
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
@@ -276,8 +162,6 @@
     let likeCount = 0;
     let dislikeCount = 0;
     let subscriberCount = 0;
-    let allVideos = [];
-    let videoPlayer = null;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -292,7 +176,7 @@
 
     async function loadVideo() {
         if (!videoId) {
-            document.getElementById('videoTitle').textContent = '❌ Видео не найдено';
+            document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
             return;
         }
         try {
@@ -307,42 +191,13 @@
                     await checkSubscribed();
                 }
                 await loadComments();
-                await loadRecommendations();
                 renderPage();
             } else {
-                document.getElementById('videoTitle').textContent = '❌ Видео не найдено';
+                document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
             }
         } catch (err) {
-            console.error('Error:', err);
+            document.getElementById('app').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
         }
-    }
-
-    async function loadRecommendations() {
-        try {
-            const res = await fetch(`${API_URL}/api/videos`);
-            const data = await res.json();
-            allVideos = (data.videos || []).filter(v => v.id !== videoId).slice(0, 5);
-            renderRecommendations();
-        } catch(e) {}
-    }
-
-    function renderRecommendations() {
-        const container = document.getElementById('recommendations');
-        if (!container) return;
-        if (allVideos.length === 0) {
-            container.innerHTML = '<div style="color:#aaa;">Нет рекомендаций</div>';
-            return;
-        }
-        container.innerHTML = allVideos.map(v => `
-            <div class="recommend-card" onclick="openVideo('${v.id}')">
-                <div class="recommend-thumb">🎬</div>
-                <div class="recommend-info">
-                    <h4>${escapeHtml(v.title)}</h4>
-                    <p>${escapeHtml(v.uploader_name)}</p>
-                    <p>👁️ ${formatViews(v.views)}</p>
-                </div>
-            </div>
-        `).join('');
     }
 
     async function checkLiked() {
@@ -390,7 +245,7 @@
                 hasDisliked = false;
                 likeCount = data.likes;
                 dislikeCount = data.dislikes;
-                updateUIAfterAction();
+                updateButtons();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -409,7 +264,7 @@
                 hasLiked = false;
                 likeCount = data.likes;
                 dislikeCount = data.dislikes;
-                updateUIAfterAction();
+                updateButtons();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -426,7 +281,7 @@
                 const data = await res.json();
                 isSubscribed = !isSubscribed;
                 subscriberCount = data.subscribers_count;
-                updateUIAfterAction();
+                updateSubscribeButton();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -493,16 +348,18 @@
         return div.innerHTML;
     }
 
-    function updateUIAfterAction() {
-        document.getElementById('likeCount').textContent = likeCount;
-        document.getElementById('dislikeCount').textContent = dislikeCount;
+    function updateButtons() {
         const likeBtn = document.getElementById('likeBtn');
         const dislikeBtn = document.getElementById('dislikeBtn');
+        document.getElementById('likeCount').textContent = likeCount;
+        document.getElementById('dislikeCount').textContent = dislikeCount;
         if (hasLiked) likeBtn.classList.add('liked');
         else likeBtn.classList.remove('liked');
         if (hasDisliked) dislikeBtn.classList.add('disliked');
         else dislikeBtn.classList.remove('disliked');
-        
+    }
+
+    function updateSubscribeButton() {
         const subBtn = document.getElementById('subscribeBtn');
         const subsSpan = document.getElementById('channelSubs');
         subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
@@ -532,68 +389,58 @@
     function renderPage() {
         if (!currentVideo) return;
         
-        document.getElementById('videoTitle').textContent = currentVideo.title || 'Без названия';
-        document.getElementById('viewsCount').innerHTML = `👁️ ${formatViews(currentVideo.views)} просмотров`;
-        document.getElementById('likeCount').textContent = likeCount;
-        document.getElementById('dislikeCount').textContent = dislikeCount;
-        document.getElementById('channelName').textContent = currentVideo.uploader_name;
-        document.getElementById('channelSubs').textContent = `${subscriberCount} подписчиков`;
-        document.getElementById('videoDescription').innerHTML = escapeHtml(currentVideo.description) || 'Нет описания';
-        document.getElementById('commentForm').style.display = token ? 'flex' : 'none';
+        document.getElementById('app').innerHTML = `
+            <div class="video-wrapper">
+                <video id="videoPlayer" controls autoplay>
+                    <source src="${API_URL}/api/videos/${videoId}/stream" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-info-card">
+                <h1 class="video-title">${escapeHtml(currentVideo.title) || 'Без названия'}</h1>
+                <div class="stats-row">
+                    <span id="viewsCount">👁️ ${formatViews(currentVideo.views)} просмотров</span>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="likeBtn">👍 <span id="likeCount">${likeCount}</span></button>
+                        <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">${dislikeCount}</span></button>
+                        <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
+                    </div>
+                </div>
+                <div class="channel-row">
+                    <div class="channel-info" id="channelLink">
+                        <div class="channel-avatar">📺</div>
+                        <div>
+                            <div class="channel-name">${escapeHtml(currentVideo.uploader_name)}</div>
+                            <div class="channel-subscribers" id="channelSubs">${subscriberCount} подписчиков</div>
+                        </div>
+                    </div>
+                    <button class="subscribe-btn ${isSubscribed ? 'subscribed' : ''}" id="subscribeBtn">${isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться'}</button>
+                </div>
+                <div class="description">${escapeHtml(currentVideo.description) || 'Нет описания'}</div>
+            </div>
+            <div class="comments-section">
+                <h3 style="margin-bottom: 16px;">💬 Комментарии <span id="commentsCount">${comments.length}</span></h3>
+                ${token ? `
+                    <div class="comment-form">
+                        <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
+                        <button id="submitCommentBtn">Отправить</button>
+                    </div>
+                ` : '<p style="margin: 16px 0;"><a href="#" onclick="document.getElementById(\'loginModal\').style.display=\'flex\'; return false;">Войдите</a>, чтобы оставить комментарий</p>'}
+                <div id="commentsList"></div>
+            </div>
+        `;
         
-        updateUIAfterAction();
-        renderComments();
-        
-        if (!videoPlayer) {
-            videoPlayer = document.getElementById('videoPlayer');
-            videoPlayer.src = `${API_URL}/api/videos/${videoId}/stream`;
-            videoPlayer.load();
-        }
-        
+        // Привязываем обработчики
         document.getElementById('likeBtn').onclick = likeVideo;
         document.getElementById('dislikeBtn').onclick = dislikeVideo;
-        document.getElementById(.subscribeBtn.).onclick = subscribe;
         document.getElementById('shareBtn').onclick = shareVideo;
-        document.getElementById('submitCommentBtn').onclick = addComment;
-        document.getElementById(.channelLink.).onclick = goToChannel;
+        document.getElementById('subscribeBtn').onclick = subscribe;
+        document.getElementById('channelLink').onclick = goToChannel;
+        if (token) {
+            document.getElementById('submitCommentBtn').onclick = addComment;
+        }
         
-        // Настройки
-        const settingsBtn = document.getElementById('settingsBtn');
-        const qualityMenu = document.getElementById('qualityMenu');
-        const subtitleMenu = document.getElementById('subtitleMenu');
-        const qualityBtn = document.getElementById('qualityBtn');
-        const subtitleBtn = document.getElementById('subtitleBtn');
-        
-        settingsBtn.onclick = () => { window.location.href = '/letsfiohub'; };
-        qualityBtn.onclick = (e) => { e.stopPropagation(); qualityMenu.style.display = qualityMenu.style.display === 'flex' ? 'none' : 'flex'; subtitleMenu.style.display = 'none'; };
-        subtitleBtn.onclick = (e) => { e.stopPropagation(); subtitleMenu.style.display = subtitleMenu.style.display === 'flex' ? 'none' : 'flex'; qualityMenu.style.display = 'none'; };
-        
-        document.querySelectorAll('#qualityMenu button').forEach(btn => {
-            btn.onclick = (e) => {
-                localStorage.setItem('videoQuality', btn.dataset.quality);
-                qualityMenu.style.display = 'none';
-                alert(`Качество изменено на ${btn.dataset.quality}`);
-            };
-        });
-        
-        document.querySelectorAll('#subtitleMenu button').forEach(btn => {
-            btn.onclick = (e) => {
-                localStorage.setItem('subtitlesOn', btn.dataset.subtitle === 'off' ? 'false' : 'true');
-                subtitleMenu.style.display = 'none';
-                alert(btn.dataset.subtitle === 'off' ? 'Субтитры выключены' : 'Субтитры включены');
-            };
-        });
-        
-        document.addEventListener('click', () => {
-            qualityMenu.style.display = 'none';
-            subtitleMenu.style.display = 'none';
-        });
+        renderComments();
     }
-
-    window.openVideo = function(id) {
-        window.location.href = `/letsfiohub/watch.html?id=${id}`;
-    }
-    window.likeComment = likeComment;
 
     async function init() {
         await loadCurrentUser();
