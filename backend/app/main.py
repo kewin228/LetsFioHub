@@ -607,13 +607,38 @@ def delete_comment(comment_id: int, authorization: str = Header(...)):
     raise HTTPException(404, "Comment not found")
 
 @app.get("/api/channel/{username}")
+
 def get_channel(username: str):
+
     user = get_user_by_username(username)
+
     if not user:
+
         raise HTTPException(404, "Channel not found")
+
     user_videos = [v for v in videos_db if v["uploader_name"] == user["username"]]
+
     user_quick = [v for v in quick_videos_db if v["uploader_name"] == user["username"]]
+
     return {
+
+        "id": user["id"],
+
+        "channel_name": user["channel_name"],
+
+        "username": user["username"],
+
+        "channel_description": user.get("channel_description", ""),
+
+        "channel_cover": user.get("channel_cover"),
+
+        "subscribers_count": user.get("subscribers_count", 0),
+
+        "videos": user_videos,
+
+        "quick_videos": user_quick
+
+    }
         "channel_name": user["channel_name"],
         "username": user["username"],
         "channel_description": user.get("channel_description", ""),
