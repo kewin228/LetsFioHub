@@ -16,7 +16,7 @@
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logo img { height: 32px; }
         .back-link { margin-left: 24px; color: #aaa; text-decoration: none; }
-        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
         .icon-btn:hover { background: #272727; }
         
         .container { max-width: 1200px; margin: 80px auto 0; padding: 0 24px; }
@@ -88,6 +88,7 @@
     let currentTab = 'videos';
     let isSubscribed = false;
     let subscriberCount = 0;
+    let channelUserId = null;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -106,11 +107,29 @@
             return;
         }
         try {
+            // Получаем пользователя по username
+            const userRes = await fetch(`${API_URL}/api/users?username=${username}`);
+            let userId = null;
+            
+            // Альтернативный способ: получаем через канал
             const response = await fetch(`${API_URL}/api/channel/${username}`);
             if (response.ok) {
                 channelData = await response.json();
                 subscriberCount = channelData.subscribers_count || 0;
-                if (token && currentUser && currentUser.username !== username) {
+                
+                // Получаем ID пользователя через отдельный запрос
+                const usersRes = await fetch(`${API_URL}/api/users`);
+                if (usersRes.ok) {
+                    const users = await usersRes.json();
+                    for (let u of users) {
+                        if (u.username === username) {
+                            channelUserId = u.id;
+                            break;
+                        }
+                    }
+                }
+                
+                if (token && currentUser && currentUser.username !== username && channelUserId) {
                     await checkSubscribed();
                 }
                 renderPage();
@@ -118,24 +137,25 @@
                 document.getElementById('app').innerHTML = '<div class="empty-state">❌ Канал не найден</div>';
             }
         } catch (err) {
+            console.error("Error loading channel:", err);
             document.getElementById('app').innerHTML = '<div class="empty-state">❌ Ошибка загрузки</div>';
         }
     }
 
     async function checkSubscribed() {
         if (!currentUser || currentUser.username === username) return;
-        if (!channelData || !channelData.id) {
-            console.error("No channelData or id");
+        if (!channelUserId) {
+            console.error("No channelUserId");
             return;
         }
         try {
-            const res = await fetch(`${API_URL}/api/is_subscribed/${channelData.id}`, {
+            const res = await fetch(`${API_URL}/api/is_subscribed/${channelUserId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
                 isSubscribed = data.subscribed;
-                console.log("Subscribed:", isSubscribed);
+                console.log("Subscribed status:", isSubscribed);
             }
         } catch(e) {
             console.error("Check subscribed error:", e);
@@ -149,17 +169,16 @@
             alert('Нельзя подписаться на самого себя');
             return;
         }
-        if (!channelData || !channelData.id) {
+        if (!channelUserId) {
             alert('Ошибка: ID канала не найден');
             return;
         }
         
-        const channelId = channelData.id;
-        console.log("Channel ID:", channelId);
+        console.log("Channel ID:", channelUserId);
         
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
-            const res = await fetch(`${API_URL}/api/subscribe/${channelId}`, {
+            const res = await fetch(`${API_URL}/api/subscribe/${channelUserId}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
