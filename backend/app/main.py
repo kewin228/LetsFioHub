@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form, Que
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
@@ -22,6 +23,9 @@ os.makedirs(QUICK_DIR, exist_ok=True)
 os.makedirs(COVERS_DIR, exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
+
+# Статика для заставок
+app.mount("/covers", StaticFiles(directory=COVERS_DIR), name="covers")
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,9 +69,6 @@ class SettingsUpdate(BaseModel):
     video_quality: str = "auto"
     subtitles: bool = False
     font_style: str = "professional"
-
-class ChannelUpdate(BaseModel):
-    description: str = ""
 
 # --- ХРАНИЛИЩА ---
 users_db = []
@@ -221,58 +222,35 @@ def get_me(authorization: Optional[str] = Header(None)):
     }
 
 @app.put("/api/channel")
-@app.put("/api/channel")
-
 async def update_channel(
-
     description: str = Form(""),
-
     cover: Optional[UploadFile] = File(None),
-
     authorization: str = Header(...)
-
 ):
-
     if not authorization.startswith("Bearer "):
-
         raise HTTPException(401, "Not authenticated")
-
     token = authorization.replace("Bearer ", "")
-
     user_id = decode_token(token)
-
     if not user_id:
-
         raise HTTPException(401, "Invalid token")
-
     
-
     for user in users_db:
-
         if user["id"] == user_id:
-
             user["channel_description"] = description
-
             if cover:
-
                 cover_id = str(uuid.uuid4())[:8]
-
-                cover_path = f"{COVERS_DIR}/{cover_id}.jpg"
-
+                cover_path = os.path.join(COVERS_DIR, f"{cover_id}.jpg")
                 content = await cover.read()
-
                 with open(cover_path, "wb") as f:
-
                     f.write(content)
-
                 user["channel_cover"] = f"/covers/{cover_id}.jpg"
-
-                print(f"✅ Заставка сохранена: {user["channel_cover"]}")
-
-            return {"message": "Channel updated", "channel_description": user["channel_description"], "channel_cover": user.get("channel_cover")}
-
+                print(f"✅ Cover saved: {user['channel_cover']}")
+            return {
+                "message": "Channel updated", 
+                "channel_description": user["channel_description"], 
+                "channel_cover": user.get("channel_cover")
+            }
     raise HTTPException(404, "User not found")
-
 
 @app.put("/api/settings")
 def update_settings(settings: SettingsUpdate, authorization: str = Header(...)):
@@ -301,7 +279,7 @@ def get_settings(authorization: str = Header(...)):
         raise HTTPException(404, "User not found")
     return user.get("settings", {"theme": "dark", "language": "professional", "video_quality": "auto", "subtitles": False, "font_style": "professional"})
 
-# --- ПОДПИСКИ ---
+# --- ПОДПИСКИ (сокращено для краткости, остальное без изменений) ---
 @app.post("/api/subscribe/{channel_id}")
 def subscribe(channel_id: int, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -312,21 +290,13 @@ def subscribe(channel_id: int, authorization: str = Header(...)):
         raise HTTPException(401, "Invalid token")
     if subscriber_id == channel_id:
         raise HTTPException(400, "Cannot subscribe to yourself")
-    
     if is_subscribed(subscriber_id, channel_id):
         raise HTTPException(400, "Already subscribed")
-    
-    subscriptions_db.append({
-        "subscriber_id": subscriber_id,
-        "channel_id": channel_id,
-        "created_at": datetime.now().isoformat()
-    })
-    
+    subscriptions_db.append({"subscriber_id": subscriber_id, "channel_id": channel_id, "created_at": datetime.now().isoformat()})
     for user in users_db:
         if user["id"] == channel_id:
             user["subscribers_count"] = user.get("subscribers_count", 0) + 1
             break
-    
     return {"message": "Subscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
 
 @app.delete("/api/subscribe/{channel_id}")
@@ -339,12 +309,10 @@ def unsubscribe(channel_id: int, authorization: str = Header(...)):
         raise HTTPException(401, "Invalid token")
     global subscriptions_db
     subscriptions_db = [s for s in subscriptions_db if not (s["subscriber_id"] == subscriber_id and s["channel_id"] == channel_id)]
-    
     for user in users_db:
         if user["id"] == channel_id:
             user["subscribers_count"] = max(0, user.get("subscribers_count", 0) - 1)
             break
-    
     return {"message": "Unsubscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
 
 @app.get("/api/subscribers/{channel_id}")
@@ -359,10 +327,7 @@ def get_subscribers_list(channel_id: int, authorization: Optional[str] = Header(
         if sub["channel_id"] == channel_id:
             user = get_user_by_id(sub["subscriber_id"])
             if user:
-                subscribers.append({
-                    "id": user["id"],
-                    "username": user["username"]
-                })
+                subscribers.append({"id": user["id"], "username": user["username"]})
     return {"subscribers": subscribers}
 
 @app.get("/api/subscriptions")
@@ -378,11 +343,7 @@ def get_my_subscriptions(authorization: str = Header(...)):
         if sub["subscriber_id"] == user_id:
             channel = get_user_by_id(sub["channel_id"])
             if channel:
-                subscriptions.append({
-                    "id": channel["id"],
-                    "username": channel["username"],
-                    "channel_name": channel["channel_name"]
-                })
+                subscriptions.append({"id": channel["id"], "username": channel["username"], "channel_name": channel["channel_name"]})
     return {"subscriptions": subscriptions}
 
 @app.get("/api/is_subscribed/{channel_id}")
@@ -395,7 +356,7 @@ def check_subscribed(channel_id: int, authorization: str = Header(...)):
         return {"subscribed": False}
     return {"subscribed": is_subscribed(subscriber_id, channel_id)}
 
-# --- ВИДЕО ---
+# --- ВИДЕО (сокращено, основные эндпоинты) ---
 @app.get("/api/videos")
 def get_all_videos(limit: int = 20, offset: int = 0):
     sorted_videos = sorted(videos_db, key=lambda x: x["created_at"], reverse=True)
@@ -433,17 +394,10 @@ async def upload_video(
         f.write(content)
     
     new_video = {
-        "id": video_id,
-        "title": title,
-        "description": description,
-        "views": 0,
-        "likes": 0,
-        "dislikes": 0,
-        "uploader_id": user["id"],
-        "uploader_name": user["username"],
-        "created_at": datetime.now().isoformat(),
-        "file_path": file_path,
-        "is_quick": is_quick
+        "id": video_id, "title": title, "description": description,
+        "views": 0, "likes": 0, "dislikes": 0,
+        "uploader_id": user["id"], "uploader_name": user["username"],
+        "created_at": datetime.now().isoformat(), "file_path": file_path, "is_quick": is_quick
     }
     
     if is_quick:
@@ -451,7 +405,6 @@ async def upload_video(
     else:
         videos_db.append(new_video)
     
-    # Уведомляем подписчиков
     for sub in subscriptions_db:
         if sub["channel_id"] == user_id:
             add_notification(sub["subscriber_id"], f"Новое видео от {user['username']}: {title}", video_id)
@@ -460,7 +413,6 @@ async def upload_video(
 
 @app.get("/api/videos/{video_id}")
 def get_video(video_id: str, authorization: Optional[str] = Header(None)):
-    # Ищем в обычных видео
     for v in videos_db:
         if v["id"] == video_id:
             v["views"] += 1
@@ -468,14 +420,8 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
                 token = authorization.replace("Bearer ", "")
                 user_id = decode_token(token)
                 if user_id:
-                    watch_history_db.append({
-                        "user_id": user_id,
-                        "video_id": video_id,
-                        "video_title": v["title"],
-                        "watched_at": datetime.now().isoformat()
-                    })
+                    watch_history_db.append({"user_id": user_id, "video_id": video_id, "video_title": v["title"], "watched_at": datetime.now().isoformat()})
             return v
-    
     for v in quick_videos_db:
         if v["id"] == video_id:
             v["views"] += 1
@@ -483,14 +429,8 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
                 token = authorization.replace("Bearer ", "")
                 user_id = decode_token(token)
                 if user_id:
-                    watch_history_db.append({
-                        "user_id": user_id,
-                        "video_id": video_id,
-                        "video_title": v["title"],
-                        "watched_at": datetime.now().isoformat()
-                    })
+                    watch_history_db.append({"user_id": user_id, "video_id": video_id, "video_title": v["title"], "watched_at": datetime.now().isoformat()})
             return v
-    
     raise HTTPException(404, "Video not found")
 
 @app.get("/api/videos/{video_id}/stream")
@@ -500,16 +440,13 @@ def stream_video(video_id: str):
             file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
             if os.path.exists(file_path):
                 return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
-    
     for v in quick_videos_db:
         if v["id"] == video_id:
             file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
             if os.path.exists(file_path):
                 return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
-    
     raise HTTPException(404, "File not found")
 
-# --- ЛАЙКИ И ДИЗЛАЙКИ ---
 @app.post("/api/videos/{video_id}/like")
 def like_video(video_id: str, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -518,11 +455,8 @@ def like_video(video_id: str, authorization: str = Header(...)):
     user_id = decode_token(token)
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
     if has_liked(user_id, video_id):
         raise HTTPException(400, "You already liked this video")
-    
-    # Если был дизлайк, убираем его
     if has_disliked(user_id, video_id):
         for i, d in enumerate(dislikes_db):
             if d["user_id"] == user_id and d["video_id"] == video_id:
@@ -536,19 +470,16 @@ def like_video(video_id: str, authorization: str = Header(...)):
                         v["dislikes"] = max(0, v["dislikes"] - 1)
                         break
                 break
-    
     for v in videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
             likes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
             return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Liked"}
-    
     for v in quick_videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
             likes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
             return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Liked"}
-    
     raise HTTPException(404, "Video not found")
 
 @app.post("/api/videos/{video_id}/dislike")
@@ -559,11 +490,8 @@ def dislike_video(video_id: str, authorization: str = Header(...)):
     user_id = decode_token(token)
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
     if has_disliked(user_id, video_id):
         raise HTTPException(400, "You already disliked this video")
-    
-    # Если был лайк, убираем его
     if has_liked(user_id, video_id):
         for i, l in enumerate(likes_db):
             if l["user_id"] == user_id and l["video_id"] == video_id:
@@ -577,19 +505,16 @@ def dislike_video(video_id: str, authorization: str = Header(...)):
                         v["likes"] = max(0, v["likes"] - 1)
                         break
                 break
-    
     for v in videos_db:
         if v["id"] == video_id:
             v["dislikes"] += 1
             dislikes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
             return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Disliked"}
-    
     for v in quick_videos_db:
         if v["id"] == video_id:
             v["dislikes"] += 1
             dislikes_db.append({"user_id": user_id, "video_id": video_id, "created_at": datetime.now().isoformat()})
             return {"likes": v["likes"], "dislikes": v["dislikes"], "message": "Disliked"}
-    
     raise HTTPException(404, "Video not found")
 
 @app.get("/api/videos/{video_id}/has_liked")
@@ -602,7 +527,6 @@ def check_liked(video_id: str, authorization: str = Header(...)):
         return {"liked": False, "disliked": False}
     return {"liked": has_liked(user_id, video_id), "disliked": has_disliked(user_id, video_id)}
 
-# --- УДАЛЕНИЕ ВИДЕО ---
 @app.delete("/api/videos/{video_id}")
 def delete_video(video_id: str, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -611,7 +535,6 @@ def delete_video(video_id: str, authorization: str = Header(...)):
     user_id = decode_token(token)
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
     for i, v in enumerate(videos_db):
         if v["id"] == video_id:
             if v["uploader_id"] != user_id:
@@ -621,7 +544,6 @@ def delete_video(video_id: str, authorization: str = Header(...)):
                 os.remove(file_path)
             videos_db.pop(i)
             return {"message": "Video deleted"}
-    
     for i, v in enumerate(quick_videos_db):
         if v["id"] == video_id:
             if v["uploader_id"] != user_id:
@@ -631,16 +553,11 @@ def delete_video(video_id: str, authorization: str = Header(...)):
                 os.remove(file_path)
             quick_videos_db.pop(i)
             return {"message": "Video deleted"}
-    
     raise HTTPException(404, "Video not found")
 
 # --- КОММЕНТАРИИ ---
 @app.post("/api/videos/{video_id}/comments")
-def add_comment(
-    video_id: str,
-    comment: CommentCreate,
-    authorization: str = Header(...)
-):
+def add_comment(video_id: str, comment: CommentCreate, authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
@@ -650,20 +567,10 @@ def add_comment(
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(401, "Unauthorized")
-    
     global comment_counter
-    new_comment = {
-        "id": comment_counter,
-        "video_id": video_id,
-        "text": comment.text,
-        "author_id": user_id,
-        "author_name": user["username"],
-        "likes": 0,
-        "created_at": datetime.now().isoformat()
-    }
+    new_comment = {"id": comment_counter, "video_id": video_id, "text": comment.text, "author_id": user_id, "author_name": user["username"], "likes": 0, "created_at": datetime.now().isoformat()}
     comments_db.append(new_comment)
     comment_counter += 1
-    
     return new_comment
 
 @app.get("/api/videos/{video_id}/comments")
@@ -680,12 +587,10 @@ def like_comment(comment_id: int, authorization: str = Header(...)):
     user_id = decode_token(token)
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
     for c in comments_db:
         if c["id"] == comment_id:
             c["likes"] += 1
             return {"likes": c["likes"]}
-    
     raise HTTPException(404, "Comment not found")
 
 @app.delete("/api/comments/{comment_id}")
@@ -697,14 +602,12 @@ def delete_comment(comment_id: int, authorization: str = Header(...)):
     if not user_id:
         raise HTTPException(401, "Invalid token")
     global comments_db
-    
     for i, c in enumerate(comments_db):
         if c["id"] == comment_id:
             if c["author_id"] != user_id:
                 raise HTTPException(403, "You can only delete your own comments")
             comments_db.pop(i)
             return {"message": "Comment deleted"}
-    
     raise HTTPException(404, "Comment not found")
 
 @app.get("/api/channel/{username}")
@@ -712,7 +615,6 @@ def get_channel(username: str):
     user = get_user_by_username(username)
     if not user:
         raise HTTPException(404, "Channel not found")
-    
     user_videos = [v for v in videos_db if v["uploader_name"] == user["username"]]
     user_quick = [v for v in quick_videos_db if v["uploader_name"] == user["username"]]
     return {
@@ -787,7 +689,3 @@ def get_unread_count(authorization: str = Header(...)):
         return {"count": 0}
     count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
     return {"count": count}
-
-# Раздача статических файлов (заставки)
-from fastapi.staticfiles import StaticFiles
-app.mount("/covers", StaticFiles(directory="uploads/covers"), name="covers")
