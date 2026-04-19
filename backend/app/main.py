@@ -633,3 +633,38 @@ def get_channel(username: str):
         "videos": user_videos,
         "quick_videos": user_quick
     }
+
+# --- УДАЛЕНИЕ ВИДЕО ---
+@app.delete("/api/videos/{video_id}")
+def delete_video(video_id: str, authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    
+    # Ищем в обычных видео
+    for i, v in enumerate(videos_db):
+        if v["id"] == video_id:
+            if v["uploader_id"] != user_id:
+                raise HTTPException(403, "You can only delete your own videos")
+            # Удаляем файл
+            file_path = v.get("file_path", f"{UPLOAD_DIR}/{video_id}.mp4")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            videos_db.pop(i)
+            return {"message": "Video deleted"}
+    
+    # Ищем в коротких видео
+    for i, v in enumerate(quick_videos_db):
+        if v["id"] == video_id:
+            if v["uploader_id"] != user_id:
+                raise HTTPException(403, "You can only delete your own videos")
+            file_path = v.get("file_path", f"{QUICK_DIR}/{video_id}.mp4")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            quick_videos_db.pop(i)
+            return {"message": "Video deleted"}
+    
+    raise HTTPException(404, "Video not found")
