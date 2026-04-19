@@ -52,20 +52,12 @@ class UserLogin(BaseModel):
 class CommentCreate(BaseModel):
     text: str
 
-class CommentResponse(BaseModel):
-    id: int
-    text: str
-    author_id: int
-    author_name: str
-    created_at: str
-    likes: int
-
 # --- ХРАНИЛИЩА ---
 users_db = []
 videos_db = []
 comments_db = []
-likes_db = []  # user_id + video_id
-subscriptions_db = []  # subscriber_id + channel_id
+likes_db = []
+subscriptions_db = []
 user_counter = 1
 comment_counter = 1
 
@@ -195,13 +187,12 @@ def subscribe(channel_id: int, token: str = Depends(oauth2_scheme)):
         "created_at": datetime.now().isoformat()
     })
     
-    # Увеличиваем счётчик подписчиков у канала
     for user in users_db:
         if user["id"] == channel_id:
             user["subscribers_count"] = user.get("subscribers_count", 0) + 1
             break
     
-    return {"message": "Subscribed"}
+    return {"message": "Subscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
 
 @app.delete("/api/subscribe/{channel_id}")
 def unsubscribe(channel_id: int, token: str = Depends(oauth2_scheme)):
@@ -214,12 +205,25 @@ def unsubscribe(channel_id: int, token: str = Depends(oauth2_scheme)):
             user["subscribers_count"] = max(0, user.get("subscribers_count", 0) - 1)
             break
     
-    return {"message": "Unsubscribed"}
+    return {"message": "Unsubscribed", "subscribers_count": get_user_by_id(channel_id)["subscribers_count"]}
 
 @app.get("/api/subscribers/{channel_id}")
 def get_subscribers_count(channel_id: int):
     count = sum(1 for s in subscriptions_db if s["channel_id"] == channel_id)
     return {"count": count}
+
+@app.get("/api/subscribers/list/{channel_id}")
+def get_subscribers_list(channel_id: int):
+    subscribers = []
+    for sub in subscriptions_db:
+        if sub["channel_id"] == channel_id:
+            user = get_user_by_id(sub["subscriber_id"])
+            if user:
+                subscribers.append({
+                    "id": user["id"],
+                    "username": user["username"]
+                })
+    return {"subscribers": subscribers}
 
 @app.get("/api/is_subscribed/{channel_id}")
 def check_subscribed(channel_id: int, token: str = Depends(oauth2_scheme)):
@@ -282,16 +286,14 @@ def stream_video(video_id: str):
                 return FileResponse(file_path, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
     raise HTTPException(404, "File not found")
 
-# --- ЛАЙКИ (только один раз) ---
+# --- ЛАЙКИ (без перезагрузки) ---
 @app.post("/api/videos/{video_id}/like")
 def like_video(video_id: str, token: str = Depends(oauth2_scheme)):
     user_id = decode_token(token)
     
-    # Проверяем, не лайкал ли уже
     if has_liked(user_id, video_id):
         raise HTTPException(400, "You already liked this video")
     
-    # Находим видео
     for v in videos_db:
         if v["id"] == video_id:
             v["likes"] += 1
