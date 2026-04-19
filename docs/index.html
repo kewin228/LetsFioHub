@@ -65,6 +65,8 @@
         
         .empty-state { text-align: center; padding: 60px; color: #aaa; }
         .subscriber-item { display: flex; align-items: center; gap: 16px; padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 8px; }
+        .section-title { font-size: 20px; font-weight: 600; margin: 20px 0 16px; }
+        .quick-badge { background: #ff0000; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
         
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-260px); }
@@ -203,13 +205,15 @@
     let currentPage = 'home';
     let currentTab = 'all';
     let currentLanguage = localStorage.getItem('language') || 'professional';
+    let myChannelVideos = [];
+    let myChannelQuick = [];
 
     // Переводы
     const translations = {
-        professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', upload: 'Загрузить', search: 'Поиск...', login: 'Войти', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Вы пока ни на кого не подписаны', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от' },
-        gamer: { home: '🏠 Лобби', quick: '⚡ Шустрые', myChannel: '🎮 Мой стрим', subscriptions: '⭐ Фоллоу', history: '📜 Реплеи', subscribers: '👥 Фолловеры', noVideos: 'Нет видосов, загрузи!', upload: 'Загрузить видос', search: 'Искать видос...', login: 'Войти в акк', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', likes: 'лайков', subscribers_count: 'фолловеров', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от' },
-        slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', upload: 'Загрузить видос', search: 'Поиск...', login: 'Войти', register: 'Рега', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от' },
-        kids: { home: '🏠 Домик', quick: '⚡ Быстрые видео', myChannel: '📺 Мой канал', subscriptions: '⭐ Друзья', history: '📜 Что смотрели', subscribers: '👥 Друзья', noVideos: 'Нет видео, загрузи своё!', upload: 'Загрузить видео', search: 'Искать...', login: 'Войти', register: 'Зарегистрироваться', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', likes: 'лайков', subscribers_count: 'друзей', noSubscriptions: 'У тебя пока нет друзей', noHistory: 'Ты ещё ничего не смотрел', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от' }
+        professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', upload: 'Загрузить', search: 'Поиск...', login: 'Войти', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Вы пока ни на кого не подписаны', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' },
+        gamer: { home: '🏠 Лобби', quick: '⚡ Шустрые', myChannel: '🎮 Мой стрим', subscriptions: '⭐ Фоллоу', history: '📜 Реплеи', subscribers: '👥 Фолловеры', noVideos: 'Нет видосов, загрузи!', upload: 'Загрузить видос', search: 'Искать видос...', login: 'Войти в акк', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', likes: 'лайков', subscribers_count: 'фолловеров', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы' },
+        slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', upload: 'Загрузить видос', search: 'Поиск...', login: 'Войти', register: 'Рега', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы' },
+        kids: { home: '🏠 Домик', quick: '⚡ Быстрые видео', myChannel: '📺 Мой канал', subscriptions: '⭐ Друзья', history: '📜 Что смотрели', subscribers: '👥 Друзья', noVideos: 'Нет видео, загрузи своё!', upload: 'Загрузить видео', search: 'Искать...', login: 'Войти', register: 'Зарегистрироваться', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', likes: 'лайков', subscribers_count: 'друзей', noSubscriptions: 'У тебя пока нет друзей', noHistory: 'Ты ещё ничего не смотрел', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' }
     };
 
     function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
@@ -237,6 +241,18 @@
             const data = await res.json();
             quickVideos = data.videos || [];
         } catch(e) { quickVideos = []; }
+    }
+
+    async function loadMyChannelVideos() {
+        if (!currentUser) return;
+        try {
+            const res = await fetch(`${API_URL}/api/channel/${currentUser.username}`);
+            if (res.ok) {
+                const data = await res.json();
+                myChannelVideos = data.videos || [];
+                myChannelQuick = data.quick_videos || [];
+            }
+        } catch(e) { myChannelVideos = []; myChannelQuick = []; }
     }
 
     async function loadSubscriptions() {
@@ -300,15 +316,15 @@
         return div.innerHTML;
     }
 
-    function renderVideosGrid(videos, showDelete = false) {
+    function renderVideosGrid(videos, showDelete = false, isQuick = false) {
         if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}</div>`;
         return `<div class="video-grid">${videos.map(v => `
             <div class="video-card" onclick="openVideo('${v.id}')">
-                <div class="thumbnail">🎬</div>
+                <div class="thumbnail">${isQuick ? '⚡' : '🎬'}</div>
                 <div class="video-details">
                     <div class="channel-avatar">📺</div>
                     <div class="video-info">
-                        <h3>${escapeHtml(v.title)}</h3>
+                        <h3>${escapeHtml(v.title)}${isQuick ? '<span class="quick-badge">Quick</span>' : ''}</h3>
                         <p>${escapeHtml(v.uploader_name)}</p>
                         <div class="video-stats">
                             <span>👁️ ${formatViews(v.views)} ${t('views')}</span>
@@ -334,13 +350,22 @@
         } 
         else if (currentPage === 'quick') {
             await loadQuickVideos();
-            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ Quick — короткие видео</h2>${renderVideosGrid(quickVideos, false)}`;
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ ${t('quick')} — короткие видео</h2>${renderVideosGrid(quickVideos, false, true)}`;
         }
         else if (currentPage === 'my-channel') {
             if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
-            await loadAllVideos();
-            const myVideos = allVideos.filter(v => v.uploader_name === currentUser.username);
-            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📺 ${escapeHtml(currentUser.channel_name)}</h2>${renderVideosGrid(myVideos, true)}`;
+            await loadMyChannelVideos();
+            let html = `<h2 style="margin-bottom:20px">📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
+            if (myChannelVideos.length > 0) {
+                html += `<div class="section-title">📹 ${t('regularVideos')}</div>${renderVideosGrid(myChannelVideos, true, false)}`;
+            }
+            if (myChannelQuick.length > 0) {
+                html += `<div class="section-title">⚡ ${t('quickVideos')}</div>${renderVideosGrid(myChannelQuick, true, true)}`;
+            }
+            if (myChannelVideos.length === 0 && myChannelQuick.length === 0) {
+                html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
+            }
+            contentDiv.innerHTML = html;
         }
         else if (currentPage === 'subscriptions') {
             await loadSubscriptions();
