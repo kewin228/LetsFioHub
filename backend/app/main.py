@@ -221,30 +221,58 @@ def get_me(authorization: Optional[str] = Header(None)):
     }
 
 @app.put("/api/channel")
-def update_channel(
+@app.put("/api/channel")
+
+async def update_channel(
+
     description: str = Form(""),
+
     cover: Optional[UploadFile] = File(None),
+
     authorization: str = Header(...)
+
 ):
+
     if not authorization.startswith("Bearer "):
+
         raise HTTPException(401, "Not authenticated")
+
     token = authorization.replace("Bearer ", "")
+
     user_id = decode_token(token)
+
     if not user_id:
+
         raise HTTPException(401, "Invalid token")
+
     
+
     for user in users_db:
+
         if user["id"] == user_id:
+
             user["channel_description"] = description
+
             if cover:
+
                 cover_id = str(uuid.uuid4())[:8]
+
                 cover_path = f"{COVERS_DIR}/{cover_id}.jpg"
-                content = cover.file.read()
+
+                content = await cover.read()
+
                 with open(cover_path, "wb") as f:
+
                     f.write(content)
+
                 user["channel_cover"] = f"/covers/{cover_id}.jpg"
+
+                print(f"✅ Заставка сохранена: {user["channel_cover"]}")
+
             return {"message": "Channel updated", "channel_description": user["channel_description"], "channel_cover": user.get("channel_cover")}
+
     raise HTTPException(404, "User not found")
+
 
 @app.put("/api/settings")
 def update_settings(settings: SettingsUpdate, authorization: str = Header(...)):
@@ -759,3 +787,7 @@ def get_unread_count(authorization: str = Header(...)):
         return {"count": 0}
     count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
     return {"count": count}
+
+# Раздача статических файлов (заставки)
+from fastapi.staticfiles import StaticFiles
+app.mount("/covers", StaticFiles(directory="uploads/covers"), name="covers")
