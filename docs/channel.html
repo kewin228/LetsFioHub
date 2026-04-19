@@ -88,7 +88,6 @@
     let currentTab = 'videos';
     let isSubscribed = false;
     let subscriberCount = 0;
-    let channelUserId = null;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -107,29 +106,13 @@
             return;
         }
         try {
-            // Получаем пользователя по username
-            const userRes = await fetch(`${API_URL}/api/users?username=${username}`);
-            let userId = null;
-            
-            // Альтернативный способ: получаем через канал
             const response = await fetch(`${API_URL}/api/channel/${username}`);
             if (response.ok) {
                 channelData = await response.json();
                 subscriberCount = channelData.subscribers_count || 0;
+                console.log("Channel data:", channelData);
                 
-                // Получаем ID пользователя через отдельный запрос
-                const usersRes = await fetch(`${API_URL}/api/users`);
-                if (usersRes.ok) {
-                    const users = await usersRes.json();
-                    for (let u of users) {
-                        if (u.username === username) {
-                            channelUserId = u.id;
-                            break;
-                        }
-                    }
-                }
-                
-                if (token && currentUser && currentUser.username !== username && channelUserId) {
+                if (token && currentUser && currentUser.username !== username && channelData.id) {
                     await checkSubscribed();
                 }
                 renderPage();
@@ -144,12 +127,12 @@
 
     async function checkSubscribed() {
         if (!currentUser || currentUser.username === username) return;
-        if (!channelUserId) {
-            console.error("No channelUserId");
+        if (!channelData || !channelData.id) {
+            console.error("No channelData or id");
             return;
         }
         try {
-            const res = await fetch(`${API_URL}/api/is_subscribed/${channelUserId}`, {
+            const res = await fetch(`${API_URL}/api/is_subscribed/${channelData.id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -169,16 +152,17 @@
             alert('Нельзя подписаться на самого себя');
             return;
         }
-        if (!channelUserId) {
+        if (!channelData || !channelData.id) {
             alert('Ошибка: ID канала не найден');
             return;
         }
         
-        console.log("Channel ID:", channelUserId);
+        const channelId = channelData.id;
+        console.log("Channel ID:", channelId);
         
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
-            const res = await fetch(`${API_URL}/api/subscribe/${channelUserId}`, {
+            const res = await fetch(`${API_URL}/api/subscribe/${channelId}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
