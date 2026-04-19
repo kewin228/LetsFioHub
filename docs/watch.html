@@ -21,15 +21,22 @@
         .video-player { background: #000; border-radius: 12px; overflow: hidden; }
         .video-player video { width: 100%; max-height: 70vh; }
         .watch-title { font-size: 20px; font-weight: 600; margin: 16px 0 12px; }
-        .watch-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #303030; border-bottom: 1px solid #303030; }
+        .watch-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #303030; border-bottom: 1px solid #303030; flex-wrap: wrap; gap: 12px; }
         .like-btn { background: #272727; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .like-btn.liked { background: #ff0000; }
+        .subscribe-btn { background: #ff0000; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .subscribe-btn.subscribed { background: #272727; }
         .watch-description { background: #272727; padding: 16px; border-radius: 12px; margin: 16px 0; }
         .comments-section { margin-top: 32px; }
         .comment-form { display: flex; gap: 12px; margin-bottom: 24px; }
-        .comment-form textarea { flex: 1; background: #121212; border: 1px solid #303030; border-radius: 12px; padding: 12px; color: white; }
+        .comment-form textarea { flex: 1; background: #121212; border: 1px solid #303030; border-radius: 12px; padding: 12px; color: white; font-family: inherit; resize: vertical; }
         .comment-form button { background: #ff0000; border: none; padding: 0 24px; border-radius: 40px; cursor: pointer; color: white; }
         .comment { background: #1a1a1a; padding: 16px; border-radius: 12px; margin-bottom: 12px; }
         .comment-author { font-weight: bold; margin-bottom: 8px; color: #ff0000; }
+        .comment-text { margin-bottom: 8px; }
+        .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; }
+        .comment-like { cursor: pointer; }
+        .comment-like:hover { color: #ff0000; }
         .loading { text-align: center; padding: 60px; color: #aaa; }
         
         @media (max-width: 768px) {
@@ -56,8 +63,22 @@
     const API_URL = 'https://letsfiohub-api.onrender.com';
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
-    let currentVideo = null;
     let token = localStorage.getItem('token');
+    let currentUser = null;
+    let currentVideo = null;
+    let comments = [];
+    let hasLiked = false;
+    let isSubscribed = false;
+
+    async function loadCurrentUser() {
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) currentUser = await res.json();
+        } catch(e) {}
+    }
 
     async function loadVideo() {
         if (!videoId) {
@@ -68,6 +89,11 @@
             const response = await fetch(`${API_URL}/api/videos/${videoId}`);
             if (response.ok) {
                 currentVideo = await response.json();
+                if (token) {
+                    await checkLiked();
+                    await checkSubscribed();
+                }
+                await loadComments();
                 renderPage();
             } else {
                 document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
@@ -77,17 +103,96 @@
         }
     }
 
-    async function likeVideo() {
-        if (!token) {
-            alert('Войдите, чтобы поставить лайк');
-            return;
-        }
+    async function checkLiked() {
         try {
-            await fetch(`${API_URL}/api/videos/${videoId}/like`, { method: 'POST' });
-            await loadVideo();
-        } catch (err) {
-            console.error('Like error:', err);
-        }
+            const res = await fetch(`${API_URL}/api/videos/${videoId}/has_liked`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                hasLiked = data.liked;
+            }
+        } catch(e) {}
+    }
+
+    async function checkSubscribed() {
+        if (!currentVideo) return;
+        try {
+            const res = await fetch(`${API_URL}/api/is_subscribed/${currentVideo.uploader_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                isSubscribed = data.subscribed;
+            }
+        } catch(e) {}
+    }
+
+    async function likeVideo() {
+        if (!token) { alert('Войдите, чтобы поставить лайк'); return; }
+        if (hasLiked) { alert('Вы уже поставили лайк этому видео'); return; }
+        try {
+            const res = await fetch(`${API_URL}/api/videos/${videoId}/like`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                hasLiked = true;
+                await loadVideo();
+            }
+        } catch(err) { alert('Ошибка'); }
+    }
+
+    async function subscribe() {
+        if (!token) { alert('Войдите, чтобы подписаться'); return; }
+        try {
+            const method = isSubscribed ? 'DELETE' : 'POST';
+            const res = await fetch(`${API_URL}/api/subscribe/${currentVideo.uploader_id}`, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                isSubscribed = !isSubscribed;
+                renderPage();
+            }
+        } catch(err) { alert('Ошибка'); }
+    }
+
+    async function loadComments() {
+        try {
+            const res = await fetch(`${API_URL}/api/videos/${videoId}/comments`);
+            if (res.ok) comments = await res.json();
+        } catch(e) { comments = []; }
+    }
+
+    async function addComment() {
+        const text = document.getElementById('commentText')?.value;
+        if (!text || !text.trim()) return;
+        if (!token) { alert('Войдите, чтобы оставить комментарий'); return; }
+        try {
+            const res = await fetch(`${API_URL}/api/videos/${videoId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ text })
+            });
+            if (res.ok) {
+                document.getElementById('commentText').value = '';
+                await loadComments();
+                renderPage();
+            }
+        } catch(err) { alert('Ошибка'); }
+    }
+
+    async function likeComment(commentId) {
+        if (!token) { alert('Войдите'); return; }
+        try {
+            await fetch(`${API_URL}/api/comments/${commentId}/like`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            await loadComments();
+            renderPage();
+        } catch(err) {}
     }
 
     function formatViews(views) {
@@ -119,17 +224,46 @@
             <div class="watch-meta">
                 <div class="watch-stats">
                     <span>👁️ ${formatViews(currentVideo.views)} просмотров</span>
-                    <button class="like-btn" onclick="likeVideo()">👍 ${currentVideo.likes || 0}</button>
+                    <button class="like-btn ${hasLiked ? 'liked' : ''}" onclick="likeVideo()">👍 ${currentVideo.likes || 0}</button>
                 </div>
-                <div>📺 ${escapeHtml(currentVideo.uploader_name)}</div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <span>📺 ${escapeHtml(currentVideo.uploader_name)}</span>
+                    ${currentUser && currentUser.id !== currentVideo.uploader_id ? `<button class="subscribe-btn ${isSubscribed ? 'subscribed' : ''}" onclick="subscribe()">${isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться'}</button>` : ''}
+                </div>
             </div>
             <div class="watch-description">
                 <p>${escapeHtml(currentVideo.description) || 'Нет описания'}</p>
             </div>
+            <div class="comments-section">
+                <h3>💬 Комментарии (${comments.length})</h3>
+                ${token ? `
+                    <div class="comment-form">
+                        <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
+                        <button onclick="addComment()">Отправить</button>
+                    </div>
+                ` : '<p style="margin: 16px 0;"><a href="#" onclick="document.getElementById(\'loginModal\').style.display=\'flex\'; return false;">Войдите</a>, чтобы оставить комментарий</p>'}
+                <div id="commentsList">
+                    ${comments.map(c => `
+                        <div class="comment">
+                            <div class="comment-author">${escapeHtml(c.author_name)}</div>
+                            <div class="comment-text">${escapeHtml(c.text)}</div>
+                            <div class="comment-meta">
+                                <span>📅 ${new Date(c.created_at).toLocaleDateString()}</span>
+                                <span class="comment-like" onclick="likeComment(${c.id})">❤️ ${c.likes || 0}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
         `;
     }
 
-    loadVideo();
+    async function init() {
+        await loadCurrentUser();
+        await loadVideo();
+    }
+    
+    init();
 </script>
 
 </body>
