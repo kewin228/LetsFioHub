@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's FioHub — видеохостинг</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s, color 0.3s; }
@@ -12,6 +14,12 @@
         body.light .chip { background: #e5e5e5; color: #0f0f0f; }
         body.light .chip.active { background: #0f0f0f; color: #fff; }
         body.light .search-input, body.light .modal-content input, body.light .modal-content textarea, body.light .comment-form textarea { background: #f0f0f0; color: #0f0f0f; }
+        
+        /* Шрифты */
+        .font-professional { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .font-gamer { font-family: 'NeedForSpeed', 'Impact', 'Arial Black', sans-serif; letter-spacing: 1px; }
+        .font-slang { font-family: 'Comic Neue', cursive; }
+        .font-kids { font-family: 'Fredoka One', cursive; }
         
         .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #0f0f0f; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 100; border-bottom: 1px solid #303030; }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -43,7 +51,8 @@
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
         .video-card { cursor: pointer; transition: transform 0.2s; }
         .video-card:hover { transform: translateY(-4px); }
-        .thumbnail { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; }
+        .thumbnail { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; position: relative; }
+        .quick-badge { position: absolute; top: 10px; right: 10px; background: #ff0000; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
         .video-details { display: flex; gap: 12px; }
         .channel-avatar { width: 40px; height: 40px; background: #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .video-info { flex: 1; }
@@ -66,7 +75,9 @@
         .empty-state { text-align: center; padding: 60px; color: #aaa; }
         .subscriber-item { display: flex; align-items: center; gap: 16px; padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 8px; }
         .section-title { font-size: 20px; font-weight: 600; margin: 20px 0 16px; }
-        .quick-badge { background: #ff0000; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
+        .channel-cover { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; background: linear-gradient(135deg, #ff0000, #cc0000); }
+        .share-btn { background: #272727; border: none; color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; margin-left: 8px; }
+        .share-btn:hover { background: #3f3f3f; }
         
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-260px); }
@@ -75,13 +86,6 @@
             .video-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
         }
     </style>
-<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700</head>family=Fredoka+One</head>display=swap" rel="stylesheet"><link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
-<style>
-.gamer-font { font-family: "NeedForSpeed", "Impact", sans-serif; letter-spacing: 1px; }
-.professional-font { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-.slang-font { font-family: "Comic Neue", cursive; }
-.kids-font { font-family: "Fredoka One", cursive; }
-</style>
 </head>
 <body>
 
@@ -176,6 +180,15 @@
             </select>
         </div>
         <div class="settings-group">
+            <label>✍️ Шрифт</label>
+            <select id="fontSelect">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский (Need for Speed)</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div class="settings-group">
             <label>📹 Качество видео</label>
             <select id="qualitySelect">
                 <option value="auto">Авто</option>
@@ -201,6 +214,21 @@
     </div>
 </div>
 
+<!-- Модальное окно редактирования канала -->
+<div id="editChannelModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>✏️ Редактировать канал</h2>
+        <form id="editChannelForm">
+            <label>Описание канала</label>
+            <textarea id="channelDesc" rows="3" placeholder="Расскажите о своём канале..."></textarea>
+            <label>Заставка канала</label>
+            <input type="file" id="channelCover" accept="image/*">
+            <button type="submit">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
     let token = localStorage.getItem('token');
@@ -212,15 +240,25 @@
     let currentPage = 'home';
     let currentTab = 'all';
     let currentLanguage = localStorage.getItem('language') || 'professional';
+    let currentFont = localStorage.getItem('font') || 'professional';
     let myChannelVideos = [];
     let myChannelQuick = [];
 
+    // Применение шрифта
+    function applyFont(font) {
+        const body = document.body;
+        body.classList.remove('font-professional', 'font-gamer', 'font-slang', 'font-kids');
+        body.classList.add(`font-${font}`);
+        currentFont = font;
+        localStorage.setItem('font', font);
+    }
+
     // Переводы
     const translations = {
-        professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', upload: 'Загрузить', search: 'Поиск...', login: 'Войти', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Вы пока ни на кого не подписаны', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' },
-        gamer: { home: '🏠 Лобби', quick: '⚡ Шустрые', myChannel: '🎮 Мой стрим', subscriptions: '⭐ Фоллоу', history: '📜 Реплеи', subscribers: '👥 Фолловеры', noVideos: 'Нет видосов, загрузи!', upload: 'Загрузить видос', search: 'Искать видос...', login: 'Войти в акк', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', likes: 'лайков', subscribers_count: 'фолловеров', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы' },
-        slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', upload: 'Загрузить видос', search: 'Поиск...', login: 'Войти', register: 'Рега', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы' },
-        kids: { home: '🏠 Домик', quick: '⚡ Быстрые видео', myChannel: '📺 Мой канал', subscriptions: '⭐ Друзья', history: '📜 Что смотрели', subscribers: '👥 Друзья', noVideos: 'Нет видео, загрузи своё!', upload: 'Загрузить видео', search: 'Искать...', login: 'Войти', register: 'Зарегистрироваться', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', likes: 'лайков', subscribers_count: 'друзей', noSubscriptions: 'У тебя пока нет друзей', noHistory: 'Ты ещё ничего не смотрел', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео' }
+        professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', upload: 'Загрузить', search: 'Поиск...', login: 'Войти', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', dislikes: 'дизлайков', subscribers_count: 'подписчиков', noSubscriptions: 'Вы пока ни на кого не подписаны', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', share: 'Поделиться', editChannel: 'Редактировать канал' },
+        gamer: { home: '🏠 Лобби', quick: '⚡ Шустрые', myChannel: '🎮 Мой стрим', subscriptions: '⭐ Фоллоу', history: '📜 Реплеи', subscribers: '👥 Фолловеры', noVideos: 'Нет видосов, загрузи!', upload: 'Загрузить видос', search: 'Искать видос...', login: 'Войти в акк', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', likes: 'лайков', dislikes: 'дизлайков', subscribers_count: 'фолловеров', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы', share: 'Поделиться', editChannel: 'Настроить стрим' },
+        slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', upload: 'Загрузить видос', search: 'Поиск...', login: 'Войти', register: 'Рега', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', dislikes: 'дизлайков', subscribers_count: 'подписчиков', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы', share: 'Поделиться', editChannel: 'Настроить канал' },
+        kids: { home: '🏠 Домик', quick: '⚡ Быстрые видео', myChannel: '📺 Мой канал', subscriptions: '⭐ Друзья', history: '📜 Что смотрели', subscribers: '👥 Друзья', noVideos: 'Нет видео, загрузи своё!', upload: 'Загрузить видео', search: 'Искать...', login: 'Войти', register: 'Зарегистрироваться', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', likes: 'лайков', dislikes: 'дизлайков', subscribers_count: 'друзей', noSubscriptions: 'У тебя пока нет друзей', noHistory: 'Ты ещё ничего не смотрел', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', share: 'Поделиться', editChannel: 'Настроить канал' }
     };
 
     function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
@@ -258,8 +296,24 @@
                 const data = await res.json();
                 myChannelVideos = data.videos || [];
                 myChannelQuick = data.quick_videos || [];
+                if (currentUser.channel_description !== data.channel_description) {
+                    currentUser.channel_description = data.channel_description;
+                    currentUser.channel_cover = data.channel_cover;
+                }
             }
         } catch(e) { myChannelVideos = []; myChannelQuick = []; }
+    }
+
+    async function updateChannel(description, coverFile) {
+        const formData = new FormData();
+        formData.append('description', description);
+        if (coverFile) formData.append('cover', coverFile);
+        const res = await fetch(`${API_URL}/api/channel`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        return res.ok;
     }
 
     async function loadSubscriptions() {
@@ -327,11 +381,14 @@
         if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}</div>`;
         return `<div class="video-grid">${videos.map(v => `
             <div class="video-card" onclick="openVideo('${v.id}')">
-                <div class="thumbnail">${isQuick ? '⚡' : '🎬'}</div>
+                <div class="thumbnail">
+                    ${isQuick ? '⚡' : '🎬'}
+                    ${isQuick ? '<span class="quick-badge">Quick</span>' : ''}
+                </div>
                 <div class="video-details">
                     <div class="channel-avatar">📺</div>
                     <div class="video-info">
-                        <h3>${escapeHtml(v.title)}${isQuick ? '<span class="quick-badge">Quick</span>' : ''}</h3>
+                        <h3>${escapeHtml(v.title)}</h3>
                         <p>${escapeHtml(v.uploader_name)}</p>
                         <div class="video-stats">
                             <span>👁️ ${formatViews(v.views)} ${t('views')}</span>
@@ -362,7 +419,17 @@
         else if (currentPage === 'my-channel') {
             if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
             await loadMyChannelVideos();
-            let html = `<h2 style="margin-bottom:20px">📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
+            let html = `<div style="position: relative;">`;
+            if (currentUser.channel_cover) {
+                html += `<img src="${currentUser.channel_cover}" class="channel-cover" onerror="this.style.display='none'">`;
+            } else {
+                html += `<div class="channel-cover" style="display: flex; align-items: center; justify-content: center;">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
+            }
+            html += `<button class="share-btn" style="position: absolute; top: 10px; right: 10px;" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
+            html += `<h2 style="margin-bottom:8px;">📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
+            html += `<p style="color: #aaa; margin-bottom: 16px;">${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
+            html += `<p style="margin-bottom: 20px;">👥 ${currentUser.subscribers_count || 0} ${t('subscribers_count')}</p>`;
+            html += `</div>`;
             if (myChannelVideos.length > 0) {
                 html += `<div class="section-title">📹 ${t('regularVideos')}</div>${renderVideosGrid(myChannelVideos, true, false)}`;
             }
@@ -401,7 +468,6 @@
 
     window.openVideo = function(id) { window.location.href = `/letsfiohub/watch.html?id=${id}`; }
     window.deleteVideo = async function(id) {
-        console.log("Deleting video:", id);
         if (!confirm('Удалить видео?')) return;
         try {
             const res = await fetch(`${API_URL}/api/videos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
@@ -415,6 +481,11 @@
             await fetch(`${API_URL}/api/history`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
             renderPage();
         } catch(e) {}
+    }
+    window.shareVideo = function(videoId) {
+        const url = `${window.location.origin}/letsfiohub/watch.html?id=${videoId}`;
+        navigator.clipboard.writeText(url);
+        alert('Ссылка скопирована!');
     }
 
     async function searchVideos() {
@@ -465,9 +536,11 @@
                 const settings = await res.json();
                 document.getElementById('themeSelect').value = settings.theme || 'dark';
                 document.getElementById('languageSelect').value = settings.language || 'professional';
+                document.getElementById('fontSelect').value = settings.font_style || 'professional';
                 document.getElementById('qualitySelect').value = settings.video_quality || 'auto';
                 document.getElementById('subtitlesCheckbox').checked = settings.subtitles || false;
                 currentLanguage = settings.language || 'professional';
+                applyFont(settings.font_style || 'professional');
                 if (settings.theme === 'light') document.body.classList.add('light');
                 else document.body.classList.remove('light');
             }
@@ -478,6 +551,7 @@
         const settings = {
             theme: document.getElementById('themeSelect').value,
             language: document.getElementById('languageSelect').value,
+            font_style: document.getElementById('fontSelect').value,
             video_quality: document.getElementById('qualitySelect').value,
             subtitles: document.getElementById('subtitlesCheckbox').checked
         };
@@ -485,6 +559,7 @@
             const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) });
             if (res.ok) {
                 currentLanguage = settings.language;
+                applyFont(settings.font_style);
                 if (settings.theme === 'light') document.body.classList.add('light');
                 else document.body.classList.remove('light');
                 alert('Настройки сохранены');
@@ -492,6 +567,22 @@
             }
         } catch(e) { alert('Ошибка'); }
     }
+
+    // Редактирование канала
+    document.getElementById('editChannelForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const description = document.getElementById('channelDesc').value;
+        const coverFile = document.getElementById('channelCover').files[0];
+        const success = await updateChannel(description, coverFile);
+        if (success) {
+            alert('Канал обновлён!');
+            document.getElementById('editChannelModal').style.display = 'none';
+            await loadCurrentUser();
+            await renderPage();
+        } else {
+            alert('Ошибка обновления');
+        }
+    };
 
     // Загрузка видео
     document.getElementById('uploadForm').onsubmit = async (e) => {
@@ -531,7 +622,13 @@
     });
 
     document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.onclick = () => { document.getElementById('authModal').style.display = 'none'; document.getElementById('uploadModal').style.display = 'none'; document.getElementById('settingsModal').style.display = 'none'; document.getElementById('notificationsModal').style.display = 'none'; };
+        btn.onclick = () => { 
+            document.getElementById('authModal').style.display = 'none'; 
+            document.getElementById('uploadModal').style.display = 'none'; 
+            document.getElementById('settingsModal').style.display = 'none'; 
+            document.getElementById('notificationsModal').style.display = 'none';
+            document.getElementById('editChannelModal').style.display = 'none';
+        };
     });
 
     // Модальное окно авторизации
@@ -569,6 +666,7 @@
         document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible);
     });
 
+    applyFont(currentFont);
     loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(loadNotifications, 30000); });
 </script>
 
