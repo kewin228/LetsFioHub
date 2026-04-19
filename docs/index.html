@@ -394,6 +394,7 @@
 
     window.openVideo = function(id) { window.location.href = `/letsfiohub/watch.html?id=${id}`; }
     window.deleteVideo = async function(id) {
+        console.log("Deleting video:", id);
         if (!confirm('Удалить видео?')) return;
         try {
             const res = await fetch(`${API_URL}/api/videos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
