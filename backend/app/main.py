@@ -220,3 +220,12 @@ def like_video(video_id: str):
             v["likes"] += 1
             return {"likes": v["likes"]}
     raise HTTPException(404, "Video not found")
+
+# ВРЕМЕННЫЙ ЭНДПОИНТ ДЛЯ ОЧИСТКИ (удалить после использования)
+@app.post("/api/admin/clear")
+async def clear_all_users():
+    global users_db, videos_db, user_counter
+    users_db = []
+    videos_db = []
+    user_counter = 1
+    return {"message": "All users and videos deleted"}
