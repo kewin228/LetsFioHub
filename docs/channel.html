@@ -11,6 +11,8 @@
             background: #0f0f0f;
             color: #f1f1f1;
         }
+        body.light { background: #f9f9f9; color: #0f0f0f; }
+        
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
             background: #0f0f0f; display: flex; align-items: center;
@@ -21,6 +23,8 @@
         .logo img { height: 32px; }
         .back-link { margin-left: 24px; color: #aaa; text-decoration: none; }
         .back-link:hover { color: white; }
+        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .icon-btn:hover { background: #272727; }
         
         .container { max-width: 1200px; margin: 80px auto 0; padding: 0 24px; }
         .channel-cover {
@@ -39,6 +43,7 @@
             align-items: center;
             gap: 24px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
         }
         .channel-avatar {
             width: 80px;
@@ -50,8 +55,24 @@
             justify-content: center;
             font-size: 32px;
         }
+        .channel-info { flex: 1; }
         .channel-info h1 { font-size: 24px; margin-bottom: 8px; }
-        .channel-stats { color: #aaa; font-size: 14px; }
+        .channel-stats { color: #aaa; font-size: 14px; margin-bottom: 8px; }
+        .channel-description { color: #aaa; font-size: 14px; }
+        
+        .subscribe-channel-btn {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .subscribe-channel-btn.subscribed { background: #272727; }
+        .subscribe-channel-btn:hover { transform: scale(1.02); }
         
         .tabs { display: flex; gap: 24px; margin: 24px 0; border-bottom: 1px solid #303030; }
         .tab { padding: 12px 0; cursor: pointer; font-size: 16px; font-weight: 500; color: #aaa; }
@@ -79,18 +100,34 @@
         </div>
         <a href="/letsfiohub" class="back-link">← На главную</a>
     </div>
+    <button class="icon-btn" id="settingsBtn">⚙️</button>
 </header>
 
 <main class="container" id="app">
-    <div class="loading" style="text-align: center; padding: 60px;">⏳ Загрузка канала...</div>
+    <div class="empty-state">⏳ Загрузка канала...</div>
 </main>
 
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username');
+    let token = localStorage.getItem('token');
+    let currentUser = null;
     let channelData = null;
     let currentTab = 'videos';
+    let isSubscribed = false;
+    let subscriberCount = 0;
+
+    async function loadCurrentUser() {
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) currentUser = await res.json();
+            else token = null;
+        } catch(e) {}
+    }
 
     async function loadChannel() {
         if (!username) {
@@ -101,6 +138,10 @@
             const response = await fetch(`${API_URL}/api/channel/${username}`);
             if (response.ok) {
                 channelData = await response.json();
+                subscriberCount = channelData.subscribers_count || 0;
+                if (token && currentUser && currentUser.username !== username) {
+                    await checkSubscribed();
+                }
                 renderPage();
             } else {
                 document.getElementById('app').innerHTML = '<div class="empty-state">❌ Канал не найден</div>';
@@ -108,6 +149,57 @@
         } catch (err) {
             document.getElementById('app').innerHTML = '<div class="empty-state">❌ Ошибка загрузки</div>';
         }
+    }
+
+    async function checkSubscribed() {
+        if (!currentUser || currentUser.username === username) return;
+        try {
+            const res = await fetch(`${API_URL}/api/is_subscribed/${channelData.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                isSubscribed = data.subscribed;
+            }
+        } catch(e) {}
+    }
+
+    async function subscribeToChannel() {
+        if (!token) { alert('Войдите, чтобы подписаться'); return; }
+        if (currentUser && currentUser.username === username) {
+            alert('Нельзя подписаться на самого себя');
+            return;
+        }
+        try {
+            const method = isSubscribed ? 'DELETE' : 'POST';
+            const res = await fetch(`${API_URL}/api/subscribe/${channelData.id}`, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                isSubscribed = !isSubscribed;
+                subscriberCount = data.subscribers_count;
+                updateSubscribeButton();
+                alert(isSubscribed ? 'Вы подписались!' : 'Вы отписались');
+            } else {
+                const error = await res.json();
+                alert('Ошибка: ' + (error.detail || 'Неизвестная ошибка'));
+            }
+        } catch(err) {
+            alert('Ошибка: ' + err.message);
+        }
+    }
+
+    function updateSubscribeButton() {
+        const subBtn = document.getElementById('subscribeChannelBtn');
+        const statsSpan = document.getElementById('channelStats');
+        if (subBtn) {
+            subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
+            if (isSubscribed) subBtn.classList.add('subscribed');
+            else subBtn.classList.remove('subscribed');
+        }
+        if (statsSpan) statsSpan.textContent = `👥 ${subscriberCount} подписчиков`;
     }
 
     function formatViews(views) {
@@ -161,15 +253,19 @@
     function renderPage() {
         if (!channelData) return;
         
+        const isOwnChannel = currentUser && currentUser.username === username;
+        
         document.getElementById('app').innerHTML = `
             <div class="channel-cover"></div>
             <div class="channel-header">
                 <div class="channel-avatar">📺</div>
                 <div class="channel-info">
                     <h1>${escapeHtml(channelData.channel_name)}</h1>
-                    <div class="channel-stats">👥 ${channelData.subscribers_count || 0} подписчиков</div>
-                    <div class="channel-description" style="margin-top: 8px; color: #aaa;">${escapeHtml(channelData.channel_description || 'Нет описания')}</div>
+                    <div class="channel-stats" id="channelStats">👥 ${subscriberCount} подписчиков</div>
+                    <div class="channel-description">${escapeHtml(channelData.channel_description || 'Нет описания')}</div>
                 </div>
+                ${!isOwnChannel && token ? `<button class="subscribe-channel-btn ${isSubscribed ? 'subscribed' : ''}" id="subscribeChannelBtn">${isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться'}</button>` : ''}
+                ${!token ? `<button class="subscribe-channel-btn" id="loginToSubscribeBtn">🔔 Подписаться</button>` : ''}
             </div>
             <div class="tabs">
                 <div class="tab ${currentTab === 'videos' ? 'active' : ''}" data-tab="videos">📹 Видео</div>
@@ -185,6 +281,15 @@
             tabContent.innerHTML = renderQuickVideos(channelData.quick_videos);
         }
         
+        if (!isOwnChannel && token) {
+            document.getElementById('subscribeChannelBtn')?.addEventListener('click', subscribeToChannel);
+        }
+        if (!token) {
+            document.getElementById('loginToSubscribeBtn')?.addEventListener('click', () => {
+                alert('Войдите, чтобы подписаться на канал');
+            });
+        }
+        
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 currentTab = tab.dataset.tab;
@@ -197,7 +302,17 @@
         window.location.href = `/letsfiohub/watch.html?id=${id}`;
     }
 
-    loadChannel();
+    // Настройки (переход на главную)
+    document.getElementById('settingsBtn').onclick = () => {
+        window.location.href = '/letsfiohub';
+    };
+
+    async function init() {
+        await loadCurrentUser();
+        await loadChannel();
+    }
+    
+    init();
 </script>
 </body>
 </html>
