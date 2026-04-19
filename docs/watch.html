@@ -3,92 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's FioHub - Просмотр</title>
+    <title>Let's FioHub — просмотр видео</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #0f0f0f; color: white; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
         
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 56px;
-            background: #0f0f0f;
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            z-index: 100;
-            border-bottom: 1px solid #3f3f3f;
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: #0f0f0f; display: flex; align-items: center;
+            padding: 0 16px; z-index: 100; border-bottom: 1px solid #303030;
         }
-        .logo {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            text-decoration: none;
-        }
-        .logo-lets { font-size: 1rem; font-weight: 600; color: white; }
-        .logo-figure { font-size: 0.9rem; color: #aaaaaa; }
-        .logo-it { font-size: 0.85rem; color: #888888; }
-        .logo-fiohub { font-size: 0.7rem; color: #ff0000; margin-left: 4px; }
-        .back-link {
-            margin-left: 24px;
-            color: #aaaaaa;
-            text-decoration: none;
-        }
-        .back-link:hover { color: white; }
+        .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .logo img { height: 32px; }
+        .back-link { margin-left: 24px; color: #aaa; text-decoration: none; }
         
-        .container {
-            max-width: 1200px;
-            margin: 80px auto 0;
-            padding: 0 16px;
-        }
-        .video-player {
-            background: black;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
+        .container { max-width: 1200px; margin: 72px auto 0; padding: 0 16px; }
+        .video-player { background: #000; border-radius: 12px; overflow: hidden; }
         .video-player video { width: 100%; max-height: 70vh; }
-        .watch-title { font-size: 1.3rem; margin-bottom: 12px; }
-        .watch-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-top: 1px solid #3f3f3f;
-            border-bottom: 1px solid #3f3f3f;
+        .watch-title { font-size: 20px; font-weight: 600; margin: 16px 0 12px; }
+        .watch-meta { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #303030; border-bottom: 1px solid #303030; }
+        .like-btn { background: #272727; border: none; color: white; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
+        .watch-description { background: #272727; padding: 16px; border-radius: 12px; margin: 16px 0; }
+        .comments-section { margin-top: 32px; }
+        .comment-form { display: flex; gap: 12px; margin-bottom: 24px; }
+        .comment-form textarea { flex: 1; background: #121212; border: 1px solid #303030; border-radius: 12px; padding: 12px; color: white; }
+        .comment-form button { background: #ff0000; border: none; padding: 0 24px; border-radius: 40px; cursor: pointer; color: white; }
+        .comment { background: #1a1a1a; padding: 16px; border-radius: 12px; margin-bottom: 12px; }
+        .comment-author { font-weight: bold; margin-bottom: 8px; color: #ff0000; }
+        .loading { text-align: center; padding: 60px; color: #aaa; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 12px; }
+            .watch-title { font-size: 18px; }
         }
-        .like-btn {
-            background: #272727;
-            border: none;
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 40px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .like-btn:hover { background: #3f3f3f; }
-        .video-description {
-            padding: 16px;
-            background: #272727;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-        .loading { text-align: center; padding: 60px; color: #aaaaaa; }
     </style>
 </head>
 <body>
 
 <header class="header">
-    <a href="/letsfiohub" class="logo">
-        <span class="logo-lets">Let's</span>
-        <span class="logo-figure">figure</span>
-        <span class="logo-it">it out</span>
-        <span class="logo-fiohub">FioHub</span>
-    </a>
+    <div class="logo" onclick="window.location.href='/letsfiohub'">
+        <img src="logo.png" alt="Let's figure it out" style="height: 32px;">
+        <span style="font-weight: bold;">Let's FioHub</span>
+    </div>
     <a href="/letsfiohub" class="back-link">← На главную</a>
 </header>
 
@@ -100,59 +56,79 @@
     const API_URL = 'https://letsfiohub-api.onrender.com';
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
-    
+    let currentVideo = null;
+    let token = localStorage.getItem('token');
+
     async function loadVideo() {
         if (!videoId) {
             document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
             return;
         }
-        
         try {
-            const response = await fetch(`${API_URL}/api/v1/videos/${videoId}`);
-            const video = await response.json();
-            
-            document.getElementById('app').innerHTML = `
-                <div class="video-player">
-                    <video controls autoplay>
-                        <source src="${API_URL}/api/v1/videos/${videoId}/stream">
-                    </video>
-                </div>
-                <h1 class="watch-title">${escapeHtml(video.title) || 'Без названия'}</h1>
-                <div class="watch-meta">
-                    <div>👁️ ${formatViews(video.views || 0)} просмотров</div>
-                    <button class="like-btn" onclick="likeVideo()">👍 ${video.likes || 0}</button>
-                </div>
-                <div class="video-description">
-                    <p>${escapeHtml(video.description) || 'Нет описания'}</p>
-                </div>
-            `;
+            const response = await fetch(`${API_URL}/api/videos/${videoId}`);
+            if (response.ok) {
+                currentVideo = await response.json();
+                renderPage();
+            } else {
+                document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
+            }
         } catch (err) {
-            document.getElementById('app').innerHTML = '<div class="loading">❌ Ошибка загрузки видео</div>';
+            document.getElementById('app').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
         }
     }
-    
+
+    async function likeVideo() {
+        if (!token) {
+            alert('Войдите, чтобы поставить лайк');
+            return;
+        }
+        try {
+            await fetch(`${API_URL}/api/videos/${videoId}/like`, { method: 'POST' });
+            await loadVideo();
+        } catch (err) {
+            console.error('Like error:', err);
+        }
+    }
+
     function formatViews(views) {
         if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
         if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
         return views;
     }
-    
+
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
-    async function likeVideo() {
-        try {
-            await fetch(`${API_URL}/api/v1/videos/${videoId}/like?user_id=1`, { method: 'POST' });
-            loadVideo();
-        } catch (err) {
-            console.error('Error liking video:', err);
-        }
+
+    function renderPage() {
+        if (!currentVideo) return;
+        
+        const streamUrl = `${API_URL}/api/videos/${videoId}/stream`;
+        
+        document.getElementById('app').innerHTML = `
+            <div class="video-player">
+                <video controls autoplay>
+                    <source src="${streamUrl}" type="video/mp4">
+                    Ваш браузер не поддерживает видео
+                </video>
+            </div>
+            <h1 class="watch-title">${escapeHtml(currentVideo.title) || 'Без названия'}</h1>
+            <div class="watch-meta">
+                <div class="watch-stats">
+                    <span>👁️ ${formatViews(currentVideo.views)} просмотров</span>
+                    <button class="like-btn" onclick="likeVideo()">👍 ${currentVideo.likes || 0}</button>
+                </div>
+                <div>📺 ${escapeHtml(currentVideo.uploader_name)}</div>
+            </div>
+            <div class="watch-description">
+                <p>${escapeHtml(currentVideo.description) || 'Нет описания'}</p>
+            </div>
+        `;
     }
-    
+
     loadVideo();
 </script>
 
