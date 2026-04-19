@@ -12,9 +12,11 @@ SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
-# Создаём папку для видео
+# СОЗДАЁМ ПАПКУ ДЛЯ ВИДЕО
 UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+    print(f"✅ Папка {UPLOAD_DIR} создана")
 
 app = FastAPI(title="Let's FioHub API")
 
@@ -164,12 +166,17 @@ async def upload_video(
         raise HTTPException(401, "Unauthorized")
     
     video_id = str(uuid.uuid4())[:8]
-    file_path = f"{UPLOAD_DIR}/{video_id}.mp4"
+    file_path = os.path.join(UPLOAD_DIR, f"{video_id}.mp4")
     
-    # Сохраняем файл
-    with open(file_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+    # СОХРАНЯЕМ ФАЙЛ
+    try:
+        with open(file_path, "wb") as f:
+            content = await file.read()
+            f.write(content)
+        print(f"✅ Файл сохранён: {file_path}, размер: {len(content)} байт")
+    except Exception as e:
+        print(f"❌ Ошибка сохранения: {e}")
+        raise HTTPException(500, "Failed to save file")
     
     new_video = {
         "id": video_id,
@@ -178,7 +185,8 @@ async def upload_video(
         "views": 0,
         "likes": 0,
         "uploader_name": user["username"],
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
+        "file_path": file_path
     }
     videos_db.append(new_video)
     
@@ -194,9 +202,15 @@ def get_video(video_id: str):
 
 @app.get("/api/videos/{video_id}/stream")
 def stream_video(video_id: str):
-    file_path = f"{UPLOAD_DIR}/{video_id}.mp4"
-    if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="video/mp4")
+    # Ищем видео в памяти
+    for v in videos_db:
+        if v["id"] == video_id:
+            file_path = v.get("file_path", os.path.join(UPLOAD_DIR, f"{video_id}.mp4"))
+            if os.path.exists(file_path):
+                print(f"✅ Отдаём файл: {file_path}")
+                return FileResponse(file_path, media_type="video/mp4")
+            else:
+                print(f"❌ Файл не найден: {file_path}")
     raise HTTPException(404, "File not found")
 
 @app.post("/api/videos/{video_id}/like")
