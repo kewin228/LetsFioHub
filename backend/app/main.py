@@ -12,7 +12,9 @@ SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
-os.makedirs("uploads", exist_ok=True)
+# Создаём папку для видео
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
 
@@ -162,10 +164,12 @@ async def upload_video(
         raise HTTPException(401, "Unauthorized")
     
     video_id = str(uuid.uuid4())[:8]
-    file_path = f"uploads/{video_id}.mp4"
+    file_path = f"{UPLOAD_DIR}/{video_id}.mp4"
     
+    # Сохраняем файл
     with open(file_path, "wb") as f:
-        f.write(await file.read())
+        content = await file.read()
+        f.write(content)
     
     new_video = {
         "id": video_id,
@@ -190,7 +194,7 @@ def get_video(video_id: str):
 
 @app.get("/api/videos/{video_id}/stream")
 def stream_video(video_id: str):
-    file_path = f"uploads/{video_id}.mp4"
+    file_path = f"{UPLOAD_DIR}/{video_id}.mp4"
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type="video/mp4")
     raise HTTPException(404, "File not found")
