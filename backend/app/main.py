@@ -9,8 +9,7 @@ from pydantic import BaseModel
 import uuid
 import os
 
-# --- Конфигурация ---
-SECRET_KEY = "your-super-secret-key-2024"
+SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
@@ -18,7 +17,6 @@ os.makedirs("uploads", exist_ok=True)
 
 app = FastAPI(title="Let's FioHub API")
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,7 +25,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Безопасность ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -48,7 +45,6 @@ def decode_token(token: str) -> int:
     except:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# --- Модели ---
 class UserRegister(BaseModel):
     username: str
     email: str
@@ -58,27 +54,10 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-class UserOut(BaseModel):
-    id: int
-    username: str
-    email: str
-    channel_name: str
-
-class VideoOut(BaseModel):
-    id: str
-    title: str
-    description: str
-    views: int
-    likes: int
-    uploader_name: str
-    created_at: str
-
-# --- Хранилища (в памяти) ---
 users_db = []
 videos_db = []
 user_counter = 1
 
-# --- Вспомогательные функции ---
 def get_user_by_email(email: str):
     for u in users_db:
         if u["email"] == email:
@@ -97,7 +76,6 @@ def get_user_by_id(user_id: int):
             return u
     return None
 
-# --- API ---
 @app.get("/")
 def root():
     return {"message": "Let's FioHub API"}
@@ -106,7 +84,6 @@ def root():
 def health():
     return {"status": "ok"}
 
-# Регистрация
 @app.post("/api/register")
 def register(user: UserRegister):
     if get_user_by_email(user.email):
@@ -132,7 +109,6 @@ def register(user: UserRegister):
         "channel_name": new_user["channel_name"]
     }
 
-# Вход
 @app.post("/api/login")
 def login(user: UserLogin):
     db_user = get_user_by_email(user.email)
@@ -151,7 +127,6 @@ def login(user: UserLogin):
         }
     }
 
-# Получить текущего пользователя
 @app.get("/api/me")
 def get_me(token: str = Depends(oauth2_scheme)):
     user_id = decode_token(token)
@@ -165,7 +140,6 @@ def get_me(token: str = Depends(oauth2_scheme)):
         "channel_name": user["channel_name"]
     }
 
-# Получить канал пользователя
 @app.get("/api/channel/{username}")
 def get_channel(username: str):
     user = get_user_by_username(username)
@@ -179,12 +153,10 @@ def get_channel(username: str):
         "videos": user_videos
     }
 
-# Все видео
 @app.get("/api/videos")
 def get_all_videos():
     return {"videos": videos_db, "total": len(videos_db)}
 
-# Загрузка видео
 @app.post("/api/videos/upload")
 async def upload_video(
     title: str = Form(...),
@@ -216,7 +188,6 @@ async def upload_video(
     
     return {"message": "Uploaded", "video_id": video_id}
 
-# Получить видео по ID
 @app.get("/api/videos/{video_id}")
 def get_video(video_id: str):
     for v in videos_db:
@@ -225,7 +196,6 @@ def get_video(video_id: str):
             return v
     raise HTTPException(404, "Video not found")
 
-# Потоковое воспроизведение
 @app.get("/api/videos/{video_id}/stream")
 def stream_video(video_id: str):
     file_path = f"uploads/{video_id}.mp4"
@@ -233,7 +203,6 @@ def stream_video(video_id: str):
         return FileResponse(file_path, media_type="video/mp4")
     raise HTTPException(404, "File not found")
 
-# Лайк
 @app.post("/api/videos/{video_id}/like")
 def like_video(video_id: str):
     for v in videos_db:
