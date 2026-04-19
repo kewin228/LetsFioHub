@@ -13,9 +13,8 @@
             color: #f1f1f1;
         }
         body.light { background: #f9f9f9; color: #0f0f0f; }
-        body.light .header, body.light .video-info-card, body.light .comment, body.light .settings-panel { background: #fff; border-color: #e5e5e5; }
+        body.light .header, body.light .video-info-card, body.light .comment { background: #fff; border-color: #e5e5e5; }
         
-        /* Header */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
             background: #0f0f0f; display: flex; align-items: center;
@@ -27,7 +26,6 @@
         .back-link { margin-left: 24px; color: #aaa; text-decoration: none; font-size: 14px; }
         .back-link:hover { color: white; }
         
-        /* Main layout */
         .container {
             max-width: 1400px;
             margin: 72px auto 0;
@@ -37,34 +35,22 @@
             gap: 24px;
         }
         
-        /* Video player */
         .video-wrapper {
             background: #000;
             border-radius: 16px;
             overflow: hidden;
             position: relative;
         }
-        .video-wrapper video {
-            width: 100%;
-            max-height: 70vh;
-            cursor: pointer;
-        }
+        .video-wrapper video { width: 100%; max-height: 70vh; cursor: pointer; }
         
-        /* Video info card */
         .video-info-card {
             background: #1a1a1a;
             border-radius: 16px;
             padding: 20px;
             margin-top: 16px;
         }
-        .video-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
+        .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
         
-        /* Stats row */
         .stats-row {
             display: flex;
             justify-content: space-between;
@@ -74,23 +60,9 @@
             padding-bottom: 16px;
             border-bottom: 1px solid #303030;
         }
-        .stats-left {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #aaa;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+        .stats-left { display: flex; gap: 16px; align-items: center; }
+        .stat-item { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #aaa; }
+        .action-buttons { display: flex; gap: 12px; align-items: center; }
         .action-btn {
             background: #272727;
             border: none;
@@ -108,21 +80,16 @@
         .action-btn:hover { background: #3f3f3f; transform: scale(1.02); }
         .action-btn.liked { background: #ff0000; }
         .action-btn.disliked { background: #3f3f3f; color: #ff0000; }
-        .share-btn { background: #272727; }
         
-        /* Channel row */
         .channel-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px 0;
             border-bottom: 1px solid #303030;
+            cursor: pointer;
         }
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .channel-info { display: flex; align-items: center; gap: 12px; }
         .channel-avatar {
             width: 48px;
             height: 48px;
@@ -134,14 +101,8 @@
             font-size: 20px;
             font-weight: bold;
         }
-        .channel-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .channel-subscribers {
-            font-size: 12px;
-            color: #aaa;
-        }
+        .channel-name { font-weight: 600; font-size: 16px; }
+        .channel-subscribers { font-size: 12px; color: #aaa; }
         .subscribe-btn {
             background: #ff0000;
             color: white;
@@ -155,30 +116,12 @@
         .subscribe-btn.subscribed { background: #272727; }
         .subscribe-btn:hover { transform: scale(1.02); }
         
-        /* Description */
-        .description {
-            padding: 16px 0;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #ccc;
-        }
+        .description { padding: 16px 0; font-size: 14px; line-height: 1.5; color: #ccc; }
         
-        /* Comments */
-        .comments-section {
-            margin-top: 24px;
-        }
-        .comments-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
+        .comments-section { margin-top: 24px; }
+        .comments-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
         .comments-header h3 { font-size: 18px; font-weight: 600; }
-        .comment-form {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
+        .comment-form { display: flex; gap: 12px; margin-bottom: 24px; }
         .comment-form textarea {
             flex: 1;
             background: #121212;
@@ -205,26 +148,14 @@
             border-radius: 16px;
             margin-bottom: 12px;
         }
-        .comment-author {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #ff0000;
-        }
+        .comment-author { font-weight: 600; margin-bottom: 8px; color: #ff0000; }
         .comment-text { margin-bottom: 8px; font-size: 14px; line-height: 1.4; }
         .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; }
         .comment-like { cursor: pointer; }
         .comment-like:hover { color: #ff0000; }
         
-        /* Sidebar */
-        .sidebar-videos {
-            position: sticky;
-            top: 72px;
-        }
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
+        .sidebar-videos { position: sticky; top: 72px; }
+        .sidebar-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
         .recommend-card {
             display: flex;
             gap: 12px;
@@ -244,10 +175,9 @@
             font-size: 32px;
             flex-shrink: 0;
         }
-        .recommend-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .recommend-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
         .recommend-info p { font-size: 12px; color: #aaa; }
         
-        /* Settings panel */
         .settings-panel {
             position: fixed;
             bottom: 20px;
@@ -299,14 +229,8 @@
         
         .loading { text-align: center; padding: 60px; color: #aaa; }
         
-        @media (max-width: 1024px) {
-            .container { grid-template-columns: 1fr; }
-            .sidebar-videos { display: none; }
-        }
-        @media (max-width: 768px) {
-            .container { padding: 0 16px; }
-            .stats-row { flex-direction: column; align-items: flex-start; }
-        }
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar-videos { display: none; } }
+        @media (max-width: 768px) { .container { padding: 0 16px; } .stats-row { flex-direction: column; align-items: flex-start; } }
     </style>
 </head>
 <body>
@@ -319,9 +243,7 @@
         </div>
         <a href="/letsfiohub" class="back-link">← На главную</a>
     </div>
-    <div>
-        <button class="action-btn" id="settingsBtn" style="background: none; font-size: 20px;">⚙️</button>
-    </div>
+    <button class="action-btn" id="settingsBtn" style="background: none; font-size: 20px;">⚙️</button>
 </header>
 
 <div class="container">
@@ -339,7 +261,7 @@
                 <div class="action-buttons">
                     <button class="action-btn" id="likeBtn">👍 <span id="likeCount">0</span></button>
                     <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">0</span></button>
-                    <button class="action-btn share-btn" id="shareBtn">🔗 Поделиться</button>
+                    <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
                 </div>
             </div>
             <div class="channel-row" id="channelRow">
@@ -405,9 +327,6 @@
     let dislikeCount = 0;
     let subscriberCount = 0;
     let allVideos = [];
-    let currentQuality = localStorage.getItem('videoQuality') || 'auto';
-    let subtitlesOn = localStorage.getItem('subtitlesOn') === 'true';
-    let videoPlayer = null;
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -561,6 +480,12 @@
         } catch(err) { alert('Ошибка'); }
     }
 
+    async function goToChannel() {
+        if (currentVideo && currentVideo.uploader_name) {
+            window.location.href = `/letsfiohub/channel.html?username=${currentVideo.uploader_name}`;
+        }
+    }
+
     async function loadComments() {
         try {
             const res = await fetch(`${API_URL}/api/videos/${videoId}/comments`);
@@ -602,30 +527,6 @@
         const url = window.location.href;
         navigator.clipboard.writeText(url);
         alert('Ссылка на видео скопирована!');
-    }
-
-    function setQuality(quality) {
-        currentQuality = quality;
-        localStorage.setItem('videoQuality', quality);
-        if (videoPlayer) {
-            const currentTime = videoPlayer.currentTime;
-            const wasPlaying = !videoPlayer.paused;
-            videoPlayer.src = `${API_URL}/api/videos/${videoId}/stream`;
-            videoPlayer.load();
-            videoPlayer.currentTime = currentTime;
-            if (wasPlaying) videoPlayer.play();
-        }
-    }
-
-    function toggleSubtitles() {
-        subtitlesOn = !subtitlesOn;
-        localStorage.setItem('subtitlesOn', subtitlesOn);
-        if (videoPlayer) {
-            const tracks = videoPlayer.textTracks;
-            for (let i = 0; i < tracks.length; i++) {
-                tracks[i].mode = subtitlesOn ? 'showing' : 'disabled';
-            }
-        }
     }
 
     function formatViews(views) {
@@ -700,45 +601,55 @@
         const videoElement = document.getElementById('videoPlayer');
         videoElement.src = `${API_URL}/api/videos/${videoId}/stream`;
         videoElement.load();
-        videoPlayer = videoElement;
         
+        // Привязываем обработчики
         document.getElementById('likeBtn').onclick = likeVideo;
         document.getElementById('dislikeBtn').onclick = dislikeVideo;
         document.getElementById('subscribeBtn').onclick = subscribe;
         document.getElementById('shareBtn').onclick = shareVideo;
         document.getElementById('submitCommentBtn').onclick = addComment;
+        document.getElementById('channelRow').onclick = goToChannel;
         
-        // Quality menu
+        // Настройки
+        const settingsBtn = document.getElementById('settingsBtn');
         const qualityMenu = document.getElementById('qualityMenu');
+        const subtitleMenu = document.getElementById('subtitleMenu');
         const qualityBtn = document.getElementById('qualityBtn');
+        const subtitleBtn = document.getElementById('subtitleBtn');
+        
+        settingsBtn.onclick = () => {
+            window.location.href = '/letsfiohub';
+        };
+        
         qualityBtn.onclick = (e) => {
             e.stopPropagation();
             qualityMenu.style.display = qualityMenu.style.display === 'flex' ? 'none' : 'flex';
-            document.getElementById('subtitleMenu').style.display = 'none';
+            subtitleMenu.style.display = 'none';
         };
-        document.querySelectorAll('#qualityMenu button').forEach(btn => {
-            btn.onclick = (e) => {
-                setQuality(btn.dataset.quality);
-                qualityMenu.style.display = 'none';
-            };
-        });
         
-        // Subtitle menu
-        const subtitleMenu = document.getElementById('subtitleMenu');
-        const subtitleBtn = document.getElementById('subtitleBtn');
         subtitleBtn.onclick = (e) => {
             e.stopPropagation();
             subtitleMenu.style.display = subtitleMenu.style.display === 'flex' ? 'none' : 'flex';
             qualityMenu.style.display = 'none';
         };
-        document.querySelectorAll('#subtitleMenu button').forEach(btn => {
+        
+        document.querySelectorAll('#qualityMenu button').forEach(btn => {
             btn.onclick = (e) => {
-                toggleSubtitles();
-                subtitleMenu.style.display = 'none';
+                const quality = btn.dataset.quality;
+                localStorage.setItem('videoQuality', quality);
+                qualityMenu.style.display = 'none';
+                alert(`Качество изменено на ${quality}`);
             };
         });
         
-        // Close menus on click outside
+        document.querySelectorAll('#subtitleMenu button').forEach(btn => {
+            btn.onclick = (e) => {
+                localStorage.setItem('subtitlesOn', btn.dataset.subtitle === 'off' ? 'false' : 'true');
+                subtitleMenu.style.display = 'none';
+                alert(btn.dataset.subtitle === 'off' ? 'Субтитры выключены' : 'Субтитры включены');
+            };
+        });
+        
         document.addEventListener('click', () => {
             qualityMenu.style.display = 'none';
             subtitleMenu.style.display = 'none';
