@@ -3,66 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's FioHub</title>
+    <title>Let's FioHub — видеохостинг</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
-
-        /* Шапка */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s, color 0.3s; }
+        body.light { background: #f9f9f9; color: #0f0f0f; }
+        body.light .sidebar, body.light .header, body.light .modal-content, body.light .comment, body.light .watch-description { background: #fff; border-color: #e5e5e5; }
+        body.light .chip { background: #e5e5e5; color: #0f0f0f; }
+        body.light .chip.active { background: #0f0f0f; color: #fff; }
+        body.light .search-input, body.light .modal-content input, body.light .modal-content textarea, body.light .comment-form textarea { background: #f0f0f0; color: #0f0f0f; }
+        
         .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #0f0f0f; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 100; border-bottom: 1px solid #303030; }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .logo img { height: 32px; width: auto; }
-        .logo span { font-size: 18px; font-weight: bold; background: linear-gradient(135deg, #fff, #ff0000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo img { height: 32px; }
+        .logo span { font-weight: bold; }
         .search-form { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
         .search-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
         .search-btn { background: #222; border: 1px solid #303030; border-left: none; border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white; }
-        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
+        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; position: relative; }
         .icon-btn:hover { background: #272727; }
-
-        /* Боковое меню */
-        .sidebar { position: fixed; top: 56px; bottom: 0; left: 0; width: 240px; background: #0f0f0f; padding: 12px 0; overflow-y: auto; transition: transform 0.3s; z-index: 90; }
-        .sidebar.closed { transform: translateX(-240px); }
-        .sidebar-item { display: flex; align-items: center; gap: 24px; padding: 8px 24px; cursor: pointer; border-radius: 10px; margin: 2px 8px; transition: background 0.2s; }
+        .notification-badge { position: absolute; top: 0; right: 0; background: #ff0000; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
+        
+        .sidebar { position: fixed; top: 56px; bottom: 0; left: 0; width: 260px; background: #0f0f0f; padding: 16px 0; overflow-y: auto; transition: transform 0.3s; z-index: 90; }
+        .sidebar.closed { transform: translateX(-260px); }
+        .sidebar-item { display: flex; align-items: center; gap: 24px; padding: 10px 24px; cursor: pointer; border-radius: 10px; margin: 4px 12px; transition: background 0.2s; }
         .sidebar-item:hover { background: #272727; }
         .sidebar-item.active { background: #272727; }
-        .sidebar-item span:first-child { font-size: 24px; }
-        .sidebar-item span:last-child { font-size: 14px; }
-        .sidebar-divider { height: 1px; background: #303030; margin: 12px 12px; }
-
-        /* Контент */
-        .main-content { margin-left: 240px; margin-top: 56px; padding: 24px; transition: margin-left 0.3s; }
+        .sidebar-item span:first-child { font-size: 22px; width: 28px; }
+        .sidebar-divider { height: 1px; background: #303030; margin: 12px 16px; }
+        .sidebar-title { color: #aaa; font-size: 12px; font-weight: 600; letter-spacing: 1px; padding: 8px 24px; }
+        
+        .main-content { margin-left: 260px; margin-top: 56px; padding: 24px; transition: margin-left 0.3s; min-height: calc(100vh - 56px); }
         .main-content.expanded { margin-left: 0; }
-        .chips { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        .chip { padding: 8px 16px; background: #272727; border: none; border-radius: 40px; color: white; cursor: pointer; font-size: 14px; }
-        .chip.active { background: white; color: #0f0f0f; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .video-card { cursor: pointer; }
-        .thumbnail { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 8px; }
-        .video-details { display: flex; gap: 12px; margin-top: 8px; }
-        .channel-avatar { width: 36px; height: 36px; background: #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .video-info h3 { font-size: 16px; margin-bottom: 4px; }
-        .video-info p { font-size: 14px; color: #aaa; }
-        .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 8px; margin-top: 4px; }
-        .empty-state { text-align: center; padding: 60px; color: #aaa; }
-
-        /* Модальные окна */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #272727; padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
-        .modal-content h2 { margin-bottom: 16px; }
-        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; margin: 8px 0; background: #121212; border: 1px solid #3f3f3f; border-radius: 8px; color: white; }
+        
+        .chips { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+        .chip { padding: 8px 18px; background: #272727; border: none; border-radius: 40px; color: #f1f1f1; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .chip.active { background: #f1f1f1; color: #0f0f0f; }
+        
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
+        .video-card { cursor: pointer; transition: transform 0.2s; }
+        .video-card:hover { transform: translateY(-4px); }
+        .thumbnail { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; }
+        .video-details { display: flex; gap: 12px; }
+        .channel-avatar { width: 40px; height: 40px; background: #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .video-info { flex: 1; }
+        .video-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-info p { font-size: 13px; color: #aaa; margin-bottom: 4px; }
+        .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 12px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a1a; padding: 32px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .modal-content h2 { margin-bottom: 20px; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin: 8px 0; background: #121212; border: 1px solid #303030; border-radius: 8px; color: white; }
         .modal-content button { background: #ff0000; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; }
-        .close-modal { float: right; font-size: 24px; cursor: pointer; color: #aaa; }
-
-        @media (max-width: 768px) { .sidebar { transform: translateX(-240px); } .main-content { margin-left: 0; } .search-form { display: none; } }
+        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
+        
+        .settings-group { margin: 20px 0; }
+        .settings-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .settings-group select, .settings-group input { width: 100%; padding: 10px; background: #121212; border: 1px solid #303030; border-radius: 8px; color: white; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #303030; }
+        
+        .empty-state { text-align: center; padding: 60px; color: #aaa; }
+        .subscriber-item { display: flex; align-items: center; gap: 16px; padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 8px; }
+        
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-260px); }
+            .main-content { margin-left: 0; }
+            .search-form { display: none; }
+            .video-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+        }
     </style>
 </head>
 <body>
 
 <div class="app">
-    <!-- Шапка -->
     <header class="header">
         <div class="logo" id="logoHome">
-            <img src="logo.png" alt="Let's figure it out" style="height: 32px;">
+            <img src="logo.png" alt="Let's figure it out">
             <span>Let's FioHub</span>
         </div>
         <div class="search-form">
@@ -71,20 +88,23 @@
         </div>
         <div>
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
             <button class="icon-btn" id="loginBtn">👤</button>
             <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
     </header>
 
-    <!-- Боковое меню -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-item active" data-page="home"><span>🏠</span><span>Главная</span></div>
+        <div class="sidebar-item" data-page="quick"><span>⚡</span><span>Quick</span></div>
         <div class="sidebar-item" data-page="my-channel"><span>📺</span><span>Мой канал</span></div>
-        <div class="sidebar-divider"></div>
         <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span></div>
+        <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span></div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
     </aside>
 
-    <!-- Контент -->
     <main class="main-content" id="mainContent">
         <div id="content"></div>
     </main>
@@ -116,6 +136,7 @@
         <form id="uploadForm">
             <input type="text" id="videoTitle" placeholder="Название" required>
             <textarea id="videoDescription" rows="3" placeholder="Описание"></textarea>
+            <label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label>
             <input type="file" id="videoFile" accept="video/*" required>
             <div class="progress-bar" style="display: none; height: 4px; background: #3f3f3f; margin-top: 12px;"><div class="progress-fill" style="width: 0%; height: 100%; background: #ff0000;"></div></div>
             <div id="uploadStatus"></div>
@@ -124,36 +145,273 @@
     </div>
 </div>
 
+<!-- Модальное окно настроек -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>⚙️ Настройки</h2>
+        <div class="settings-group">
+            <label>🎨 Тема</label>
+            <select id="themeSelect">
+                <option value="dark">Тёмная</option>
+                <option value="light">Светлая</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label>🌐 Язык интерфейса</label>
+            <select id="languageSelect">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label>📹 Качество видео</label>
+            <select id="qualitySelect">
+                <option value="auto">Авто</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <span>📝 Субтитры</span>
+            <label><input type="checkbox" id="subtitlesCheckbox"> Включить</label>
+        </div>
+        <button id="saveSettingsBtn">Сохранить настройки</button>
+    </div>
+</div>
+
+<!-- Модальное окно уведомлений -->
+<div id="notificationsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>🔔 Уведомления</h2>
+        <div id="notificationsList"></div>
+    </div>
+</div>
+
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
     let token = localStorage.getItem('token');
     let currentUser = null;
     let allVideos = [];
-    let currentTab = 'all';
+    let quickVideos = [];
+    let subscriptionsList = [];
+    let watchHistory = [];
     let currentPage = 'home';
+    let currentTab = 'all';
+    let currentLanguage = localStorage.getItem('language') || 'professional';
 
-    const contentDiv = document.getElementById('content');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    // Переводы
+    const translations = {
+        professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', upload: 'Загрузить', search: 'Поиск...', login: 'Войти', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Вы пока ни на кого не подписаны', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от' },
+        gamer: { home: '🏠 Лобби', quick: '⚡ Шустрые', myChannel: '🎮 Мой стрим', subscriptions: '⭐ Фоллоу', history: '📜 Реплеи', subscribers: '👥 Фолловеры', noVideos: 'Нет видосов, загрузи!', upload: 'Загрузить видос', search: 'Искать видос...', login: 'Войти в акк', register: 'Регистрация', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', likes: 'лайков', subscribers_count: 'фолловеров', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от' },
+        slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', upload: 'Загрузить видос', search: 'Поиск...', login: 'Войти', register: 'Рега', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', likes: 'лайков', subscribers_count: 'подписчиков', noSubscriptions: 'Ты ни на кого не подписан', noHistory: 'История просмотров пуста', noNotifications: 'Нет уведомлений', newVideo: 'Новый видос от' },
+        kids: { home: '🏠 Домик', quick: '⚡ Быстрые видео', myChannel: '📺 Мой канал', subscriptions: '⭐ Друзья', history: '📜 Что смотрели', subscribers: '👥 Друзья', noVideos: 'Нет видео, загрузи своё!', upload: 'Загрузить видео', search: 'Искать...', login: 'Войти', register: 'Зарегистрироваться', logout: 'Выйти', settings: 'Настройки', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', likes: 'лайков', subscribers_count: 'друзей', noSubscriptions: 'У тебя пока нет друзей', noHistory: 'Ты ещё ничего не смотрел', noNotifications: 'Нет уведомлений', newVideo: 'Новое видео от' }
+    };
 
-    // Авторизация
+    function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
+
     async function loadCurrentUser() {
         if (!token) return;
         try {
-            const res = await fetch(API_URL + '/api/me', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
+            const res = await fetch(`${API_URL}/api/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) currentUser = await res.json();
+            else logout();
+        } catch(e) {}
+    }
+
+    async function loadAllVideos() {
+        try {
+            const res = await fetch(`${API_URL}/api/videos`);
+            const data = await res.json();
+            allVideos = data.videos || [];
+        } catch(e) { allVideos = []; }
+    }
+
+    async function loadQuickVideos() {
+        try {
+            const res = await fetch(`${API_URL}/api/quick`);
+            const data = await res.json();
+            quickVideos = data.videos || [];
+        } catch(e) { quickVideos = []; }
+    }
+
+    async function loadSubscriptions() {
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/subscriptions`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (res.ok) {
-                currentUser = await res.json();
-                updateAuthUI();
-            } else {
-                logout();
+                const data = await res.json();
+                subscriptionsList = data.subscriptions || [];
+            }
+        } catch(e) { subscriptionsList = []; }
+    }
+
+    async function loadWatchHistory() {
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                const data = await res.json();
+                watchHistory = data.history || [];
+            }
+        } catch(e) { watchHistory = []; }
+    }
+
+    async function loadSubscribersList() {
+        if (!currentUser) return [];
+        try {
+            const res = await fetch(`${API_URL}/api/subscribers/list/${currentUser.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                const data = await res.json();
+                return data.subscribers || [];
+            }
+        } catch(e) { return []; }
+        return [];
+    }
+
+    async function loadNotifications() {
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_URL}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
+                const data = await res.json();
+                const unread = data.notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notifBadge');
+                if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline-block'; }
+                else badge.style.display = 'none';
             }
         } catch(e) {}
     }
 
+    function formatViews(views) {
+        if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
+        if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+        return views;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderVideosGrid(videos, showDelete = false) {
+        if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}</div>`;
+        return `<div class="video-grid">${videos.map(v => `
+            <div class="video-card" onclick="openVideo('${v.id}')">
+                <div class="thumbnail">🎬</div>
+                <div class="video-details">
+                    <div class="channel-avatar">📺</div>
+                    <div class="video-info">
+                        <h3>${escapeHtml(v.title)}</h3>
+                        <p>${escapeHtml(v.uploader_name)}</p>
+                        <div class="video-stats">
+                            <span>👁️ ${formatViews(v.views)} ${t('views')}</span>
+                            <span>❤️ ${v.likes || 0}</span>
+                            ${showDelete ? `<span style="color:#ff0000; cursor:pointer;" onclick="event.stopPropagation(); deleteVideo('${v.id}')">🗑️ Удалить</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('')}</div>`;
+    }
+
+    async function renderPage() {
+        const contentDiv = document.getElementById('content');
+        if (currentPage === 'home') {
+            await loadAllVideos();
+            let videos = [...allVideos];
+            if (currentTab === 'trending') videos.sort((a,b) => (b.views||0) - (a.views||0));
+            if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0) - (a.likes||0));
+            const chips = `<div class="chips">${['all', 'trending', 'recommended'].map((tab, i) => `<button class="chip ${currentTab === tab ? 'active' : ''}" data-tab="${tab}">${i === 0 ? t('allVideos') : (i === 1 ? t('trending') : t('recommended'))}</button>`).join('')}</div>`;
+            contentDiv.innerHTML = chips + renderVideosGrid(videos, false);
+            document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderPage(); }));
+        } 
+        else if (currentPage === 'quick') {
+            await loadQuickVideos();
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ Quick — короткие видео</h2>${renderVideosGrid(quickVideos, false)}`;
+        }
+        else if (currentPage === 'my-channel') {
+            if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
+            await loadAllVideos();
+            const myVideos = allVideos.filter(v => v.uploader_name === currentUser.username);
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📺 ${escapeHtml(currentUser.channel_name)}</h2>${renderVideosGrid(myVideos, true)}`;
+        }
+        else if (currentPage === 'subscriptions') {
+            await loadSubscriptions();
+            if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('noSubscriptions')}</div>`; return; }
+            let subsVideos = [];
+            for (let sub of subscriptionsList) {
+                const res = await fetch(`${API_URL}/api/videos`);
+                const data = await res.json();
+                const userVideos = (data.videos || []).filter(v => v.uploader_name === sub.username);
+                subsVideos.push(...userVideos);
+            }
+            subsVideos.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⭐ ${t('subscriptions')}</h2>${renderVideosGrid(subsVideos, false)}`;
+        }
+        else if (currentPage === 'history') {
+            await loadWatchHistory();
+            if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('noHistory')}</div><button class="chip" onclick="clearHistory()">Очистить историю</button>`; return; }
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div class="video-card" style="margin-bottom:12px; display:flex; gap:16px; align-items:center;" onclick="openVideo('${h.video_id}')"><div class="thumbnail" style="width:160px; margin:0;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
+        }
+        else if (currentPage === 'subscribers-list') {
+            const subscribers = await loadSubscribersList();
+            if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
+            contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div class="channel-avatar">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
+        }
+    }
+
+    window.openVideo = function(id) { window.location.href = `/letsfiohub/watch.html?id=${id}`; }
+    window.deleteVideo = async function(id) {
+        if (!confirm('Удалить видео?')) return;
+        try {
+            const res = await fetch(`${API_URL}/api/videos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) renderPage();
+            else alert('Ошибка удаления');
+        } catch(e) { alert('Ошибка'); }
+    }
+    window.clearHistory = async function() {
+        if (!confirm('Очистить историю просмотров?')) return;
+        try {
+            await fetch(`${API_URL}/api/history`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            renderPage();
+        } catch(e) {}
+    }
+
+    async function searchVideos() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if (!query) { renderPage(); return; }
+        await loadAllVideos();
+        const filtered = allVideos.filter(v => v.title?.toLowerCase().includes(query));
+        document.getElementById('content').innerHTML = filtered.length ? renderVideosGrid(filtered, false) : '<div class="empty-state">🔍 Ничего не найдено</div>';
+    }
+
+    // Авторизация
+    async function register(username, email, password) {
+        const res = await fetch(`${API_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+    }
+    async function login(email, password) {
+        const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        if (!res.ok) throw new Error('Неверный email или пароль');
+        const data = await res.json();
+        token = data.access_token; currentUser = data.user;
+        localStorage.setItem('token', token);
+        updateAuthUI();
+        return true;
+    }
+    function logout() { token = null; currentUser = null; localStorage.removeItem('token'); updateAuthUI(); renderPage(); }
     function updateAuthUI() {
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
         if (token && currentUser) {
             uploadBtn.style.display = 'inline-block';
             loginBtn.style.display = 'none';
@@ -165,267 +423,112 @@
         }
     }
 
-    async function register(username, email, password) {
-        const res = await fetch(API_URL + '/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        return await res.json();
-    }
-
-    async function login(email, password) {
-        const res = await fetch(API_URL + '/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        if (!res.ok) throw new Error('Неверный email или пароль');
-        const data = await res.json();
-        token = data.access_token;
-        currentUser = data.user;
-        localStorage.setItem('token', token);
-        updateAuthUI();
-        return true;
-    }
-
-    function logout() {
-        token = null;
-        currentUser = null;
-        localStorage.removeItem('token');
-        updateAuthUI();
-        loadHomePage();
-    }
-
-    // Видео
-    async function loadAllVideos() {
+    // Настройки
+    async function loadSettings() {
+        if (!token) return;
         try {
-            const res = await fetch(API_URL + '/api/videos');
-            const data = await res.json();
-            allVideos = data.videos || [];
-        } catch(e) { allVideos = []; }
-    }
-
-    async function loadChannelVideos(username) {
-        try {
-            const res = await fetch(API_URL + '/api/channel/' + username);
+            const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (res.ok) {
-                const data = await res.json();
-                return data.videos || [];
+                const settings = await res.json();
+                document.getElementById('themeSelect').value = settings.theme || 'dark';
+                document.getElementById('languageSelect').value = settings.language || 'professional';
+                document.getElementById('qualitySelect').value = settings.video_quality || 'auto';
+                document.getElementById('subtitlesCheckbox').checked = settings.subtitles || false;
+                currentLanguage = settings.language || 'professional';
+                if (settings.theme === 'light') document.body.classList.add('light');
+                else document.body.classList.remove('light');
             }
         } catch(e) {}
-        return [];
     }
-
-    async function uploadVideo(title, description, file) {
-        const fd = new FormData();
-        fd.append('title', title);
-        fd.append('description', description);
-        fd.append('file', file);
-        const res = await fetch(API_URL + '/api/videos/upload', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: fd
-        });
-        if (!res.ok) throw new Error('Upload failed');
-        return await res.json();
-    }
-
-    // Рендеринг
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function renderVideosGrid(videos, showDelete = false) {
-        if (!videos || videos.length === 0) return '<div class="empty-state">📭 Пока нет видео</div>';
-        return `<div class="video-grid">${videos.map(v => `
-            <div class="video-card" onclick="openVideo('${v.id}')">
-                <div class="thumbnail">🎬</div>
-                <div class="video-details">
-                    <div class="channel-avatar">📺</div>
-                    <div class="video-info">
-                        <h3>${escapeHtml(v.title)}</h3>
-                        <p>${escapeHtml(v.uploader_name)}</p>
-                        <div class="video-stats">
-                            <span>👁️ ${v.views || 0}</span>
-                            <span>❤️ ${v.likes || 0}</span>
-                            ${showDelete ? `<span style="color:#ff0000; cursor:pointer;" onclick="event.stopPropagation(); deleteVideo('${v.id}')">🗑️ Удалить</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('')}</div>`;
-    }
-
-    function renderChips() {
-        const chips = ['Все видео', 'Тренды', 'Рекомендации'];
-        const tabs = ['all', 'trending', 'recommended'];
-        return `<div class="chips">${chips.map((c, i) => `<button class="chip ${currentTab === tabs[i] ? 'active' : ''}" data-tab="${tabs[i]}">${c}</button>`).join('')}</div>`;
-    }
-
-    async function loadHomePage() {
-        await loadAllVideos();
-        let videos = [...allVideos];
-        if (currentTab === 'trending') videos.sort((a,b) => (b.views||0) - (a.views||0));
-        if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0) - (a.likes||0));
-        contentDiv.innerHTML = renderChips() + renderVideosGrid(videos, false);
-        document.querySelectorAll('.chip').forEach(c => {
-            c.addEventListener('click', (e) => {
-                currentTab = e.target.dataset.tab;
-                loadHomePage();
-            });
-        });
-    }
-
-    async function loadMyChannel() {
-        if (!currentUser) {
-            document.getElementById('authModal').style.display = 'flex';
-            return;
-        }
-        const videos = await loadChannelVideos(currentUser.username);
-        contentDiv.innerHTML = `<h2 style="margin-bottom: 20px;">📺 ${escapeHtml(currentUser.channel_name)}</h2>` + renderVideosGrid(videos, true);
-    }
-
-    function loadSubscriptions() {
-        contentDiv.innerHTML = '<div class="empty-state">⭐ Подписки — скоро здесь появятся новые видео</div>';
-    }
-
-    async function renderPage() {
-        if (currentPage === 'home') await loadHomePage();
-        else if (currentPage === 'my-channel') await loadMyChannel();
-        else if (currentPage === 'subscriptions') loadSubscriptions();
-    }
-
-    window.openVideo = function(id) {
-        window.location.href = `/letsfiohub/watch.html?id=${id}`;
-    }
-
-    window.deleteVideo = async function(id) {
-        if (!confirm('Удалить видео?')) return;
+    async function saveSettings() {
+        if (!token) return;
+        const settings = {
+            theme: document.getElementById('themeSelect').value,
+            language: document.getElementById('languageSelect').value,
+            video_quality: document.getElementById('qualitySelect').value,
+            subtitles: document.getElementById('subtitlesCheckbox').checked
+        };
         try {
-            const res = await fetch(API_URL + '/api/videos/' + id, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
+            const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) });
             if (res.ok) {
-                await renderPage();
-            } else {
-                alert('Ошибка удаления');
+                currentLanguage = settings.language;
+                if (settings.theme === 'light') document.body.classList.add('light');
+                else document.body.classList.remove('light');
+                alert('Настройки сохранены');
+                renderPage();
             }
-        } catch(e) {
-            alert('Ошибка');
-        }
+        } catch(e) { alert('Ошибка'); }
     }
-
-    // Поиск
-    async function searchVideos() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        if (!query) { await loadHomePage(); return; }
-        await loadAllVideos();
-        const filtered = allVideos.filter(v => v.title?.toLowerCase().includes(query));
-        if (filtered.length === 0) {
-            contentDiv.innerHTML = '<div class="empty-state">🔍 Ничего не найдено</div>';
-        } else {
-            contentDiv.innerHTML = renderVideosGrid(filtered, false);
-        }
-    }
-
-    // Модальные окна
-    const authModal = document.getElementById('authModal');
-    let isLogin = true;
-
-    document.getElementById('loginBtn').onclick = () => authModal.style.display = 'flex';
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.onclick = () => { authModal.style.display = 'none'; document.getElementById('uploadModal').style.display = 'none'; };
-    });
-    window.onclick = (e) => { if (e.target === authModal) authModal.style.display = 'none'; };
-
-    document.getElementById('authSwitchBtn').onclick = () => {
-        isLogin = !isLogin;
-        const title = document.getElementById('authTitle');
-        const usernameField = document.getElementById('authUsername');
-        if (isLogin) {
-            title.textContent = 'Вход';
-            usernameField.style.display = 'none';
-            document.getElementById('authSubmitBtn').textContent = 'Войти';
-            document.getElementById('authSwitchText').textContent = 'Нет аккаунта?';
-            document.getElementById('authSwitchBtn').textContent = 'Регистрация';
-        } else {
-            title.textContent = 'Регистрация';
-            usernameField.style.display = 'block';
-            document.getElementById('authSubmitBtn').textContent = 'Зарегистрироваться';
-            document.getElementById('authSwitchText').textContent = 'Уже есть аккаунт?';
-            document.getElementById('authSwitchBtn').textContent = 'Войти';
-        }
-    };
-
-    document.getElementById('authForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('authEmail').value;
-        const password = document.getElementById('authPassword').value;
-        try {
-            if (isLogin) {
-                await login(email, password);
-                authModal.style.display = 'none';
-                await renderPage();
-            } else {
-                const username = document.getElementById('authUsername').value;
-                await register(username, email, password);
-                await login(email, password);
-                authModal.style.display = 'none';
-                await renderPage();
-            }
-        } catch (err) {
-            alert('Ошибка: ' + err.message);
-        }
-    };
 
     // Загрузка видео
-    const uploadModal = document.getElementById('uploadModal');
-    document.getElementById('uploadBtn').onclick = () => uploadModal.style.display = 'flex';
     document.getElementById('uploadForm').onsubmit = async (e) => {
         e.preventDefault();
         const title = document.getElementById('videoTitle').value;
         const desc = document.getElementById('videoDescription').value;
+        const isQuick = document.getElementById('isQuick').checked;
         const file = document.getElementById('videoFile').files[0];
         if (!title || !file) return alert('Заполните название и выберите видео');
-        const progressBar = document.querySelector('.progress-bar');
-        progressBar.style.display = 'block';
+        const fd = new FormData();
+        fd.append('title', title); fd.append('description', desc); fd.append('file', file); fd.append('is_quick', isQuick);
         try {
-            await uploadVideo(title, desc, file);
-            alert('Видео загружено!');
-            uploadModal.style.display = 'none';
-            document.getElementById('uploadForm').reset();
-            progressBar.style.display = 'none';
-            await renderPage();
-        } catch(err) {
-            alert('Ошибка загрузки');
-            progressBar.style.display = 'none';
-        }
+            const res = await fetch(`${API_URL}/api/videos/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+            if (res.ok) { alert('Видео загружено!'); document.getElementById('uploadModal').style.display = 'none'; document.getElementById('uploadForm').reset(); renderPage(); }
+            else alert('Ошибка загрузки');
+        } catch(err) { alert('Ошибка'); }
     };
 
     // Навигация
-    document.getElementById('searchBtn').addEventListener('click', searchVideos);
+    document.getElementById('logoHome').onclick = () => { currentPage = 'home'; renderPage(); };
+    document.getElementById('searchBtn').onclick = searchVideos;
     document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
-    document.getElementById('logoHome').addEventListener('click', () => { currentPage = 'home'; renderPage(); });
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('loginBtn').onclick = () => document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('logoutBtn').onclick = logout;
+    document.getElementById('uploadBtn').onclick = () => document.getElementById('uploadModal').style.display = 'flex';
+    document.getElementById('settingsBtn').onclick = async () => { await loadSettings(); document.getElementById('settingsModal').style.display = 'flex'; };
+    document.getElementById('saveSettingsBtn').onclick = saveSettings;
+    document.getElementById('notificationsBtn').onclick = async () => { await loadNotifications(); document.getElementById('notificationsModal').style.display = 'flex'; };
 
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', () => {
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            const page = item.dataset.page;
-            if (page === 'home') { currentPage = 'home'; renderPage(); }
-            else if (page === 'my-channel') { currentPage = 'my-channel'; renderPage(); }
-            else if (page === 'subscriptions') { currentPage = 'subscriptions'; renderPage(); }
+            currentPage = item.dataset.page;
+            renderPage();
         });
     });
 
-    // Меню
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.onclick = () => { document.getElementById('authModal').style.display = 'none'; document.getElementById('uploadModal').style.display = 'none'; document.getElementById('settingsModal').style.display = 'none'; document.getElementById('notificationsModal').style.display = 'none'; };
+    });
+
+    // Модальное окно авторизации
+    let isLogin = true;
+    document.getElementById('authSwitchBtn').onclick = () => {
+        isLogin = !isLogin;
+        const title = document.getElementById('authTitle');
+        const usernameField = document.getElementById('authUsername');
+        if (isLogin) {
+            title.textContent = 'Вход'; usernameField.style.display = 'none';
+            document.getElementById('authSubmitBtn').textContent = 'Войти';
+            document.getElementById('authSwitchText').textContent = 'Нет аккаунта?';
+            document.getElementById('authSwitchBtn').textContent = 'Регистрация';
+        } else {
+            title.textContent = 'Регистрация'; usernameField.style.display = 'block';
+            document.getElementById('authSubmitBtn').textContent = 'Зарегистрироваться';
+            document.getElementById('authSwitchText').textContent = 'Уже есть аккаунт?';
+            document.getElementById('authSwitchBtn').textContent = 'Войти';
+        }
+    };
+    document.getElementById('authForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        try {
+            if (isLogin) { await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); }
+            else { const username = document.getElementById('authUsername').value; await register(username, email, password); await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); }
+        } catch(err) { alert('Ошибка: ' + err.message); }
+    };
+
     let sidebarVisible = true;
     document.getElementById('menuToggle')?.addEventListener('click', () => {
         sidebarVisible = !sidebarVisible;
@@ -433,7 +536,7 @@
         document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible);
     });
 
-    loadCurrentUser().then(() => renderPage());
+    loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(loadNotifications, 30000); });
 </script>
 
 </body>
