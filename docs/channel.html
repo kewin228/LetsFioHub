@@ -124,6 +124,10 @@
 
     async function checkSubscribed() {
         if (!currentUser || currentUser.username === username) return;
+        if (!channelData || !channelData.id) {
+            console.error("No channelData or id");
+            return;
+        }
         try {
             const res = await fetch(`${API_URL}/api/is_subscribed/${channelData.id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -131,22 +135,36 @@
             if (res.ok) {
                 const data = await res.json();
                 isSubscribed = data.subscribed;
+                console.log("Subscribed:", isSubscribed);
             }
-        } catch(e) {}
+        } catch(e) {
+            console.error("Check subscribed error:", e);
+        }
     }
 
     async function subscribeToChannel() {
+        console.log("Subscribe clicked");
         if (!token) { alert('Войдите, чтобы подписаться'); return; }
         if (currentUser && currentUser.username === username) {
             alert('Нельзя подписаться на самого себя');
             return;
         }
+        if (!channelData || !channelData.id) {
+            alert('Ошибка: ID канала не найден');
+            return;
+        }
+        
+        const channelId = channelData.id;
+        console.log("Channel ID:", channelId);
+        
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
-            const res = await fetch(`${API_URL}/api/subscribe/${channelData.id}`, {
+            const res = await fetch(`${API_URL}/api/subscribe/${channelId}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            console.log("Response status:", res.status);
             
             if (res.ok) {
                 const data = await res.json();
@@ -163,6 +181,7 @@
                 alert('Ошибка: ' + errorMsg);
             }
         } catch(err) {
+            console.error("Subscribe error:", err);
             alert('Ошибка: ' + err.message);
         }
     }
@@ -231,12 +250,16 @@
         tabContent.innerHTML = currentTab === 'videos' ? renderVideos(channelData.videos) : renderQuickVideos(channelData.quick_videos);
         
         if (!isOwnChannel && token) {
-            document.getElementById('subscribeBtn')?.addEventListener('click', subscribeToChannel);
+            const btn = document.getElementById('subscribeBtn');
+            if (btn) btn.addEventListener('click', subscribeToChannel);
         }
         if (!token) {
-            document.getElementById('loginSubscribeBtn')?.addEventListener('click', () => {
-                alert('Войдите, чтобы подписаться');
-            });
+            const btn = document.getElementById('loginSubscribeBtn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    alert('Войдите, чтобы подписаться');
+                });
+            }
         }
         
         document.querySelectorAll('.tab').forEach(tab => {
