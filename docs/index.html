@@ -356,7 +356,7 @@
         <div class="settings-group"><label>✍️ Шрифты интерфейса</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
         <div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div>
         <div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div>
-        <button id="saveSettingsBtn">Сохранить настройки</button>
+        <button id="saveSettingsBtn" style="background:#ff0000; color:white; border:none; padding:12px 24px; border-radius:40px; cursor:pointer; width:100%; margin-top:20px; font-weight:bold;">Сохранить настройки</button>
     </div>
 </div>
 
@@ -595,3 +595,78 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); });
 </script>
 </body>
 </html>
+<script>
+// Принудительно привязываем обработчик к кнопке сохранения настроек
+document.addEventListener('DOMContentLoaded', function() {
+    const saveBtn = document.getElementById('saveSettingsBtn');
+    if (saveBtn) {
+        // Удаляем старые обработчики
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+        
+        newSaveBtn.onclick = async function() {
+            console.log("Кнопка сохранения нажата");
+            if (!token) {
+                alert('Войдите, чтобы сохранить настройки');
+                return;
+            }
+            
+            const settings = {
+                theme: document.getElementById('themeSelect').value,
+                language: document.getElementById('languageSelect').value,
+                font_style: document.getElementById('fontSelect').value,
+                video_quality: document.getElementById('qualitySelect').value,
+                subtitles: document.getElementById('subtitlesCheckbox').checked
+            };
+            
+            console.log("Сохраняем настройки:", settings);
+            
+            try {
+                const res = await fetch(`${API_URL}/api/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(settings)
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log("Настройки сохранены:", data);
+                    
+                    // Применяем тему
+                    if (settings.theme === 'light') {
+                        document.body.classList.add('light');
+                    } else {
+                        document.body.classList.remove('light');
+                    }
+                    
+                    // Применяем шрифт
+                    document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
+                    if (settings.font_style === 'gamer') document.body.classList.add('font-gamer');
+                    if (settings.font_style === 'slang') document.body.classList.add('font-slang');
+                    if (settings.font_style === 'kids') document.body.classList.add('font-kids');
+                    
+                    // Сохраняем язык
+                    currentLanguage = settings.language;
+                    localStorage.setItem('language', settings.language);
+                    localStorage.setItem('font', settings.font_style);
+                    
+                    alert('Настройки сохранены!');
+                    // Закрываем модальное окно
+                    document.getElementById('settingsModal').style.display = 'none';
+                    // Обновляем страницу для применения языка
+                    renderPage();
+                } else {
+                    const error = await res.json();
+                    alert('Ошибка сохранения: ' + (error.detail || 'Неизвестная ошибка'));
+                }
+            } catch(e) {
+                console.error("Ошибка:", e);
+                alert('Ошибка соединения');
+            }
+        };
+    }
+});
+</script>
