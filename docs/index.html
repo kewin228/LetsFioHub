@@ -600,3 +600,97 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
 </script>
 </body>
 </html>
+<style>
+/* Исправляем стили для бокового меню */
+.sidebar {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    background: #0f0f0f;
+    padding: 16px 0;
+    overflow-y: auto;
+    z-index: 90;
+    transition: transform 0.3s ease;
+    transform: translateX(-260px);
+}
+.sidebar.open {
+    transform: translateX(0);
+}
+.sidebar.closed {
+    transform: translateX(-260px);
+}
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 85;
+    cursor: pointer;
+}
+.mobile-overlay.active {
+    display: block;
+}
+@media (min-width: 1025px) {
+    .sidebar {
+        transform: translateX(0) !important;
+    }
+    .mobile-overlay {
+        display: none !important;
+    }
+}
+</style>
+<script>
+// Меню
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('mobileOverlay');
+const menuBtn = document.getElementById('menuToggle');
+
+console.log("Menu button found:", menuBtn);
+console.log("Sidebar found:", sidebar);
+
+function openMenu() {
+    sidebar.classList.add('open');
+    sidebar.classList.remove('closed');
+    if (overlay) overlay.classList.add('active');
+    console.log("Menu opened");
+}
+
+function closeMenu() {
+    sidebar.classList.remove('open');
+    sidebar.classList.add('closed');
+    if (overlay) overlay.classList.remove('active');
+    console.log("Menu closed");
+}
+
+if (menuBtn) {
+    menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        console.log("Menu button clicked");
+        if (sidebar.classList.contains('open')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    };
+} else {
+    console.log("Menu button NOT found!");
+}
+
+if (overlay) {
+    overlay.onclick = closeMenu;
+}
+
+// На больших экранах меню всегда открыто
+if (window.innerWidth > 1024) {
+    sidebar.classList.add('open');
+    sidebar.classList.remove('closed');
+} else {
+    sidebar.classList.add('closed');
+    sidebar.classList.remove('open');
+}
+</script>
