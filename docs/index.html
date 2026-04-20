@@ -404,3 +404,122 @@ loadCurrentUser().then(() => renderPage());
 </script>
 </body>
 </html>
+
+<!-- Модальное окно настроек -->
+<div id="settingsModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;">
+    <div style="background:#1a1a1a; padding:32px; border-radius:20px; width:90%; max-width:500px; max-height:80vh; overflow-y:auto;">
+        <span style="float:right; font-size:28px; cursor:pointer; color:#aaa;" onclick="closeSettingsModal()">&times;</span>
+        <h2>⚙️ Настройки</h2>
+        <div style="margin:20px 0;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">🎨 Тема</label>
+            <select id="themeSelect" style="width:100%; padding:12px; background:#121212; border:1px solid #303030; border-radius:8px; color:white;">
+                <option value="dark">Тёмная</option>
+                <option value="light">Светлая</option>
+            </select>
+        </div>
+        <div style="margin:20px 0;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">🌐 Языки интерфейса</label>
+            <select id="languageSelect" style="width:100%; padding:12px; background:#121212; border:1px solid #303030; border-radius:8px; color:white;">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div style="margin:20px 0;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">✍️ Шрифты интерфейса</label>
+            <select id="fontSelect" style="width:100%; padding:12px; background:#121212; border:1px solid #303030; border-radius:8px; color:white;">
+                <option value="professional">Профессиональный</option>
+                <option value="gamer">Геймерский (Need for Speed)</option>
+                <option value="slang">Сленговый</option>
+                <option value="kids">Детский</option>
+            </select>
+        </div>
+        <div style="margin:20px 0;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">📹 Качество видео</label>
+            <select id="qualitySelect" style="width:100%; padding:12px; background:#121212; border:1px solid #303030; border-radius:8px; color:white;">
+                <option value="auto">Авто</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+            </select>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #303030;">
+            <span>📝 Субтитры</span>
+            <label><input type="checkbox" id="subtitlesCheckbox"> Включить</label>
+        </div>
+        <button id="saveSettingsBtn" style="width:100%; padding:12px; background:#ff0000; color:white; border:none; border-radius:40px; margin-top:20px; cursor:pointer;">Сохранить настройки</button>
+    </div>
+</div>
+
+<script>
+// Функции для настроек
+function openSettingsModal() {
+    loadSettings();
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+function closeSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+async function loadSettings() {
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (res.ok) {
+            const s = await res.json();
+            document.getElementById('themeSelect').value = s.theme || 'dark';
+            document.getElementById('languageSelect').value = s.language || 'professional';
+            document.getElementById('fontSelect').value = s.font_style || 'professional';
+            document.getElementById('qualitySelect').value = s.video_quality || 'auto';
+            document.getElementById('subtitlesCheckbox').checked = s.subtitles || false;
+            applyTheme(s.theme || 'dark');
+            applyFont(s.font_style || 'professional');
+        }
+    } catch(e) {}
+}
+
+async function saveSettings() {
+    if (!token) return;
+    const settings = {
+        theme: document.getElementById('themeSelect').value,
+        language: document.getElementById('languageSelect').value,
+        font_style: document.getElementById('fontSelect').value,
+        video_quality: document.getElementById('qualitySelect').value,
+        subtitles: document.getElementById('subtitlesCheckbox').checked
+    };
+    try {
+        const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) });
+        if (res.ok) {
+            applyTheme(settings.theme);
+            applyFont(settings.font_style);
+            alert('Настройки сохранены');
+            closeSettingsModal();
+        }
+    } catch(e) { alert('Ошибка'); }
+}
+
+function applyTheme(theme) {
+    if (theme === 'light') document.body.classList.add('light');
+    else document.body.classList.remove('light');
+}
+
+function applyFont(font) {
+    document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
+    if (font === 'gamer') document.body.classList.add('font-gamer');
+    if (font === 'slang') document.body.classList.add('font-slang');
+    if (font === 'kids') document.body.classList.add('font-kids');
+    localStorage.setItem('font', font);
+}
+
+// Подключаем кнопку настроек
+const settingsBtn = document.getElementById('settingsBtn');
+if (settingsBtn) {
+    settingsBtn.onclick = openSettingsModal;
+}
+
+const saveBtn = document.getElementById('saveSettingsBtn');
+if (saveBtn) {
+    saveBtn.onclick = saveSettings;
+}
+</script>
