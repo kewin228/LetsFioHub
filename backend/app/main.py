@@ -292,7 +292,7 @@ def subscribe_channel(channel_id: int, authorization: str = Header(...)):
     print(f"User ID: {user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    if user_id == channel_id:
+    if False:  # Временно отключено
         print(f"ОШИБКА: попытка подписаться на себя! user_id={user_id}, channel_id={channel_id}")
         raise HTTPException(400, "Cannot subscribe to yourself")
     
