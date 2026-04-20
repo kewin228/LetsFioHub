@@ -6,120 +6,101 @@
     <title>Let's FioHub</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
-        body.light { background: #f9f9f9; color: #0f0f0f; }
-        body.light .sidebar, body.light .header, body.light .modal-content { background: #fff; border-color: #e5e5e5; }
-        
-        .font-gamer { font-family: 'NeedForSpeed', 'Impact', sans-serif; letter-spacing: 1px; }
-        .font-slang { font-family: 'Comic Neue', cursive; }
-        .font-kids { font-family: 'Fredoka One', cursive; }
-        
+        body { font-family: 'Roboto', Arial, sans-serif; background-color: #0f0f0f; color: #f1f1f1; }
+
+        /* Header */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
-            background: #0f0f0f; display: flex; align-items: center;
+            background-color: #0f0f0f; display: flex; align-items: center;
             justify-content: space-between; padding: 0 16px; z-index: 100;
             border-bottom: 1px solid #303030;
         }
-        .menu-btn {
-            background: #272727;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
+        .menu-btn:hover { background-color: #272727; }
+        
+        /* Логотип - УВЕЛИЧЕННЫЙ И КРУГЛЫЙ */
+        .logo {
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #0f0f0f;
+            transition: transform 0.2s;
         }
-        .menu-btn:hover { background: #3f3f3f; }
-        .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .logo img { height: 32px; }
-        .search-form { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
-        .search-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
-        .search-btn { background: #222; border: 1px solid #303030; border-left: none; border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white; }
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        .logo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .header-center { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
+        .search-input { flex: 1; padding: 10px 16px; background-color: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
+        .search-btn { background-color: #222; border: 1px solid #303030; border-left: none; border-radius: 0 40px 40px 0; padding: 0 20px; cursor: pointer; color: white; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
         .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; }
-        .icon-btn:hover { background: #272727; }
+        .icon-btn:hover { background-color: #272727; }
         
+        .avatar { display: none; }
+
+        /* Sidebar */
         .sidebar {
-            position: fixed; top: 56px; left: 0; bottom: 0; width: 260px;
-            background: #0f0f0f; transform: translateX(-260px);
-            transition: transform 0.3s ease; z-index: 1000;
-            padding: 16px 0; overflow-y: auto; border-right: 1px solid #303030;
+            position: fixed; top: 56px; bottom: 0; left: 0; width: 240px;
+            background-color: #0f0f0f; padding: 12px 0; overflow-y: auto; z-index: 90;
+            transition: transform 0.3s ease;
         }
-        .sidebar.open { transform: translateX(0); }
-        .sidebar-item {
-            display: flex; align-items: center; gap: 24px;
-            padding: 12px 24px; cursor: pointer; border-radius: 10px;
-            margin: 4px 12px; transition: background 0.2s;
-        }
-        .sidebar-item:hover { background: #272727; }
-        .sidebar-item.active { background: #272727; }
-        .sidebar-item span:first-child { font-size: 22px; width: 28px; }
-        .sidebar-divider { height: 1px; background: #303030; margin: 12px 16px; }
-        
-        .overlay {
-            display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 999; cursor: pointer;
-        }
-        .overlay.active { display: block; }
-        
-        .main-content { margin-top: 56px; padding: 24px; min-height: calc(100vh - 56px); }
-        .chips { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
-        .chip { padding: 8px 18px; background: #272727; border: none; border-radius: 40px; color: #f1f1f1; cursor: pointer; font-size: 14px; }
-        .chip.active { background: #f1f1f1; color: #0f0f0f; }
-        
+        .sidebar.closed { transform: translateX(-240px); }
+        .sidebar-item { display: flex; align-items: center; gap: 24px; padding: 8px 24px; cursor: pointer; border-radius: 10px; margin: 2px 8px; }
+        .sidebar-item:hover { background-color: #272727; }
+        .sidebar-item.active { background-color: #272727; }
+        .sidebar-item span:first-child { font-size: 24px; width: 24px; }
+        .sidebar-divider { height: 1px; background-color: #303030; margin: 12px 12px; }
+        .sidebar-title { color: #aaa; font-size: 12px; padding: 8px 24px; }
+
+        /* Main */
+        .main-content { margin-left: 240px; margin-top: 56px; padding: 24px; transition: margin-left 0.3s ease; }
+        .main-content.expanded { margin-left: 0; }
+        .chips { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .chip { padding: 8px 16px; background-color: #272727; border: none; border-radius: 40px; color: #f1f1f1; cursor: pointer; }
+        .chip.active { background-color: #f1f1f1; color: #0f0f0f; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .video-card { cursor: pointer; transition: transform 0.2s; }
-        .video-card:hover { transform: translateY(-4px); }
-        .thumbnail {
-            width: 100%; aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; font-size: 48px; margin-bottom: 12px;
-        }
-        .video-details { display: flex; gap: 12px; }
-        .channel-avatar {
-            width: 40px; height: 40px; background: #ff0000;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center;
-        }
-        .video-info { flex: 1; }
-        .video-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-        .video-info p { font-size: 13px; color: #aaa; margin-bottom: 4px; }
-        .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 12px; }
-        
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: #1a1a1a; padding: 32px; border-radius: 20px;
-            width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
-        }
-        .modal-content h2 { margin-bottom: 20px; }
-        .modal-content input, .modal-content textarea, .modal-content select {
-            width: 100%; padding: 12px; margin: 8px 0;
-            background: #121212; border: 1px solid #303030; border-radius: 8px; color: white;
-        }
-        .modal-content button {
-            background: #ff0000; color: white; border: none;
-            padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px;
-        }
-        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
-        
-        .settings-group { margin: 20px 0; }
+        .video-card { cursor: pointer; }
+        .thumbnail { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 8px; }
+        .video-details { display: flex; gap: 12px; margin-top: 8px; }
+        .channel-icon { width: 36px; height: 36px; background-color: #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .video-text h3 { font-size: 16px; margin-bottom: 4px; }
+        .video-text p { font-size: 14px; color: #aaa; }
+        .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 8px; margin-top: 4px; }
+        .delete-btn { background: none; border: none; color: #ff0000; cursor: pointer; font-size: 12px; margin-left: 8px; }
+        .delete-btn:hover { text-decoration: underline; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .modal-content { background: #272727; padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
+        .modal-content h2 { margin-bottom: 16px; }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; margin: 8px 0; background: #121212; border: 1px solid #3f3f3f; border-radius: 8px; color: white; }
+        .modal-content button { background: #ff0000; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; }
+        .close-modal { float: right; font-size: 24px; cursor: pointer; color: #aaa; }
+        .queue-item { background: #3f3f3f; padding: 8px; margin: 4px 0; border-radius: 8px; font-size: 12px; }
+        .progress-bar { width: 100%; height: 4px; background: #3f3f3f; border-radius: 2px; margin-top: 12px; }
+        .progress-fill { width: 0%; height: 100%; background: #ff0000; border-radius: 2px; transition: width 0.3s; }
         .empty-state { text-align: center; padding: 60px; color: #aaa; }
-        .subscriber-item {
-            display: flex; align-items: center; gap: 16px;
-            padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 8px;
-        }
-        
+        .btn-primary { background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; margin-top: 16px; }
+
         @media (max-width: 768px) {
-            .search-form { display: none; }
-            .main-content { padding: 16px; }
-            .video-grid { grid-template-columns: 1fr; }
+            .sidebar { transform: translateX(-240px); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .header-center { display: none; }
+            .logo { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -127,431 +108,485 @@
 
 <div class="app">
     <header class="header">
-        <div style="display: flex; align-items: center;">
+        <div class="header-left">
             <button class="menu-btn" id="menuToggle">☰</button>
-            <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+            <div class="logo" id="logoHome">
+                <img src="logo.png" alt="Let's figure it out" class="logo-image" onerror="this.style.display='none'">
+            </div>
         </div>
-        <div class="search-form">
+        <div class="header-center">
             <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
             <button class="search-btn" id="searchBtn">🔍</button>
         </div>
-        <div>
+        <div class="header-right">
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
-            <button class="icon-btn" id="notificationsBtn">🔔</button>
-            <button class="icon-btn" id="settingsBtn">⚙️</button>
             <button class="icon-btn" id="loginBtn">👤</button>
             <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
     </header>
 
-    <div class="overlay" id="overlay"></div>
-
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-item active" data-page="home"><span>🏠</span><span>Главная</span></div>
-        <div class="sidebar-item" data-page="quick"><span>⚡</span><span>Quick</span></div>
         <div class="sidebar-item" data-page="my-channel"><span>📺</span><span>Мой канал</span></div>
-        <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span></div>
-        <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span></div>
         <div class="sidebar-divider"></div>
-        <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
+        <div class="sidebar-title">Вам может понравиться</div>
+        <div class="sidebar-item" data-page="fiohub"><span>🎬</span><span>Let's FioHub</span></div>
     </aside>
 
-    <main class="main-content" id="mainContent"><div id="content"></div></main>
+    <main class="main-content" id="mainContent">
+        <div class="chips" id="chipsContainer"></div>
+        <div id="contentContainer"></div>
+    </main>
 </div>
 
-<!-- Модальное окно входа -->
+<!-- Модальное окно входа/регистрации -->
 <div id="authModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2 id="authTitle">Вход</h2>
         <form id="authForm">
-            <input type="text" id="authUsername" placeholder="Имя" style="display:none">
+            <input type="text" id="authUsername" placeholder="Имя пользователя" style="display: none;">
             <input type="email" id="authEmail" placeholder="Email" required>
             <input type="password" id="authPassword" placeholder="Пароль" required>
             <button type="submit" id="authSubmitBtn">Войти</button>
         </form>
-        <p style="margin-top:16px;text-align:center">
+        <p style="margin-top: 16px; text-align: center;">
             <span id="authSwitchText">Нет аккаунта?</span>
-            <button id="authSwitchBtn" style="background:none;border:none;color:#ff0000;cursor:pointer">Регистрация</button>
+            <button id="authSwitchBtn" style="background: none; border: none; color: #ff0000; cursor: pointer;">Регистрация</button>
         </p>
     </div>
 </div>
 
-<!-- Модальное окно загрузки -->
+<!-- Модальное окно загрузки видео -->
 <div id="uploadModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2>📤 Загрузить видео</h2>
         <form id="uploadForm">
-            <input type="text" id="videoTitle" placeholder="Название" required>
+            <input type="text" id="videoTitle" placeholder="Название видео" required>
             <textarea id="videoDescription" rows="3" placeholder="Описание"></textarea>
-            <label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label>
-            <input type="file" id="videoFile" accept="video/*" required>
+            <input type="file" id="videoFiles" accept="video/*" multiple required>
+            <div id="queueContainer"></div>
+            <div class="progress-bar" id="progressBar" style="display: none;"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="upload-status" id="uploadStatus"></div>
             <button type="submit">📤 Загрузить</button>
         </form>
     </div>
 </div>
 
-<!-- Модальное окно настроек -->
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>⚙️ Настройки</h2>
-        <div class="settings-group">
-            <label>🎨 Тема</label>
-            <select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select>
-        </div>
-        <div class="settings-group">
-            <label>🌐 Языки интерфейса</label>
-            <select id="languageSelect">
-                <option value="professional">Профессиональный</option>
-                <option value="gamer">Геймерский</option>
-                <option value="slang">Сленговый</option>
-                <option value="kids">Детский</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label>✍️ Шрифты интерфейса</label>
-            <select id="fontSelect">
-                <option value="professional">Профессиональный</option>
-                <option value="gamer">Геймерский (Need for Speed)</option>
-                <option value="slang">Сленговый</option>
-                <option value="kids">Детский</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label>📹 Качество видео</label>
-            <select id="qualitySelect">
-                <option value="auto">Авто</option><option value="1080p">1080p</option>
-                <option value="720p">720p</option><option value="480p">480p</option>
-            </select>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #303030;">
-            <span>📝 Субтитры</span>
-            <label><input type="checkbox" id="subtitlesCheckbox"> Включить</label>
-        </div>
-        <button id="saveSettingsBtn">Сохранить настройки</button>
-    </div>
-</div>
-
 <script>
-const API_URL = 'https://letsfiohub-api.onrender.com';
-let token = localStorage.getItem('token');
-let currentUser = null;
-let allVideos = [];
-let quickVideos = [];
-let subscriptionsList = [];
-let watchHistory = [];
-let currentPage = 'home';
-let currentTab = 'all';
-let currentLanguage = localStorage.getItem('language') || 'professional';
-let currentFont = localStorage.getItem('font') || 'professional';
-let myChannelVideos = [];
-let myChannelQuick = [];
+    const API_URL = 'https://letsfiohub-api.onrender.com';
+    let token = localStorage.getItem('token');
+    let currentUser = null;
+    let allVideos = [];
+    let currentCategory = 'all';
+    let currentPage = 'home';
+    let currentChannelVideos = [];
 
-// Меню
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-const menuBtn = document.getElementById('menuToggle');
-menuBtn.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); };
-overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
-if (window.innerWidth > 1024) sidebar.classList.add('open');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const chipsContainer = document.getElementById('chipsContainer');
+    const contentContainer = document.getElementById('contentContainer');
 
-// Функции темы и шрифта
-function applyTheme(theme) { if (theme === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
-function applyFont(font) {
-    document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
-    if (font === 'gamer') document.body.classList.add('font-gamer');
-    if (font === 'slang') document.body.classList.add('font-slang');
-    if (font === 'kids') document.body.classList.add('font-kids');
-}
+    function updateAuthUI() {
+        if (token && currentUser) {
+            uploadBtn.style.display = 'flex';
+            loginBtn.style.display = 'none';
+            logoutBtn.style.display = 'flex';
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                if (item.dataset.page === 'my-channel') {
+                    item.querySelector('span:last-child').textContent = currentUser.channel_name || 'Мой канал';
+                }
+            });
+        } else {
+            uploadBtn.style.display = 'none';
+            loginBtn.style.display = 'flex';
+            logoutBtn.style.display = 'none';
+        }
+    }
 
-const translations = {
-    professional: { home: 'Главная', quick: 'Quick', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Мои подписчики', noVideos: 'Пока нет видео', allVideos: 'Все видео', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', editChannel: 'Редактировать канал' },
-    gamer: { home: 'Лобби', quick: 'Шустрые', myChannel: 'Мой стрим', subscriptions: 'Фоллоу', history: 'Реплеи', subscribers: 'Фолловеры', noVideos: 'Нет видосов', allVideos: 'Все видосы', trending: 'Топ', recommended: 'Для тебя', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Шустрые видосы', editChannel: 'Настроить стрим' },
-    slang: { home: 'Хата', quick: 'Быстрые', myChannel: 'Мой канал', subscriptions: 'Подписки', history: 'История', subscribers: 'Подписчики', noVideos: 'Видосов нет', allVideos: 'Все видосы', trending: 'Тренды', recommended: 'Рекомендации', views: 'просмотров', regularVideos: 'Обычные видосы', quickVideos: 'Быстрые видосы', editChannel: 'Настроить канал' },
-    kids: { home: 'Домик', quick: 'Быстрые видео', myChannel: 'Мой канал', subscriptions: 'Друзья', history: 'Что смотрели', subscribers: 'Друзья', noVideos: 'Нет видео', allVideos: 'Все видео', trending: 'Популярное', recommended: 'Что посмотреть', views: 'просмотров', regularVideos: 'Обычные видео', quickVideos: 'Короткие видео', editChannel: 'Настроить канал' }
-};
-function t(key) { return translations[currentLanguage][key] || translations.professional[key]; }
+    async function loadCurrentUser() {
+        if (!token) return;
+        try {
+            const response = await fetch(`${API_URL}/api/users/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                currentUser = await response.json();
+                updateAuthUI();
+            } else {
+                logout();
+            }
+        } catch (err) {
+            console.error('Auth error:', err);
+        }
+    }
 
-async function loadCurrentUser() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) currentUser = await res.json();
-        else logout();
-    } catch(e) {}
-}
-async function loadAllVideos() {
-    try { const res = await fetch(`${API_URL}/api/videos`); const data = await res.json(); allVideos = data.videos || []; } catch(e) { allVideos = []; }
-}
-async function loadQuickVideos() {
-    try { const res = await fetch(`${API_URL}/api/quick`); const data = await res.json(); quickVideos = data.videos || []; } catch(e) { quickVideos = []; }
-}
-async function loadMyChannelVideos() {
-    if (!currentUser) return;
-    try {
-        const res = await fetch(`${API_URL}/api/channel/${currentUser.username}`);
-        if (res.ok) { const data = await res.json(); myChannelVideos = data.videos || []; myChannelQuick = data.quick_videos || []; }
-    } catch(e) { myChannelVideos = []; myChannelQuick = []; }
-}
-async function loadSubscriptions() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/subscriptions`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { const data = await res.json(); subscriptionsList = data.subscriptions || []; }
-    } catch(e) { subscriptionsList = []; }
-}
-async function loadWatchHistory() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/history`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { const data = await res.json(); watchHistory = data.history || []; }
-    } catch(e) { watchHistory = []; }
-}
-async function loadSubscribersList() {
-    if (!currentUser) return [];
-    try {
-        const res = await fetch(`${API_URL}/api/subscribers/list/${currentUser.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { const data = await res.json(); return data.subscribers || []; }
-    } catch(e) { return []; }
-}
-async function updateChannel(description) {
-    const fd = new FormData(); fd.append('description', description);
-    const res = await fetch(`${API_URL}/api/channel`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
-    return res.ok;
-}
-async function loadNotifications() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (res.ok) { const data = await res.json(); const unread = data.notifications.filter(n => !n.read).length; const badge = document.getElementById('notifBadge'); if (badge && unread > 0) { badge.textContent = unread; badge.style.display = 'inline-block'; } }
-    } catch(e) {}
-}
+    async function register(username, email, password) {
+        const response = await fetch(`${API_URL}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+        if (!response.ok) throw new Error('Registration failed');
+        return await response.json();
+    }
 
-function formatViews(views) { if (views >= 1000000) return (views/1000000).toFixed(1)+'M'; if (views >= 1000) return (views/1000).toFixed(1)+'K'; return views; }
-function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    async function login(email, password) {
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+        const response = await fetch(`${API_URL}/api/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+        if (!response.ok) throw new Error('Login failed');
+        const data = await response.json();
+        token = data.access_token;
+        localStorage.setItem('token', token);
+        await loadCurrentUser();
+        return true;
+    }
 
-function renderVideosGrid(videos, showDelete = false, isQuick = false) {
-    if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}</div>`;
-    return `<div class="video-grid">${videos.map(v => `
-        <div class="video-card" onclick="openVideo('${v.id}')">
-            <div class="thumbnail">${isQuick ? '⚡' : '🎬'}${isQuick ? '<span style="position:absolute;top:10px;right:10px;background:#ff0000;color:white;font-size:10px;padding:2px 6px;border-radius:10px;">Quick</span>' : ''}</div>
-            <div class="video-details"><div class="channel-avatar">📺</div><div class="video-info">
-                <h3>${escapeHtml(v.title)}</h3><p>${escapeHtml(v.uploader_name)}</p>
-                <div class="video-stats"><span>👁️ ${formatViews(v.views)} ${t('views')}</span><span>❤️ ${v.likes || 0}</span>${showDelete ? `<span style="color:#ff0000;cursor:pointer;margin-left:8px;" onclick="event.stopPropagation(); deleteVideo('${v.id}')">🗑️ Удалить</span>` : ''}</div>
-            </div></div>
-        </div>
-    `).join('')}</div>`;
-}
+    function logout() {
+        token = null;
+        currentUser = null;
+        localStorage.removeItem('token');
+        updateAuthUI();
+        loadAllVideos();
+    }
 
-async function renderPage() {
-    const contentDiv = document.getElementById('content');
-    if (currentPage === 'home') {
-        await loadAllVideos();
+    async function loadAllVideos() {
+        try {
+            const response = await fetch(`${API_URL}/api/videos`);
+            if (response.ok) {
+                const data = await response.json();
+                allVideos = data.videos || [];
+                renderCurrentPage();
+            }
+        } catch (err) {
+            console.error('Error loading videos:', err);
+        }
+    }
+
+    async function loadChannelVideos(username) {
+        try {
+            const response = await fetch(`${API_URL}/api/channels/${username}`);
+            if (response.ok) {
+                const data = await response.json();
+                currentChannelVideos = data.videos || [];
+                renderChannelPage(data);
+            }
+        } catch (err) {
+            console.error('Error loading channel:', err);
+        }
+    }
+
+    async function deleteVideo(videoId) {
+        if (!confirm('Удалить видео?')) return;
+        try {
+            const response = await fetch(`${API_URL}/api/videos/${videoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                await loadAllVideos();
+                if (currentPage === 'my-channel' && currentUser) {
+                    await loadChannelVideos(currentUser.username);
+                }
+                renderCurrentPage();
+            } else {
+                alert('Ошибка удаления');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+    }
+
+    async function uploadVideo(title, description, file) {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('file', file);
+        const response = await fetch(`${API_URL}/api/videos/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        if (!response.ok) throw new Error('Upload failed');
+        return await response.json();
+    }
+
+    async function uploadMultipleVideos(titleBase, description, files) {
+        let completed = 0, failed = 0;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+            try {
+                await uploadVideo(`${titleBase} - ${nameWithoutExt}`, description, file);
+                completed++;
+            } catch {
+                failed++;
+            }
+            const percent = ((i + 1) / files.length) * 100;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('uploadStatus').innerHTML = `✅ Загружено: ${completed}, ❌ Ошибок: ${failed}`;
+        }
+        return { completed, failed };
+    }
+
+    function renderHomePage() {
         let videos = [...allVideos];
-        if (currentTab === 'trending') videos.sort((a,b) => (b.views||0)-(a.views||0));
-        if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0)-(a.likes||0));
-        const chips = `<div class="chips"><button class="chip ${currentTab==='all'?'active':''}" data-tab="all">${t('allVideos')}</button><button class="chip ${currentTab==='trending'?'active':''}" data-tab="trending">${t('trending')}</button><button class="chip ${currentTab==='recommended'?'active':''}" data-tab="recommended">${t('recommended')}</button></div>`;
-        contentDiv.innerHTML = chips + renderVideosGrid(videos, false);
-        document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderPage(); }));
+        if (currentCategory === 'trending') {
+            videos.sort((a, b) => (b.views || 0) - (a.views || 0));
+        } else if (currentCategory === 'recommended') {
+            videos.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        }
+
+        if (videos.length === 0) {
+            contentContainer.innerHTML = `<div class="empty-state"><p>📭 Пока нет видео</p></div>`;
+            return;
+        }
+
+        contentContainer.innerHTML = `
+            <div class="video-grid">
+                ${videos.map(video => `
+                    <div class="video-card" onclick="openVideo('${video.id}')">
+                        <div class="thumbnail">🎬</div>
+                        <div class="video-details">
+                            <div class="channel-icon">📺</div>
+                            <div class="video-text">
+                                <h3>${escapeHtml(video.title)}</h3>
+                                <p>${escapeHtml(video.uploader_name)}</p>
+                                <div class="video-stats">
+                                    <span>👁️ ${formatViews(video.views)}</span>
+                                    <span>❤️ ${video.likes}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
-    else if (currentPage === 'quick') {
-        await loadQuickVideos();
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ ${t('quick')}</h2>${renderVideosGrid(quickVideos, false, true)}`;
+
+    function renderChannelPage(channel) {
+        chipsContainer.innerHTML = '';
+        if (channel.videos.length === 0) {
+            contentContainer.innerHTML = `<div class="empty-state"><p>📭 На канале пока нет видео</p></div>`;
+            return;
+        }
+        contentContainer.innerHTML = `
+            <h2 style="margin-bottom: 20px;">📺 ${escapeHtml(channel.channel_name)}</h2>
+            <div class="video-grid">
+                ${channel.videos.map(video => `
+                    <div class="video-card">
+                        <div class="thumbnail" onclick="openVideo('${video.id}')">🎬</div>
+                        <div class="video-details">
+                            <div class="channel-icon">📺</div>
+                            <div class="video-text">
+                                <h3>${escapeHtml(video.title)}</h3>
+                                <div class="video-stats">
+                                    <span>👁️ ${formatViews(video.views)}</span>
+                                    <span>❤️ ${video.likes}</span>
+                                    ${currentUser && video.uploader_name === currentUser.username ? `<button class="delete-btn" onclick="deleteVideo('${video.id}')">🗑️ Удалить</button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
-    else if (currentPage === 'my-channel') {
-        if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
-        await loadMyChannelVideos();
-        let html = `<div style="width:100%;height:150px;background:linear-gradient(135deg,#ff0000,#cc0000,#667eea,#764ba2);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
-        html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
-        html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
-        html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
-        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
-        if (myChannelVideos.length > 0) html += `<div style="margin-top:32px;"><h2>📹 ${t('regularVideos')}</h2>${renderVideosGrid(myChannelVideos, true, false)}</div>`;
-        if (myChannelQuick.length > 0) html += `<div style="margin-top:32px;"><h2>⚡ ${t('quickVideos')}</h2>${renderVideosGrid(myChannelQuick, true, true)}</div>`;
-        if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
-        contentDiv.innerHTML = html;
+
+    function renderCurrentPage() {
+        if (currentPage === 'home') {
+            renderHomePage();
+            renderChips();
+        } else if (currentPage === 'my-channel' && currentUser) {
+            loadChannelVideos(currentUser.username);
+        }
     }
-    else if (currentPage === 'subscriptions') {
-        await loadSubscriptions();
-        if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}</div>`; return; }
-        let subsVideos = [];
-        for (let sub of subscriptionsList) { const res = await fetch(`${API_URL}/api/videos`); const data = await res.json(); const userVideos = (data.videos || []).filter(v => v.uploader_name === sub.username); subsVideos.push(...userVideos); }
-        subsVideos.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⭐ ${t('subscriptions')}</h2>${renderVideosGrid(subsVideos, false)}`;
+
+    function formatViews(views) {
+        if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
+        if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+        return views;
     }
-    else if (currentPage === 'history') {
-        await loadWatchHistory();
-        if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}</div><button class="chip" onclick="clearHistory()">Очистить историю</button>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div style="display:flex;gap:16px;margin-bottom:12px;cursor:pointer;align-items:center;" onclick="openVideo('${h.video_id}')"><div style="width:160px;height:90px;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
-    else if (currentPage === 'subscribers-list') {
-        const subscribers = await loadSubscribersList();
-        if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div style="width:40px;height:40px;background:#ff0000;border-radius:50%;display:flex;align-items:center;justify-content:center;">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
+
+    function openVideo(videoId) {
+        window.location.href = `/letsfiohub/watch.html?id=${videoId}`;
     }
-}
 
-window.openVideo = function(id) { window.location.href = `/letsfiohub/watch.html?id=${id}`; }
-window.deleteVideo = async function(id) { if (!confirm('Удалить видео?')) return; try { const res = await fetch(`${API_URL}/api/videos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) renderPage(); else alert('Ошибка'); } catch(e) { alert('Ошибка'); } }
-window.clearHistory = async function() { if (!confirm('Очистить историю?')) return; try { await fetch(`${API_URL}/api/history`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); renderPage(); } catch(e) {} }
+    function searchVideos() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        if (!query) return renderHomePage();
+        const filtered = allVideos.filter(v => v.title?.toLowerCase().includes(query));
+        if (filtered.length === 0) {
+            contentContainer.innerHTML = '<div class="empty-state">🔍 Ничего не найдено</div>';
+        } else {
+            contentContainer.innerHTML = `<div class="video-grid">${filtered.map(video => `
+                <div class="video-card" onclick="openVideo('${video.id}')">
+                    <div class="thumbnail">🎬</div>
+                    <div class="video-details">
+                        <div class="channel-icon">📺</div>
+                        <div class="video-text">
+                            <h3>${escapeHtml(video.title)}</h3>
+                            <p>${escapeHtml(video.uploader_name)}</p>
+                            <div class="video-stats">👁️ ${formatViews(video.views)} ❤️ ${video.likes}</div>
+                        </div>
+                    </div>
+                </div>`).join('')}</div>`;
+        }
+    }
 
-async function searchVideos() { const q = document.getElementById('searchInput').value.toLowerCase(); if (!q) { renderPage(); return; } await loadAllVideos(); const f = allVideos.filter(v => v.title?.toLowerCase().includes(q)); document.getElementById('content').innerHTML = f.length ? renderVideosGrid(f, false) : '<div class="empty-state">🔍 Ничего не найдено</div>'; }
+    const authModal = document.getElementById('authModal');
+    let isLoginMode = true;
 
-async function register(username, email, password) { const res = await fetch(`${API_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) }); if (!res.ok) throw new Error(await res.text()); return await res.json(); }
-async function login(email, password) { const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }); if (!res.ok) throw new Error('Неверный email или пароль'); const data = await res.json(); token = data.access_token; currentUser = data.user; localStorage.setItem('token', token); updateAuthUI(); return true; }
-function logout() { token = null; currentUser = null; localStorage.removeItem('token'); updateAuthUI(); renderPage(); }
-function updateAuthUI() { const u = document.getElementById('uploadBtn'), l = document.getElementById('loginBtn'), lo = document.getElementById('logoutBtn'); if (token && currentUser) { u.style.display = 'inline-block'; l.style.display = 'none'; lo.style.display = 'inline-block'; } else { u.style.display = 'none'; l.style.display = 'inline-block'; lo.style.display = 'none'; } }
+    document.getElementById('loginBtn').onclick = () => authModal.style.display = 'flex';
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.onclick = () => { authModal.style.display = 'none'; document.getElementById('uploadModal').style.display = 'none'; };
+    });
+    window.onclick = (e) => { if (e.target === authModal) authModal.style.display = 'none'; if (e.target === document.getElementById('uploadModal')) document.getElementById('uploadModal').style.display = 'none'; };
 
-async function loadSettings() {
-    if (!token) return;
-    try { const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) { const s = await res.json(); document.getElementById('themeSelect').value = s.theme || 'dark'; document.getElementById('languageSelect').value = s.language || 'professional'; document.getElementById('fontSelect').value = s.font_style || 'professional'; document.getElementById('qualitySelect').value = s.video_quality || 'auto'; document.getElementById('subtitlesCheckbox').checked = s.subtitles || false; currentLanguage = s.language || 'professional'; applyTheme(s.theme || 'dark'); applyFont(s.font_style || 'professional'); } } catch(e) {}
-}
-async function saveSettings() {
-    if (!token) return;
-    const settings = { theme: document.getElementById('themeSelect').value, language: document.getElementById('languageSelect').value, font_style: document.getElementById('fontSelect').value, video_quality: document.getElementById('qualitySelect').value, subtitles: document.getElementById('subtitlesCheckbox').checked };
-    try { const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) }); if (res.ok) { currentLanguage = settings.language; applyTheme(settings.theme); applyFont(settings.font_style); alert('Настройки сохранены'); } } catch(e) { alert('Ошибка'); }
-}
+    document.getElementById('authSwitchBtn').onclick = () => {
+        isLoginMode = !isLoginMode;
+        const title = document.getElementById('authTitle');
+        const usernameField = document.getElementById('authUsername');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const switchText = document.getElementById('authSwitchText');
+        if (isLoginMode) {
+            title.textContent = 'Вход';
+            usernameField.style.display = 'none';
+            submitBtn.textContent = 'Войти';
+            switchText.textContent = 'Нет аккаунта?';
+            document.getElementById('authSwitchBtn').textContent = 'Регистрация';
+        } else {
+            title.textContent = 'Регистрация';
+            usernameField.style.display = 'block';
+            submitBtn.textContent = 'Зарегистрироваться';
+            switchText.textContent = 'Уже есть аккаунт?';
+            document.getElementById('authSwitchBtn').textContent = 'Войти';
+        }
+    };
 
-document.getElementById('uploadForm').onsubmit = async (e) => { e.preventDefault(); const title = document.getElementById('videoTitle').value; const desc = document.getElementById('videoDescription').value; const isQuick = document.getElementById('isQuick').checked; const file = document.getElementById('videoFile').files[0]; if (!title || !file) return alert('Заполните название и выберите видео'); const fd = new FormData(); fd.append('title', title); fd.append('description', desc); fd.append('file', file); fd.append('is_quick', isQuick); try { const res = await fetch(`${API_URL}/api/videos/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd }); if (res.ok) { alert('Видео загружено!'); document.getElementById('uploadModal').style.display = 'none'; document.getElementById('uploadForm').reset(); renderPage(); } else alert('Ошибка загрузки'); } catch(err) { alert('Ошибка'); } };
+    document.getElementById('authForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        try {
+            if (isLoginMode) {
+                await login(email, password);
+                authModal.style.display = 'none';
+                await loadAllVideos();
+                renderCurrentPage();
+            } else {
+                const username = document.getElementById('authUsername').value;
+                await register(username, email, password);
+                await login(email, password);
+                authModal.style.display = 'none';
+                await loadAllVideos();
+                renderCurrentPage();
+            }
+        } catch (err) {
+            alert('Ошибка: ' + err.message);
+        }
+    };
 
-document.getElementById('editChannelForm').onsubmit = async (e) => { e.preventDefault(); const desc = document.getElementById('channelDesc').value; const ok = await updateChannel(desc); if (ok) { alert('Канал обновлён!'); document.getElementById('editChannelModal').style.display = 'none'; await loadCurrentUser(); renderPage(); } else alert('Ошибка обновления'); };
+    const uploadModal = document.getElementById('uploadModal');
+    document.getElementById('uploadBtn').onclick = () => uploadModal.style.display = 'flex';
+    const fileInput = document.getElementById('videoFiles');
+    fileInput.onchange = () => {
+        const files = fileInput.files;
+        const container = document.getElementById('queueContainer');
+        container.innerHTML = `<div class="sidebar-title">Выбрано: ${files.length}</div>`;
+        for (let f of files) container.innerHTML += `<div class="queue-item">📹 ${f.name}</div>`;
+    };
 
-document.getElementById('logoHome').onclick = () => { currentPage = 'home'; renderPage(); };
-document.getElementById('searchBtn').onclick = searchVideos;
-document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
-document.getElementById('loginBtn').onclick = () => document.getElementById('authModal').style.display = 'flex';
-document.getElementById('logoutBtn').onclick = logout;
-document.getElementById('uploadBtn').onclick = () => document.getElementById('uploadModal').style.display = 'flex';
-document.getElementById('settingsBtn').onclick = async () => { await loadSettings(); document.getElementById('settingsModal').style.display = 'flex'; };
-document.getElementById('saveSettingsBtn').onclick = saveSettings;
-document.getElementById('notificationsBtn').onclick = async () => { await loadNotifications(); alert('Уведомления'); };
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('videoTitle').value;
+        const description = document.getElementById('videoDescription').value;
+        const files = fileInput.files;
+        if (!title || !files.length) return alert('Заполните название и выберите видео');
 
-document.querySelectorAll('.sidebar-item').forEach(item => { item.addEventListener('click', () => { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); currentPage = item.dataset.page; renderPage(); }); });
+        document.getElementById('progressBar').style.display = 'block';
+        document.getElementById('uploadStatus').innerHTML = 'Загрузка...';
+        const result = await uploadMultipleVideos(title, description, files);
+        document.getElementById('uploadStatus').innerHTML = `✅ Завершено! Загружено: ${result.completed}, Ошибок: ${result.failed}`;
+        setTimeout(() => {
+            uploadModal.style.display = 'none';
+            document.getElementById('uploadForm').reset();
+            document.getElementById('queueContainer').innerHTML = '';
+            document.getElementById('progressBar').style.display = 'none';
+            loadAllVideos();
+            renderCurrentPage();
+        }, 2000);
+    };
 
-document.querySelectorAll('.close-modal').forEach(btn => { btn.onclick = () => { document.getElementById('authModal').style.display = 'none'; document.getElementById('uploadModal').style.display = 'none'; document.getElementById('settingsModal').style.display = 'none'; }; });
+    document.getElementById('searchBtn').addEventListener('click', searchVideos);
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchVideos(); });
+    document.getElementById('logoHome').addEventListener('click', () => { currentPage = 'home'; loadAllVideos(); });
+    document.getElementById('logoutBtn').addEventListener('click', logout);
 
-let isLogin = true;
-document.getElementById('authSwitchBtn').onclick = () => { isLogin = !isLogin; const title = document.getElementById('authTitle'); const usernameField = document.getElementById('authUsername'); if (isLogin) { title.textContent = 'Вход'; usernameField.style.display = 'none'; document.getElementById('authSubmitBtn').textContent = 'Войти'; document.getElementById('authSwitchText').textContent = 'Нет аккаунта?'; document.getElementById('authSwitchBtn').textContent = 'Регистрация'; } else { title.textContent = 'Регистрация'; usernameField.style.display = 'block'; document.getElementById('authSubmitBtn').textContent = 'Зарегистрироваться'; document.getElementById('authSwitchText').textContent = 'Уже есть аккаунт?'; document.getElementById('authSwitchBtn').textContent = 'Войти'; } };
-document.getElementById('authForm').onsubmit = async (e) => { e.preventDefault(); const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value; try { if (isLogin) { await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } else { const username = document.getElementById('authUsername').value; await register(username, email, password); await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } } catch(err) { alert('Ошибка: ' + err.message); } };
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const page = item.dataset.page;
+            if (page === 'home') {
+                currentPage = 'home';
+                loadAllVideos();
+            } else if (page === 'my-channel') {
+                if (!currentUser) {
+                    authModal.style.display = 'flex';
+                    return;
+                }
+                currentPage = 'my-channel';
+                loadChannelVideos(currentUser.username);
+            }
+        });
+    });
 
-loadCurrentUser().then(() => { renderPage(); loadNotifications(); });
+    function renderChips() {
+        if (currentPage !== 'home') {
+            chipsContainer.innerHTML = '';
+            return;
+        }
+        const chips = ['Все видео', 'Тренды', 'Рекомендации'];
+        chipsContainer.innerHTML = chips.map((chip, idx) => {
+            const category = ['all', 'trending', 'recommended'][idx];
+            return `<button class="chip ${currentCategory === category ? 'active' : ''}" data-category="${category}">${chip}</button>`;
+        }).join('');
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                currentCategory = e.currentTarget.dataset.category;
+                renderHomePage();
+                renderChips();
+            });
+        });
+    }
+
+    let sidebarVisible = true;
+    document.getElementById('menuToggle').addEventListener('click', () => {
+        sidebarVisible = !sidebarVisible;
+        document.getElementById('sidebar').classList.toggle('closed', !sidebarVisible);
+        document.getElementById('mainContent').classList.toggle('expanded', !sidebarVisible);
+    });
+
+    loadCurrentUser().then(() => {
+        loadAllVideos();
+    });
 </script>
+
 </body>
 </html>
-<script>
-// Функции для загрузки данных разделов
-
-// Загрузка Quick видео
-async function loadQuickVideos() {
-    try {
-        const res = await fetch(`${API_URL}/api/quick`);
-        const data = await res.json();
-        quickVideos = data.videos || [];
-        console.log("Quick videos loaded:", quickVideos.length);
-    } catch(e) { quickVideos = []; }
-}
-
-// Загрузка подписок пользователя
-async function loadMySubscriptions() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/subscriptions`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const data = await res.json();
-            subscriptionsList = data.subscriptions || [];
-            console.log("Subscriptions loaded:", subscriptionsList.length);
-        }
-    } catch(e) { subscriptionsList = []; }
-}
-
-// Загрузка истории просмотров
-async function loadMyHistory() {
-    if (!token) return;
-    try {
-        const res = await fetch(`${API_URL}/api/history`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const data = await res.json();
-            watchHistory = data.history || [];
-            console.log("History loaded:", watchHistory.length);
-        }
-    } catch(e) { watchHistory = []; }
-}
-
-// Загрузка списка подписчиков
-async function loadMySubscribers() {
-    if (!currentUser) return [];
-    try {
-        const res = await fetch(`${API_URL}/api/subscribers/list/${currentUser.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-            const data = await res.json();
-            return data.subscribers || [];
-        }
-    } catch(e) { return []; }
-    return [];
-}
-
-// Обновляем renderPage для всех разделов
-async function renderPage() {
-    const contentDiv = document.getElementById('content');
-    if (currentPage === 'home') {
-        await loadAllVideos();
-        let videos = [...allVideos];
-        if (currentTab === 'trending') videos.sort((a,b) => (b.views||0)-(a.views||0));
-        if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0)-(a.likes||0));
-        const chips = `<div class="chips"><button class="chip ${currentTab==='all'?'active':''}" data-tab="all">${t('allVideos')}</button><button class="chip ${currentTab==='trending'?'active':''}" data-tab="trending">${t('trending')}</button><button class="chip ${currentTab==='recommended'?'active':''}" data-tab="recommended">${t('recommended')}</button></div>`;
-        contentDiv.innerHTML = chips + renderVideosGrid(videos, false);
-        document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderPage(); }));
-    }
-    else if (currentPage === 'quick') {
-        await loadQuickVideos();
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ ${t('quick')}</h2>${renderVideosGrid(quickVideos, false, true)}`;
-    }
-    else if (currentPage === 'my-channel') {
-        if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
-        await loadMyChannelVideos();
-        let html = `<div style="width:100%;height:150px;background:linear-gradient(135deg,#ff0000,#cc0000,#667eea,#764ba2);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
-        html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
-        html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
-        html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
-        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
-        if (myChannelVideos.length > 0) html += `<div style="margin-top:32px;"><h2>📹 ${t('regularVideos')}</h2>${renderVideosGrid(myChannelVideos, true, false)}</div>`;
-        if (myChannelQuick.length > 0) html += `<div style="margin-top:32px;"><h2>⚡ ${t('quickVideos')}</h2>${renderVideosGrid(myChannelQuick, true, true)}</div>`;
-        if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
-        contentDiv.innerHTML = html;
-    }
-    else if (currentPage === 'subscriptions') {
-        await loadMySubscriptions();
-        if (!token) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
-        if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}<br>Вы пока ни на кого не подписаны</div>`; return; }
-        let subsVideos = [];
-        for (let sub of subscriptionsList) {
-            const res = await fetch(`${API_URL}/api/videos`);
-            const data = await res.json();
-            const userVideos = (data.videos || []).filter(v => v.uploader_name === sub.username);
-            subsVideos.push(...userVideos);
-        }
-        subsVideos.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⭐ ${t('subscriptions')}</h2>${renderVideosGrid(subsVideos, false)}`;
-    }
-    else if (currentPage === 'history') {
-        await loadMyHistory();
-        if (!token) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
-        if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}<br>История просмотров пуста</div>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div style="display:flex;gap:16px;margin-bottom:12px;cursor:pointer;align-items:center;" onclick="openVideo('${h.video_id}')"><div style="width:160px;height:90px;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
-    }
-    else if (currentPage === 'subscribers-list') {
-        if (!token) { contentDiv.innerHTML = `<div class="empty-state">👥 Мои подписчики<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
-        const subscribers = await loadMySubscribers();
-        if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div style="width:40px;height:40px;background:#ff0000;border-radius:50%;display:flex;align-items:center;justify-content:center;">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
-    }
-}
-</script>
