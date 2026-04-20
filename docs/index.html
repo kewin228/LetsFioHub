@@ -53,6 +53,8 @@
         }
         .menu-btn:hover { background: #272727; }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .menu-btn:hover { background: #272727; }
         .logo img { height: 32px; }
         .search-form { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
         .search-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
@@ -222,7 +224,7 @@
     <header class="header">
         <div class="header-left">
             <button class="menu-btn" id="menuToggle">☰</button>
-            <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+            <button class="menu-btn" id="menuToggle">☰</button><div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
         </div>
         <div class="search-form"><input type="text" class="search-input" id="searchInput" placeholder="Поиск..."><button class="search-btn" id="searchBtn">🔍</button></div>
         <div>
