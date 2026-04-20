@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Let's FioHub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0f0f0f;
             color: #f1f1f1;
             transition: background 0.3s;
@@ -23,6 +23,7 @@
         .font-slang { font-family: 'Comic Neue', cursive; }
         .font-kids { font-family: 'Fredoka One', cursive; }
         
+        /* Header */
         .header {
             position: fixed;
             top: 0;
@@ -84,6 +85,7 @@
             display: none;
         }
         
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 56px;
@@ -128,6 +130,7 @@
         }
         .mobile-overlay.active { display: block; }
         
+        /* Main content */
         .main-content {
             margin-left: 260px;
             margin-top: 56px;
@@ -137,6 +140,7 @@
         }
         .main-content.expanded { margin-left: 0; }
         
+        /* Chips */
         .chips {
             display: flex;
             gap: 12px;
@@ -161,10 +165,11 @@
         }
         .chip.active { background: #f1f1f1; color: #0f0f0f; }
         
+        /* Video grid */
         .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
         }
         .video-card { cursor: pointer; transition: transform 0.2s; }
         .video-card:hover { transform: translateY(-4px); }
@@ -206,6 +211,7 @@
         .video-info p { font-size: 13px; color: #aaa; margin-bottom: 4px; }
         .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 12px; }
         
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -286,7 +292,6 @@
         @media (max-width: 1024px) {
             .video-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
             .sidebar { transform: translateX(-260px); }
-            .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
         }
         @media (min-width: 1025px) {
@@ -334,15 +339,30 @@
     <main class="main-content" id="mainContent"><div id="content"></div></main>
 </div>
 
-<!-- Модальные окна -->
+<!-- Auth Modal -->
 <div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2 id="authTitle">Вход</h2><form id="authForm"><input type="text" id="authUsername" placeholder="Имя" style="display:none"><input type="email" id="authEmail" placeholder="Email" required><input type="password" id="authPassword" placeholder="Пароль" required><button type="submit" id="authSubmitBtn">Войти</button></form><p style="margin-top:16px;text-align:center"><span id="authSwitchText">Нет аккаунта?</span> <button id="authSwitchBtn" style="background:none;border:none;color:#ff0000;cursor:pointer">Регистрация</button></p></div></div>
 
+<!-- Upload Modal -->
 <div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><button type="submit">📤 Загрузить</button></form></div></div>
 
-<div id="settingsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>⚙️ Настройки</h2><div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div><div class="settings-group"><label>🌐 Языки интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>✍️ Шрифты интерфейса</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div><div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div><div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div><button id="saveSettingsBtn">Сохранить настройки</button></div></div>
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>⚙️ Настройки</h2>
+        <div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div>
+        <div class="settings-group"><label>🌐 Языки интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
+        <div class="settings-group"><label>✍️ Шрифты интерфейса</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
+        <div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div>
+        <div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div>
+        <button id="saveSettingsBtn">Сохранить настройки</button>
+    </div>
+</div>
 
+<!-- Notifications Modal -->
 <div id="notificationsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🔔 Уведомления</h2><div id="notificationsList"></div></div></div>
 
+<!-- Edit Channel Modal -->
 <div id="editChannelModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>✏️ Редактировать канал</h2><form id="editChannelForm"><textarea id="channelDesc" rows="3" placeholder="Описание канала"></textarea><button type="submit">Сохранить</button></form></div></div>
 
 <script>
@@ -539,7 +559,7 @@ let isLogin = true;
 document.getElementById('authSwitchBtn').onclick = () => { isLogin = !isLogin; const title = document.getElementById('authTitle'); const usernameField = document.getElementById('authUsername'); if (isLogin) { title.textContent = 'Вход'; usernameField.style.display = 'none'; document.getElementById('authSubmitBtn').textContent = 'Войти'; document.getElementById('authSwitchText').textContent = 'Нет аккаунта?'; document.getElementById('authSwitchBtn').textContent = 'Регистрация'; } else { title.textContent = 'Регистрация'; usernameField.style.display = 'block'; document.getElementById('authSubmitBtn').textContent = 'Зарегистрироваться'; document.getElementById('authSwitchText').textContent = 'Уже есть аккаунт?'; document.getElementById('authSwitchBtn').textContent = 'Войти'; } };
 document.getElementById('authForm').onsubmit = async (e) => { e.preventDefault(); const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value; try { if (isLogin) { await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } else { const username = document.getElementById('authUsername').value; await register(username, email, password); await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } } catch(err) { alert('Ошибка: ' + err.message); } };
 
-// Меню
+// Menu
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('mobileOverlay');
 const menuBtn = document.getElementById('menuToggle');
