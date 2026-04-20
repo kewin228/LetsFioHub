@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import uuid
 import os
+
 SECRET_KEY = "your-secret-key-2024"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
@@ -24,6 +25,7 @@ app = FastAPI(title="Let's FioHub API")
 
 app.mount("/covers", StaticFiles(directory=COVERS_DIR), name="covers")
 
+# Правильные CORS настройки
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -67,7 +69,7 @@ class SettingsUpdate(BaseModel):
     subtitles: bool = False
     font_style: str = "professional"
 
-# --- ХРАНИЛИЩА ---
+# --- ХРАНИЛИЩА (в памяти) ---
 users_db = []
 videos_db = []
 quick_videos_db = []
@@ -201,7 +203,6 @@ def get_me(authorization: Optional[str] = Header(None)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     user = get_user_by_id(user_id)
@@ -228,7 +229,6 @@ async def update_channel(
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     
@@ -243,8 +243,8 @@ async def update_channel(
                     f.write(content)
                 user["channel_cover"] = f"/covers/{cover_id}.jpg"
             return {
-                "message": "Channel updated", 
-                "channel_description": user["channel_description"], 
+                "message": "Channel updated",
+                "channel_description": user["channel_description"],
                 "channel_cover": user.get("channel_cover")
             }
     raise HTTPException(404, "User not found")
@@ -255,7 +255,6 @@ def update_settings(settings: SettingsUpdate, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     for user in users_db:
@@ -270,7 +269,6 @@ def get_settings(authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     user = get_user_by_id(user_id)
@@ -281,18 +279,13 @@ def get_settings(authorization: str = Header(...)):
 # --- ПОДПИСКИ ---
 @app.post("/api/subscribe/{channel_id}")
 def subscribe_channel(channel_id: int, authorization: str = Header(...)):
-    print(f"=== ПОДПИСКА === channel_id={channel_id}")
-    print(f"Subscribe request: channel_id={channel_id}")
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
-    print(f"User ID: {user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    if False:  # Временно отключено
-        print(f"ОШИБКА: попытка подписаться на себя! user_id={user_id}, channel_id={channel_id}")
+    if user_id == channel_id:
         raise HTTPException(400, "Cannot subscribe to yourself")
     
     channel = get_user_by_id(channel_id)
@@ -307,9 +300,7 @@ def subscribe_channel(channel_id: int, authorization: str = Header(...)):
         "channel_id": channel_id,
         "created_at": datetime.now().isoformat()
     })
-    
     channel["subscribers_count"] = channel.get("subscribers_count", 0) + 1
-    
     return {"message": "Subscribed", "subscribers_count": channel["subscribers_count"]}
 
 @app.delete("/api/subscribe/{channel_id}")
@@ -318,17 +309,13 @@ def unsubscribe_channel(channel_id: int, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
-    
     global subscriptions_db
     subscriptions_db = [s for s in subscriptions_db if not (s["subscriber_id"] == user_id and s["channel_id"] == channel_id)]
-    
     channel = get_user_by_id(channel_id)
     if channel:
         channel["subscribers_count"] = max(0, channel.get("subscribers_count", 0) - 1)
-    
     return {"message": "Unsubscribed", "subscribers_count": channel["subscribers_count"] if channel else 0}
 
 @app.get("/api/subscribers/{channel_id}")
@@ -352,7 +339,6 @@ def get_my_subscriptions(authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     subscriptions = []
@@ -369,7 +355,6 @@ def check_subscribed(channel_id: int, authorization: str = Header(...)):
         return {"subscribed": False}
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         return {"subscribed": False}
     return {"subscribed": is_subscribed(user_id, channel_id)}
@@ -397,7 +382,6 @@ async def upload_video(
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     user = get_user_by_id(user_id)
@@ -407,7 +391,6 @@ async def upload_video(
     video_id = str(uuid.uuid4())[:8]
     upload_dir = QUICK_DIR if is_quick else UPLOAD_DIR
     file_path = f"{upload_dir}/{video_id}.mp4"
-    
     content = await file.read()
     with open(file_path, "wb") as f:
         f.write(content)
@@ -418,7 +401,6 @@ async def upload_video(
         "uploader_id": user["id"], "uploader_name": user["username"],
         "created_at": datetime.now().isoformat(), "file_path": file_path, "is_quick": is_quick
     }
-    
     if is_quick:
         quick_videos_db.append(new_video)
     else:
@@ -427,7 +409,6 @@ async def upload_video(
     for sub in subscriptions_db:
         if sub["channel_id"] == user_id:
             add_notification(sub["subscriber_id"], f"Новое видео от {user['username']}: {title}", video_id)
-    
     return {"message": "Uploaded", "video_id": video_id, "file_size": len(content), "is_quick": is_quick}
 
 @app.get("/api/videos/{video_id}")
@@ -438,9 +419,13 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
             if authorization and authorization.startswith("Bearer "):
                 token = authorization.replace("Bearer ", "")
                 user_id = decode_token(token)
-    print(f"user_id={user_id}")
                 if user_id:
-                    watch_history_db.append({"user_id": user_id, "video_id": video_id, "video_title": v["title"], "watched_at": datetime.now().isoformat()})
+                    watch_history_db.append({
+                        "user_id": user_id,
+                        "video_id": video_id,
+                        "video_title": v["title"],
+                        "watched_at": datetime.now().isoformat()
+                    })
             return v
     for v in quick_videos_db:
         if v["id"] == video_id:
@@ -448,9 +433,13 @@ def get_video(video_id: str, authorization: Optional[str] = Header(None)):
             if authorization and authorization.startswith("Bearer "):
                 token = authorization.replace("Bearer ", "")
                 user_id = decode_token(token)
-    print(f"user_id={user_id}")
                 if user_id:
-                    watch_history_db.append({"user_id": user_id, "video_id": video_id, "video_title": v["title"], "watched_at": datetime.now().isoformat()})
+                    watch_history_db.append({
+                        "user_id": user_id,
+                        "video_id": video_id,
+                        "video_title": v["title"],
+                        "watched_at": datetime.now().isoformat()
+                    })
             return v
     raise HTTPException(404, "Video not found")
 
@@ -474,7 +463,6 @@ def like_video(video_id: str, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     if has_liked(user_id, video_id):
@@ -506,11 +494,10 @@ def like_video(video_id: str, authorization: str = Header(...)):
 
 @app.post("/api/videos/{video_id}/dislike")
 def dislike_video(video_id: str, authorization: str = Header(...)):
-    if not authorization.startswith("Bearer ""):
+    if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     if has_disliked(user_id, video_id):
@@ -546,7 +533,6 @@ def check_liked(video_id: str, authorization: str = Header(...)):
         return {"liked": False, "disliked": False}
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         return {"liked": False, "disliked": False}
     return {"liked": has_liked(user_id, video_id), "disliked": has_disliked(user_id, video_id)}
@@ -557,7 +543,6 @@ def delete_video(video_id: str, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     for i, v in enumerate(videos_db):
@@ -587,7 +572,6 @@ def add_comment(video_id: str, comment: CommentCreate, authorization: str = Head
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     user = get_user_by_id(user_id)
@@ -611,7 +595,6 @@ def like_comment(comment_id: int, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     for c in comments_db:
@@ -626,7 +609,6 @@ def delete_comment(comment_id: int, authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     global comments_db
@@ -663,7 +645,6 @@ def get_watch_history(authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     history = [h for h in watch_history_db if h["user_id"] == user_id]
@@ -676,7 +657,6 @@ def clear_history(authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     global watch_history_db
@@ -690,7 +670,6 @@ def get_notifications(authorization: str = Header(...)):
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     user_notifications = [n for n in notifications_db if n["user_id"] == user_id]
@@ -703,7 +682,6 @@ def mark_notification_read(notification_id: int, authorization: str = Header(...
         raise HTTPException(401, "Not authenticated")
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         raise HTTPException(401, "Invalid token")
     for n in notifications_db:
@@ -718,7 +696,6 @@ def get_unread_count(authorization: str = Header(...)):
         return {"count": 0}
     token = authorization.replace("Bearer ", "")
     user_id = decode_token(token)
-    print(f"user_id={user_id}")
     if not user_id:
         return {"count": 0}
     count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
