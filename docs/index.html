@@ -645,52 +645,78 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
 }
 </style>
 <script>
-// Меню
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('mobileOverlay');
-const menuBtn = document.getElementById('menuToggle');
-
-console.log("Menu button found:", menuBtn);
-console.log("Sidebar found:", sidebar);
-
-function openMenu() {
-    sidebar.classList.add('open');
-    sidebar.classList.remove('closed');
-    if (overlay) overlay.classList.add('active');
-    console.log("Menu opened");
-}
-
-function closeMenu() {
-    sidebar.classList.remove('open');
-    sidebar.classList.add('closed');
-    if (overlay) overlay.classList.remove('active');
-    console.log("Menu closed");
-}
-
-if (menuBtn) {
-    menuBtn.onclick = (e) => {
-        e.stopPropagation();
-        console.log("Menu button clicked");
-        if (sidebar.classList.contains('open')) {
-            closeMenu();
-        } else {
-            openMenu();
-        }
-    };
-} else {
-    console.log("Menu button NOT found!");
-}
-
-if (overlay) {
-    overlay.onclick = closeMenu;
-}
-
-// На больших экранах меню всегда открыто
-if (window.innerWidth > 1024) {
-    sidebar.classList.add('open');
-    sidebar.classList.remove('closed');
-} else {
-    sidebar.classList.add('closed');
-    sidebar.classList.remove('open');
-}
+<script>
+// ========== РАБОЧЕЕ МЕНЮ ==========
+(function() {
+    console.log("Инициализация меню...");
+    
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const menuBtn = document.getElementById('menuToggle');
+    
+    if (!sidebar) console.error("Sidebar не найден!");
+    if (!menuBtn) console.error("MenuBtn не найден!");
+    
+    // Стили прямо в JS (гарантированно применятся)
+    if (sidebar) {
+        sidebar.style.position = 'fixed';
+        sidebar.style.top = '56px';
+        sidebar.style.left = '0';
+        sidebar.style.bottom = '0';
+        sidebar.style.width = '260px';
+        sidebar.style.backgroundColor = '#0f0f0f';
+        sidebar.style.zIndex = '1000';
+        sidebar.style.transition = 'transform 0.3s ease';
+        sidebar.style.transform = 'translateX(-260px)';
+    }
+    
+    if (overlay) {
+        overlay.style.position = 'fixed';
+        overlay.style.top = '56px';
+        overlay.style.left = '0';
+        overlay.style.right = '0';
+        overlay.style.bottom = '0';
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        overlay.style.zIndex = '999';
+        overlay.style.display = 'none';
+        overlay.style.cursor = 'pointer';
+    }
+    
+    function openMenu() {
+        console.log("openMenu вызван");
+        if (sidebar) sidebar.style.transform = 'translateX(0)';
+        if (overlay) overlay.style.display = 'block';
+    }
+    
+    function closeMenu() {
+        console.log("closeMenu вызван");
+        if (sidebar) sidebar.style.transform = 'translateX(-260px)';
+        if (overlay) overlay.style.display = 'none';
+    }
+    
+    if (menuBtn) {
+        menuBtn.onclick = function(e) {
+            e.stopPropagation();
+            console.log("Кнопка меню нажата");
+            if (sidebar && sidebar.style.transform === 'translateX(0px)') {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        };
+    }
+    
+    if (overlay) {
+        overlay.onclick = closeMenu;
+    }
+    
+    // На больших экранах меню открыто
+    if (window.innerWidth > 1024) {
+        openMenu();
+    } else {
+        closeMenu();
+    }
+    
+    console.log("Меню инициализировано");
+})();
 </script>
