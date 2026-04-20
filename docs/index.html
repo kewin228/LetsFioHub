@@ -1243,3 +1243,47 @@ window.loadNotifications = async function() {
     if (originalLoadNotifications) await originalLoadNotifications();
 };
 </script>
+<script>
+// ========== БОКОВОЕ МЕНЮ ==========
+const menuBtn = document.getElementById('menuToggle');
+const sidebarMenu = document.getElementById('sidebar');
+const menuOverlay = document.getElementById('mobileOverlay');
+
+function openSidebar() {
+    if (sidebarMenu) {
+        sidebarMenu.classList.add('open');
+        sidebarMenu.classList.remove('closed');
+    }
+    if (menuOverlay) menuOverlay.classList.add('active');
+}
+
+function closeSidebar() {
+    if (sidebarMenu) {
+        sidebarMenu.classList.remove('open');
+        sidebarMenu.classList.add('closed');
+    }
+    if (menuOverlay) menuOverlay.classList.remove('active');
+}
+
+if (menuBtn) {
+    menuBtn.onclick = function(e) {
+        e.stopPropagation();
+        if (sidebarMenu && sidebarMenu.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    };
+}
+
+if (menuOverlay) {
+    menuOverlay.onclick = closeSidebar;
+}
+
+// На больших экранах меню открыто по умолчанию
+if (window.innerWidth > 1024) {
+    openSidebar();
+} else {
+    closeSidebar();
+}
+</script>
