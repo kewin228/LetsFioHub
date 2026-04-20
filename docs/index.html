@@ -319,7 +319,7 @@
         <div>
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
             <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button>
-            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button><button class="icon-btn" id="settingsBtn">⚙️</button>
             <button class="icon-btn" id="loginBtn">👤</button>
             <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
@@ -334,7 +334,6 @@
         <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span></div>
         <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span></div>
         <div class="sidebar-divider"></div>
-        <div class="sidebar-item" data-page="notifications"><span>🔔</span><span>Уведомления</span></div>
         <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
     </aside>
 
@@ -606,12 +605,6 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
 </html>
 <script>
 // Функция для отображения страницы уведомлений
-async function showNotificationsPage() {
-    const contentDiv = document.getElementById('content');
-    if (!token) {
-        contentDiv.innerHTML = `<div class="empty-state">🔔 Уведомления<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`;
-        return;
-    }
     
     try {
         const res = await fetch(`${API_URL}/api/notifications`, {
@@ -668,4 +661,113 @@ async function markNotificationRead(notificationId) {
 
 // Добавляем обработку страницы уведомлений в renderPage
 // Находим существующую функцию renderPage и добавляем условие
+</script>
+<script>
+// Функция для показа уведомлений (модальное окно справа)
+async function showNotificationsModal() {
+    if (!token) {
+        alert('Войдите, чтобы увидеть уведомления');
+        return;
+    }
+    
+    try {
+        const res = await fetch(`${API_URL}/api/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const notifications = data.notifications || [];
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            let html = `
+                <div style="position:fixed; top:56px; right:0; bottom:0; width:380px; background:#1a1a1a; z-index:2000; padding:20px; overflow-y:auto; box-shadow:-2px 0 10px rgba(0,0,0,0.3); border-left:1px solid #303030;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h2>🔔 Уведомления <span style="font-size:14px; color:#aaa;">(${notifications.length})</span></h2>
+                        <button onclick="closeNotificationsModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+                    </div>
+                    <div id="notificationsList">
+            `;
+            
+            if (notifications.length === 0) {
+                html += `<div style="text-align:center; padding:40px; color:#aaa;">Нет уведомлений</div>`;
+            } else {
+                for (let n of notifications) {
+                    const date = new Date(n.created_at).toLocaleString();
+                    html += `
+                        <div style="background:#272727; padding:16px; border-radius:12px; margin-bottom:12px;">
+                            <div style="font-weight:bold; margin-bottom:8px;">${escapeHtml(n.message)}</div>
+                            <div style="font-size:12px; color:#aaa; margin-bottom:8px;">${date}</div>
+                            ${!n.read ? `<button class="chip" onclick="markNotificationReadFromModal(${n.id})" style="background:#ff0000;">Отметить прочитанным</button>` : '<span style="font-size:12px; color:#48bb78;">✓ Прочитано</span>'}
+                        </div>
+                    `;
+                }
+            }
+            
+            html += `</div></div>`;
+            
+            // Создаём контейнер для модального окна, если его нет
+            let modalContainer = document.getElementById('notificationsModalContainer');
+            if (!modalContainer) {
+                modalContainer = document.createElement('div');
+                modalContainer.id = 'notificationsModalContainer';
+                document.body.appendChild(modalContainer);
+            }
+            modalContainer.innerHTML = html;
+            modalContainer.style.display = 'block';
+            
+            // Обновляем бейдж
+            if (unreadCount > 0) {
+                const badge = document.getElementById('notifBadge');
+                if (badge) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline-block';
+                }
+            } else {
+                const badge = document.getElementById('notifBadge');
+                if (badge) badge.style.display = 'none';
+            }
+        }
+    } catch(e) {
+        console.error('Ошибка:', e);
+    }
+}
+
+function closeNotificationsModal() {
+    const modal = document.getElementById('notificationsModalContainer');
+    if (modal) modal.style.display = 'none';
+}
+
+async function markNotificationReadFromModal(notificationId) {
+    try {
+        const res = await fetch(`${API_URL}/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            // Обновляем уведомления
+            await loadNotifications();
+            // Обновляем модальное окно
+            await showNotificationsModal();
+        }
+    } catch(e) {
+        console.error('Ошибка:', e);
+    }
+}
+
+// Подключаем кнопку уведомлений
+const notifBtn = document.getElementById('notificationsBtn');
+if (notifBtn) {
+    notifBtn.onclick = showNotificationsModal;
+}
+
+// Закрытие по клику вне области
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('notificationsModalContainer');
+    const btn = document.getElementById('notificationsBtn');
+    if (modal && modal.style.display === 'block') {
+        if (!modal.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+            closeNotificationsModal();
+        }
+    }
+});
 </script>
