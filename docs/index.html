@@ -313,58 +313,208 @@
     <header class="header">
         <div class="header-left"><button class="menu-btn" id="menuToggle">☰</button>
             
-            <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+            <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
-        <div class="search-form"><input type="text" class="search-input" id="searchInput" placeholder="Поиск..."><button class="search-btn" id="searchBtn">🔍</button></div>
+        <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="search-form"><input type="text" class="search-input" id="searchInput" placeholder="Поиск..."><button class="search-btn" id="searchBtn">🔍</button><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
         <div>
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
             <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button>
-            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button><button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge">0</span></button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
             <button class="icon-btn" id="loginBtn">👤</button>
             <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
     </header>
 
-    <div id="mobileOverlay" class="mobile-overlay"></div>
+    <div id="mobileOverlay" class="mobile-overlay"><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-item active" data-page="home"><span>🏠</span><span>Главная</span></div>
-        <div class="sidebar-item" data-page="quick"><span>⚡</span><span>Quick</span></div>
-        <div class="sidebar-item" data-page="my-channel"><span>📺</span><span>Мой канал</span></div>
-        <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span></div>
-        <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span></div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
+        <div class="sidebar-item active" data-page="home"><span>🏠</span><span>Главная</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-item" data-page="quick"><span>⚡</span><span>Quick</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-item" data-page="my-channel"><span>📺</span><span>Мой канал</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-divider"><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
     </aside>
 
-    <main class="main-content" id="mainContent"><div id="content"></div></main>
-</div>
+    <main class="main-content" id="mainContent"><div id="content"><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div></main>
+<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <!-- Auth Modal -->
-<div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2 id="authTitle">Вход</h2><form id="authForm"><input type="text" id="authUsername" placeholder="Имя" style="display:none"><input type="email" id="authEmail" placeholder="Email" required><input type="password" id="authPassword" placeholder="Пароль" required><button type="submit" id="authSubmitBtn">Войти</button></form><p style="margin-top:16px;text-align:center"><span id="authSwitchText">Нет аккаунта?</span> <button id="authSwitchBtn" style="background:none;border:none;color:#ff0000;cursor:pointer">Регистрация</button></p></div></div>
+<div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2 id="authTitle">Вход</h2><form id="authForm"><input type="text" id="authUsername" placeholder="Имя" style="display:none"><input type="email" id="authEmail" placeholder="Email" required><input type="password" id="authPassword" placeholder="Пароль" required><button type="submit" id="authSubmitBtn">Войти</button></form><p style="margin-top:16px;text-align:center"><span id="authSwitchText">Нет аккаунта?</span> <button id="authSwitchBtn" style="background:none;border:none;color:#ff0000;cursor:pointer">Регистрация</button></p><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <!-- Upload Modal -->
-<div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><button type="submit">📤 Загрузить</button></form></div></div>
+<div id="uploadModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📤 Загрузить видео</h2><form id="uploadForm"><input type="text" id="videoTitle" placeholder="Название" required><textarea id="videoDescription" rows="3" placeholder="Описание"></textarea><label><input type="checkbox" id="isQuick"> Короткое видео (Quick)</label><input type="file" id="videoFile" accept="video/*" required><button type="submit">📤 Загрузить</button></form><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <!-- Settings Modal -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2>⚙️ Настройки</h2>
-        <div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div>
-        <div class="settings-group"><label>🌐 Языки интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
-        <div class="settings-group"><label>✍️ Шрифты интерфейса</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select></div>
-        <div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select></div>
-        <div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label></div>
+        <div class="settings-group"><label>🎨 Тема</label><select id="themeSelect"><option value="dark">Тёмная</option><option value="light">Светлая</option></select><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="settings-group"><label>🌐 Языки интерфейса</label><select id="languageSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="settings-group"><label>✍️ Шрифты интерфейса</label><select id="fontSelect"><option value="professional">Профессиональный</option><option value="gamer">Геймерский (Need for Speed)</option><option value="slang">Сленговый</option><option value="kids">Детский</option></select><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="settings-group"><label>📹 Качество видео</label><select id="qualitySelect"><option value="auto">Авто</option><option value="1080p">1080p</option><option value="720p">720p</option><option value="480p">480p</option></select><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <div class="setting-row"><span>📝 Субтитры</span><label><input type="checkbox" id="subtitlesCheckbox"> Включить</label><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
         <button id="saveSettingsBtn">Сохранить настройки</button>
-    </div>
-</div>
+    <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <!-- Notifications Modal -->
-<div id="notificationsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🔔 Уведомления</h2><div id="notificationsList"></div></div></div>
+<div id="notificationsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🔔 Уведомления</h2><div id="notificationsList"><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <!-- Edit Channel Modal -->
-<div id="editChannelModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>✏️ Редактировать канал</h2><form id="editChannelForm"><textarea id="channelDesc" rows="3" placeholder="Описание канала"></textarea><button type="submit">Сохранить</button></form></div></div>
+<div id="editChannelModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>✏️ Редактировать канал</h2><form id="editChannelForm"><textarea id="channelDesc" rows="3" placeholder="Описание канала"></textarea><button type="submit">Сохранить</button></form><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
 
 <script>
 const API_URL = 'https://letsfiohub-api.onrender.com';
@@ -458,16 +608,56 @@ function formatViews(views) { if (views >= 1000000) return (views/1000000).toFix
 function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
 function renderVideosGrid(videos, showDelete = false, isQuick = false) {
-    if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}</div>`;
+    if (!videos || videos.length === 0) return `<div class="empty-state">📭 ${t('noVideos')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
     return `<div class="video-grid">${videos.map(v => `
         <div class="video-card" onclick="openVideo('${v.id}')">
-            <div class="thumbnail">${isQuick ? '⚡' : '🎬'}${isQuick ? '<span class="quick-badge">Quick</span>' : ''}</div>
-            <div class="video-details"><div class="channel-avatar">📺</div><div class="video-info">
-                <h3>${escapeHtml(v.title)}</h3><p>${escapeHtml(v.uploader_name)}</p>
-                <div class="video-stats"><span>👁️ ${formatViews(v.views)} ${t('views')}</span><span>❤️ ${v.likes || 0}</span>${showDelete ? `<span style="color:#ff0000;cursor:pointer;" onclick="event.stopPropagation(); deleteVideo('${v.id}')">🗑️ Удалить</span>` : ''}</div>
-            </div></div>
+            <div class="thumbnail">${isQuick ? '⚡' : '🎬'}${isQuick ? '<span class="quick-badge">Quick</span>' : ''}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
         </div>
-    `).join('')}</div>`;
+            <div class="video-details"><div class="channel-avatar">📺<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><div class="video-info">
+                <h3>${escapeHtml(v.title)}</h3><p>${escapeHtml(v.uploader_name)}</p>
+                <div class="video-stats"><span>👁️ ${formatViews(v.views)} ${t('views')}</span><span>❤️ ${v.likes || 0}</span>${showDelete ? `<span style="color:#ff0000;cursor:pointer;" onclick="event.stopPropagation(); deleteVideo('${v.id}')">🗑️ Удалить</span>` : ''}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+            <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+        <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+    `).join('')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
 }
 
 async function renderPage() {
@@ -477,7 +667,12 @@ async function renderPage() {
         let videos = [...allVideos];
         if (currentTab === 'trending') videos.sort((a,b) => (b.views||0)-(a.views||0));
         if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0)-(a.likes||0));
-        const chips = `<div class="chips"><button class="chip ${currentTab==='all'?'active':''}" data-tab="all">${t('allVideos')}</button><button class="chip ${currentTab==='trending'?'active':''}" data-tab="trending">${t('trending')}</button><button class="chip ${currentTab==='recommended'?'active':''}" data-tab="recommended">${t('recommended')}</button></div>`;
+        const chips = `<div class="chips"><button class="chip ${currentTab==='all'?'active':''}" data-tab="all">${t('allVideos')}</button><button class="chip ${currentTab==='trending'?'active':''}" data-tab="trending">${t('trending')}</button><button class="chip ${currentTab==='recommended'?'active':''}" data-tab="recommended">${t('recommended')}</button><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
         contentDiv.innerHTML = chips + renderVideosGrid(videos, false);
         document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderPage(); }));
     }
@@ -488,19 +683,44 @@ async function renderPage() {
     else if (currentPage === 'my-channel') {
         if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
         await loadMyChannelVideos();
-        let html = `<div class="channel-cover">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
+        let html = `<div class="channel-cover">📺 ${escapeHtml(currentUser.channel_name)}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
         html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
         html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
         html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
         html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
-        if (myChannelVideos.length > 0) html += `<div class="section-title">📹 ${t('regularVideos')}</div>${renderVideosGrid(myChannelVideos, true, false)}`;
-        if (myChannelQuick.length > 0) html += `<div class="section-title">⚡ ${t('quickVideos')}</div>${renderVideosGrid(myChannelQuick, true, true)}`;
-        if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
+        if (myChannelVideos.length > 0) html += `<div class="section-title">📹 ${t('regularVideos')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>${renderVideosGrid(myChannelVideos, true, false)}`;
+        if (myChannelQuick.length > 0) html += `<div class="section-title">⚡ ${t('quickVideos')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>${renderVideosGrid(myChannelQuick, true, true)}`;
+        if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
         contentDiv.innerHTML = html;
     }
     else if (currentPage === 'subscriptions') {
         await loadSubscriptions();
-        if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}</div>`; return; }
+        if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`; return; }
         let subsVideos = [];
         for (let sub of subscriptionsList) { const res = await fetch(`${API_URL}/api/videos`); const data = await res.json(); const userVideos = (data.videos || []).filter(v => v.uploader_name === sub.username); subsVideos.push(...userVideos); }
         subsVideos.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
@@ -508,15 +728,55 @@ async function renderPage() {
     }
     else if (currentPage === 'history') {
         await loadWatchHistory();
-        if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}</div><button class="chip" onclick="clearHistory()">Очистить историю</button>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div class="video-card" style="margin-bottom:12px;display:flex;gap:16px;align-items:center;" onclick="openVideo('${h.video_id}')"><div class="thumbnail" style="width:160px;margin:0;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
+        if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="chip" onclick="clearHistory()">Очистить историю</button>`; return; }
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div class="video-card" style="margin-bottom:12px;display:flex;gap:16px;align-items:center;" onclick="openVideo('${h.video_id}')"><div class="thumbnail" style="width:160px;margin:0;">🎬<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
     }
     else if (currentPage === .notifications.) {
         showNotificationsPage();
     } else if (currentPage === .subscribers-list.) {
         const subscribers = await loadSubscribersList();
-        if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
-        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div class="channel-avatar">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
+        if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`; return; }
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div class="channel-avatar">👤<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><div><strong>${escapeHtml(s.username)}</strong><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`).join('')}`;
     }
 }
 
@@ -524,7 +784,12 @@ window.openVideo = function(id) { window.location.href = `/letsfiohub/watch.html
 window.deleteVideo = async function(id) { if (!confirm('Удалить видео?')) return; try { const res = await fetch(`${API_URL}/api/videos/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); if (res.ok) renderPage(); else alert('Ошибка'); } catch(e) { alert('Ошибка'); } }
 window.clearHistory = async function() { if (!confirm('Очистить историю?')) return; try { await fetch(`${API_URL}/api/history`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); renderPage(); } catch(e) {} }
 
-async function searchVideos() { const q = document.getElementById('searchInput').value.toLowerCase(); if (!q) { renderPage(); return; } await loadAllVideos(); const f = allVideos.filter(v => v.title?.toLowerCase().includes(q)); document.getElementById('content').innerHTML = f.length ? renderVideosGrid(f, false) : '<div class="empty-state">🔍 Ничего не найдено</div>'; }
+async function searchVideos() { const q = document.getElementById('searchInput').value.toLowerCase(); if (!q) { renderPage(); return; } await loadAllVideos(); const f = allVideos.filter(v => v.title?.toLowerCase().includes(q)); document.getElementById('content').innerHTML = f.length ? renderVideosGrid(f, false) : '<div class="empty-state">🔍 Ничего не найдено<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>'; }
 
 async function register(username, email, password) { const res = await fetch(`${API_URL}/api/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) }); if (!res.ok) throw new Error(await res.text()); return await res.json(); }
 async function login(email, password) { const res = await fetch(`${API_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }); if (!res.ok) throw new Error('Неверный email или пароль'); const data = await res.json(); token = data.access_token; currentUser = data.user; localStorage.setItem('token', token); updateAuthUI(); return true; }
@@ -615,7 +880,12 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
             const notifications = data.notifications || [];
             
             if (notifications.length === 0) {
-                contentDiv.innerHTML = `<div class="empty-state">🔔 У вас нет уведомлений</div>`;
+                contentDiv.innerHTML = `<div class="empty-state">🔔 У вас нет уведомлений<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
                 return;
             }
             
@@ -627,18 +897,48 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
                 html += `
                     <div style="background:#1a1a1a; padding:16px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <div style="font-weight:bold; margin-bottom:4px;">${escapeHtml(n.message)}</div>
-                            <div style="font-size:12px; color:#aaa;">${date}</div>
-                        </div>
+                            <div style="font-weight:bold; margin-bottom:4px;">${escapeHtml(n.message)}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+                            <div style="font-size:12px; color:#aaa;">${date}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+                        <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
                         ${!n.read ? `<button class="chip" onclick="markNotificationRead(${n.id})">Прочитано</button>` : '<span style="color:#aaa;">✓ Прочитано</span>'}
-                    </div>
+                    <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
                 `;
             }
-            html += `</div>`;
+            html += `<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
             contentDiv.innerHTML = html;
         }
     } catch(e) {
-        contentDiv.innerHTML = `<div class="empty-state">🔔 Ошибка загрузки уведомлений</div>`;
+        contentDiv.innerHTML = `<div class="empty-state">🔔 Ошибка загрузки уведомлений<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
     }
 }
 
@@ -684,26 +984,61 @@ async function showNotificationsModal() {
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <h2>🔔 Уведомления <span style="font-size:14px; color:#aaa;">(${notifications.length})</span></h2>
                         <button onclick="closeNotificationsModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
-                    </div>
+                    <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
                     <div id="notificationsList">
             `;
             
             if (notifications.length === 0) {
-                html += `<div style="text-align:center; padding:40px; color:#aaa;">Нет уведомлений</div>`;
+                html += `<div style="text-align:center; padding:40px; color:#aaa;">Нет уведомлений<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
             } else {
                 for (let n of notifications) {
                     const date = new Date(n.created_at).toLocaleString();
                     html += `
                         <div style="background:#272727; padding:16px; border-radius:12px; margin-bottom:12px;">
-                            <div style="font-weight:bold; margin-bottom:8px;">${escapeHtml(n.message)}</div>
-                            <div style="font-size:12px; color:#aaa; margin-bottom:8px;">${date}</div>
+                            <div style="font-weight:bold; margin-bottom:8px;">${escapeHtml(n.message)}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
+                            <div style="font-size:12px; color:#aaa; margin-bottom:8px;">${date}<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
                             ${!n.read ? `<button class="chip" onclick="markNotificationReadFromModal(${n.id})" style="background:#ff0000;">Отметить прочитанным</button>` : '<span style="font-size:12px; color:#48bb78;">✓ Прочитано</span>'}
-                        </div>
+                        <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>
                     `;
                 }
             }
             
-            html += `</div></div>`;
+            html += `<button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div><button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
+            <button class="icon-btn" id="notificationsBtn">🔔<span id="notifBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="icon-btn" id="settingsBtn">⚙️</button>
+            <button class="icon-btn" id="loginBtn">👤</button>
+            <button class="icon-btn" id="logoutBtn" style="display: none;">🚪</button>
+        </div>`;
             
             // Создаём контейнер для модального окна, если его нет
             let modalContainer = document.getElementById('notificationsModalContainer');
@@ -770,4 +1105,141 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+</script>
+<script>
+// ========== УВЕДОМЛЕНИЯ ==========
+const notifBtn = document.getElementById('notificationsBtn');
+const notifBadge = document.getElementById('notifBadge');
+
+// Загрузка уведомлений и обновление бейджа
+async function loadNotificationsAndBadge() {
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_URL}/api/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const notifications = data.notifications || [];
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                notifBadge.textContent = unreadCount;
+                notifBadge.style.display = 'inline-block';
+            } else {
+                notifBadge.style.display = 'none';
+            }
+            
+            // Сохраняем уведомления для показа
+            window.cachedNotifications = notifications;
+        }
+    } catch(e) {
+        console.error('Ошибка загрузки уведомлений:', e);
+    }
+}
+
+// Показать уведомления
+function showNotifications() {
+    if (!token) {
+        alert('Войдите, чтобы увидеть уведомления');
+        return;
+    }
+    
+    const notifications = window.cachedNotifications || [];
+    
+    // Создаём панель уведомлений
+    let panel = document.getElementById('notificationsPanel');
+    if (panel) panel.remove();
+    
+    panel = document.createElement('div');
+    panel.id = 'notificationsPanel';
+    panel.style.cssText = `
+        position: fixed;
+        top: 56px;
+        right: 0;
+        bottom: 0;
+        width: 380px;
+        background: #1a1a1a;
+        z-index: 2000;
+        padding: 20px;
+        overflow-y: auto;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+        border-left: 1px solid #303030;
+        transition: transform 0.3s ease;
+        transform: translateX(0);
+    `;
+    
+    let html = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>🔔 Уведомления <span style="font-size: 14px; color: #aaa;">(${notifications.length})</span></h2>
+            <button onclick="closeNotificationsPanel()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer;">&times;</button>
+        </div>
+        <div id="notificationsList">
+    `;
+    
+    if (notifications.length === 0) {
+        html += `<div style="text-align: center; padding: 40px; color: #aaa;">Нет уведомлений</div>`;
+    } else {
+        for (let n of notifications) {
+            const date = new Date(n.created_at).toLocaleString();
+            html += `
+                <div style="background: #272727; padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">${escapeHtml(n.message)}</div>
+                    <div style="font-size: 12px; color: #aaa; margin-bottom: 8px;">${date}</div>
+                    ${!n.read ? `<button class="chip" onclick="markNotificationRead(${n.id})" style="background: #ff0000; margin-top: 8px;">Отметить прочитанным</button>` : '<span style="font-size: 12px; color: #48bb78;">✓ Прочитано</span>'}
+                </div>
+            `;
+        }
+    }
+    
+    html += `</div>`;
+    panel.innerHTML = html;
+    document.body.appendChild(panel);
+}
+
+function closeNotificationsPanel() {
+    const panel = document.getElementById('notificationsPanel');
+    if (panel) panel.remove();
+}
+
+async function markNotificationRead(notificationId) {
+    try {
+        const res = await fetch(`${API_URL}/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            await loadNotificationsAndBadge();
+            showNotifications();
+        }
+    } catch(e) {
+        console.error('Ошибка:', e);
+    }
+}
+
+// Подключаем обработчик
+if (notifBtn) {
+    notifBtn.onclick = showNotifications;
+}
+
+// Закрытие по клику вне области
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('notificationsPanel');
+    const btn = document.getElementById('notificationsBtn');
+    if (panel && !panel.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+        closeNotificationsPanel();
+    }
+});
+
+// Загружаем уведомления при загрузке страницы
+if (token) {
+    loadNotificationsAndBadge();
+}
+
+// Обновляем loadNotifications функцию
+const originalLoadNotifications = loadNotifications;
+window.loadNotifications = async function() {
+    await loadNotificationsAndBadge();
+    if (originalLoadNotifications) await originalLoadNotifications();
+};
 </script>
