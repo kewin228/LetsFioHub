@@ -19,12 +19,10 @@
         body.light { background: #f9f9f9; color: #0f0f0f; }
         body.light .sidebar, body.light .header, body.light .modal-content { background: #fff; border-color: #e5e5e5; }
         
-        /* Шрифты */
         .font-gamer { font-family: 'NeedForSpeed', 'Impact', sans-serif; letter-spacing: 1px; }
         .font-slang { font-family: 'Comic Neue', cursive; }
         .font-kids { font-family: 'Fredoka One', cursive; }
         
-        /* Хедер */
         .header {
             position: fixed;
             top: 0;
@@ -39,9 +37,22 @@
             z-index: 100;
             border-bottom: 1px solid #303030;
         }
-        .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .menu-btn:hover { background: #272727; }
+        .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logo img { height: 32px; }
         .search-form { flex: 1; max-width: 600px; margin: 0 32px; display: flex; }
         .search-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #303030; border-radius: 40px 0 0 40px; color: white; }
@@ -50,7 +61,6 @@
         .icon-btn:hover { background: #272727; }
         .notification-badge { position: absolute; top: 0; right: 0; background: #ff0000; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; display: none; }
         
-        /* АДАПТИВНОЕ БОКОВОЕ МЕНЮ */
         .sidebar {
             position: fixed;
             top: 56px;
@@ -63,27 +73,7 @@
             z-index: 90;
             transition: transform 0.3s ease;
         }
-        
-        /* Кнопка открытия меню (только на мобильных) */
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 56px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 85;
-            cursor: pointer;
-        }
-        .mobile-menu-overlay.active {
-            display: block;
-        }
-        
-        .sidebar.closed {
-            transform: translateX(-260px);
-        }
-        
+        .sidebar.closed { transform: translateX(-260px); }
         .sidebar-item {
             display: flex;
             align-items: center;
@@ -102,7 +92,19 @@
         .sidebar-divider { height: 1px; background: #303030; margin: 12px 16px; }
         .sidebar-title { color: #aaa; font-size: 12px; font-weight: 600; letter-spacing: 1px; padding: 8px 24px; }
         
-        /* ОСНОВНОЙ КОНТЕНТ */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 85;
+            cursor: pointer;
+        }
+        .mobile-overlay.active { display: block; }
+        
         .main-content {
             margin-left: 260px;
             margin-top: 56px;
@@ -110,11 +112,8 @@
             transition: margin-left 0.3s ease;
             min-height: calc(100vh - 56px);
         }
-        .main-content.expanded {
-            margin-left: 0;
-        }
+        .main-content.expanded { margin-left: 0; }
         
-        /* Чипсы (вкладки) */
         .chips {
             display: flex;
             gap: 12px;
@@ -139,16 +138,12 @@
         }
         .chip.active { background: #f1f1f1; color: #0f0f0f; }
         
-        /* Сетка видео */
         .video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 24px;
         }
-        .video-card {
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        .video-card { cursor: pointer; transition: transform 0.2s; }
         .video-card:hover { transform: translateY(-4px); }
         .thumbnail {
             width: 100%;
@@ -188,7 +183,6 @@
         .video-info p { font-size: 13px; color: #aaa; margin-bottom: 4px; }
         .video-stats { font-size: 12px; color: #aaa; display: flex; gap: 12px; }
         
-        /* Модальные окна */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #1a1a1a; padding: 32px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
         .modal-content h2 { margin-bottom: 20px; }
@@ -204,26 +198,21 @@
         .channel-cover { width: 100%; height: 150px; background: linear-gradient(135deg, #ff0000, #cc0000, #667eea, #764ba2); background-size: 200% 200%; animation: gradient 4s ease infinite; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* АДАПТИВНОСТЬ */
         @media (max-width: 1024px) {
             .video-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
-            .mobile-menu-overlay { display: none; }
-            .mobile-menu-overlay.active { display: block; }
         }
-        
+        @media (min-width: 1025px) {
+            .sidebar { transform: translateX(0) !important; }
+        }
         @media (max-width: 768px) {
-            .header-center { display: none; }
+            .search-form { display: none; }
             .main-content { padding: 16px; }
             .chips { gap: 8px; }
             .chip { padding: 6px 14px; font-size: 13px; }
             .video-grid { grid-template-columns: 1fr; gap: 16px; }
-        }
-        
-        @media (min-width: 1025px) {
-            .sidebar { transform: translateX(0) !important; }
         }
     </style>
 </head>
@@ -231,7 +220,10 @@
 
 <div class="app">
     <header class="header">
-        <button class="menu-btn" id="menuToggle">☰</button><div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+        <div class="header-left">
+            <button class="menu-btn" id="menuToggle">☰</button>
+            <div class="logo" id="logoHome"><img src="logo.png" alt="Logo"><span>Let's FioHub</span></div>
+        </div>
         <div class="search-form"><input type="text" class="search-input" id="searchInput" placeholder="Поиск..."><button class="search-btn" id="searchBtn">🔍</button></div>
         <div>
             <button class="icon-btn" id="uploadBtn" style="display: none;">📤</button>
@@ -242,8 +234,7 @@
         </div>
     </header>
 
-    <!-- Оверлей для мобильного меню -->
-    <div id="mobileOverlay" class="mobile-menu-overlay"></div>
+    <div id="mobileOverlay" class="mobile-overlay"></div>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-item active" data-page="home"><span>🏠</span><span>Главная</span></div>
@@ -463,76 +454,44 @@ let isLogin = true;
 document.getElementById('authSwitchBtn').onclick = () => { isLogin = !isLogin; const title = document.getElementById('authTitle'); const usernameField = document.getElementById('authUsername'); if (isLogin) { title.textContent = 'Вход'; usernameField.style.display = 'none'; document.getElementById('authSubmitBtn').textContent = 'Войти'; document.getElementById('authSwitchText').textContent = 'Нет аккаунта?'; document.getElementById('authSwitchBtn').textContent = 'Регистрация'; } else { title.textContent = 'Регистрация'; usernameField.style.display = 'block'; document.getElementById('authSubmitBtn').textContent = 'Зарегистрироваться'; document.getElementById('authSwitchText').textContent = 'Уже есть аккаунт?'; document.getElementById('authSwitchBtn').textContent = 'Войти'; } };
 document.getElementById('authForm').onsubmit = async (e) => { e.preventDefault(); const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value; try { if (isLogin) { await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } else { const username = document.getElementById('authUsername').value; await register(username, email, password); await login(email, password); document.getElementById('authModal').style.display = 'none'; renderPage(); } } catch(err) { alert('Ошибка: ' + err.message); } };
 
-// АДАПТИВНОЕ МЕНЮ
-let sidebarVisible = window.innerWidth > 1024;
+// Меню
 const sidebar = document.getElementById('sidebar');
-const mobileOverlay = document.getElementById('mobileOverlay');
-const mainContent = document.getElementById('mainContent');
+const overlay = document.getElementById('mobileOverlay');
+const menuBtn = document.getElementById('menuToggle');
 
-function updateSidebarState() {
-    if (window.innerWidth > 1024) {
-        sidebar.classList.remove('closed');
-        sidebarVisible = true;
-        mobileOverlay.classList.remove('active');
-    } else {
-        if (!sidebarVisible) {
-            sidebar.classList.add('closed');
+function openMenu() {
+    sidebar.classList.remove('closed');
+    overlay.classList.add('active');
+}
+
+function closeMenu() {
+    sidebar.classList.add('closed');
+    overlay.classList.remove('active');
+}
+
+if (menuBtn) {
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('closed')) {
+            openMenu();
         } else {
-            sidebar.classList.remove('closed');
+            closeMenu();
         }
-    }
+    });
 }
 
-function toggleSidebar() {
-    if (window.innerWidth <= 1024) {
-        sidebarVisible = !sidebarVisible;
-        if (sidebarVisible) {
-            sidebar.classList.remove('closed');
-            mobileOverlay.classList.add('active');
-        } else {
-            sidebar.classList.add('closed');
-            mobileOverlay.classList.remove('active');
-        }
-    }
+if (overlay) {
+    overlay.addEventListener('click', closeMenu);
 }
 
-function closeSidebar() {
-    if (window.innerWidth <= 1024) {
-        sidebarVisible = false;
-        sidebar.classList.add('closed');
-        mobileOverlay.classList.remove('active');
-    }
+if (window.innerWidth > 1024) {
+    sidebar.classList.remove('closed');
+} else {
+    sidebar.classList.add('closed');
 }
-
-document.getElementById('menuToggle')?.addEventListener('click', toggleSidebar);
-mobileOverlay.addEventListener('click', closeSidebar);
-window.addEventListener('resize', updateSidebarState);
-updateSidebarState();
 
 applyFont(currentFont);
 loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(loadNotifications, 30000); });
 </script>
 </body>
 </html>
-<script>
-// Функция для переключения меню
-function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    if (sidebar.classList.contains('closed')) {
-        sidebar.classList.remove('closed');
-        if (overlay) overlay.classList.add('active');
-    } else {
-        sidebar.classList.add('closed');
-        if (overlay) overlay.classList.remove('active');
-    }
-}
-
-// Назначаем обработчик после загрузки страницы
-document.addEventListener('DOMContentLoaded', function() {
-    const menuBtn = document.getElementById('menuToggle');
-    if (menuBtn) {
-        menuBtn.onclick = toggleMenu;
-    }
-});
-</script>
