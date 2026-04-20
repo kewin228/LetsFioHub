@@ -334,6 +334,7 @@
         <div class="sidebar-item" data-page="subscriptions"><span>⭐</span><span>Подписки</span></div>
         <div class="sidebar-item" data-page="history"><span>📜</span><span>История</span></div>
         <div class="sidebar-divider"></div>
+        <div class="sidebar-item" data-page="notifications"><span>🔔</span><span>Уведомления</span></div>
         <div class="sidebar-item" data-page="subscribers-list"><span>👥</span><span>Мои подписчики</span></div>
     </aside>
 
@@ -511,7 +512,9 @@ async function renderPage() {
         if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}</div><button class="chip" onclick="clearHistory()">Очистить историю</button>`; return; }
         contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div class="video-card" style="margin-bottom:12px;display:flex;gap:16px;align-items:center;" onclick="openVideo('${h.video_id}')"><div class="thumbnail" style="width:160px;margin:0;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
     }
-    else if (currentPage === 'subscribers-list') {
+    else if (currentPage === .notifications.) {
+        showNotificationsPage();
+    } else if (currentPage === .subscribers-list.) {
         const subscribers = await loadSubscribersList();
         if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
         contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div class="channel-avatar">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
@@ -601,3 +604,68 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
 </script>
 </body>
 </html>
+<script>
+// Функция для отображения страницы уведомлений
+async function showNotificationsPage() {
+    const contentDiv = document.getElementById('content');
+    if (!token) {
+        contentDiv.innerHTML = `<div class="empty-state">🔔 Уведомления<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`;
+        return;
+    }
+    
+    try {
+        const res = await fetch(`${API_URL}/api/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const notifications = data.notifications || [];
+            
+            if (notifications.length === 0) {
+                contentDiv.innerHTML = `<div class="empty-state">🔔 У вас нет уведомлений</div>`;
+                return;
+            }
+            
+            let html = `<h2 style="margin-bottom:20px">🔔 Уведомления (${notifications.length})</h2>`;
+            html += `<div style="display:flex;flex-direction:column;gap:12px;">`;
+            
+            for (let n of notifications) {
+                const date = new Date(n.created_at).toLocaleString();
+                html += `
+                    <div style="background:#1a1a1a; padding:16px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:bold; margin-bottom:4px;">${escapeHtml(n.message)}</div>
+                            <div style="font-size:12px; color:#aaa;">${date}</div>
+                        </div>
+                        ${!n.read ? `<button class="chip" onclick="markNotificationRead(${n.id})">Прочитано</button>` : '<span style="color:#aaa;">✓ Прочитано</span>'}
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+        }
+    } catch(e) {
+        contentDiv.innerHTML = `<div class="empty-state">🔔 Ошибка загрузки уведомлений</div>`;
+    }
+}
+
+// Функция для отметки уведомления как прочитанного
+async function markNotificationRead(notificationId) {
+    try {
+        const res = await fetch(`${API_URL}/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            showNotificationsPage();
+            // Обновляем счетчик уведомлений
+            await loadNotifications();
+        }
+    } catch(e) {
+        console.error('Ошибка:', e);
+    }
+}
+
+// Добавляем обработку страницы уведомлений в renderPage
+// Находим существующую функцию renderPage и добавляем условие
+</script>
