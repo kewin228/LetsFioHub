@@ -440,3 +440,118 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); });
 </script>
 </body>
 </html>
+<script>
+// Функции для загрузки данных разделов
+
+// Загрузка Quick видео
+async function loadQuickVideos() {
+    try {
+        const res = await fetch(`${API_URL}/api/quick`);
+        const data = await res.json();
+        quickVideos = data.videos || [];
+        console.log("Quick videos loaded:", quickVideos.length);
+    } catch(e) { quickVideos = []; }
+}
+
+// Загрузка подписок пользователя
+async function loadMySubscriptions() {
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_URL}/api/subscriptions`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            subscriptionsList = data.subscriptions || [];
+            console.log("Subscriptions loaded:", subscriptionsList.length);
+        }
+    } catch(e) { subscriptionsList = []; }
+}
+
+// Загрузка истории просмотров
+async function loadMyHistory() {
+    if (!token) return;
+    try {
+        const res = await fetch(`${API_URL}/api/history`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            watchHistory = data.history || [];
+            console.log("History loaded:", watchHistory.length);
+        }
+    } catch(e) { watchHistory = []; }
+}
+
+// Загрузка списка подписчиков
+async function loadMySubscribers() {
+    if (!currentUser) return [];
+    try {
+        const res = await fetch(`${API_URL}/api/subscribers/list/${currentUser.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            return data.subscribers || [];
+        }
+    } catch(e) { return []; }
+    return [];
+}
+
+// Обновляем renderPage для всех разделов
+async function renderPage() {
+    const contentDiv = document.getElementById('content');
+    if (currentPage === 'home') {
+        await loadAllVideos();
+        let videos = [...allVideos];
+        if (currentTab === 'trending') videos.sort((a,b) => (b.views||0)-(a.views||0));
+        if (currentTab === 'recommended') videos.sort((a,b) => (b.likes||0)-(a.likes||0));
+        const chips = `<div class="chips"><button class="chip ${currentTab==='all'?'active':''}" data-tab="all">${t('allVideos')}</button><button class="chip ${currentTab==='trending'?'active':''}" data-tab="trending">${t('trending')}</button><button class="chip ${currentTab==='recommended'?'active':''}" data-tab="recommended">${t('recommended')}</button></div>`;
+        contentDiv.innerHTML = chips + renderVideosGrid(videos, false);
+        document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', (e) => { currentTab = e.target.dataset.tab; renderPage(); }));
+    }
+    else if (currentPage === 'quick') {
+        await loadQuickVideos();
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⚡ ${t('quick')}</h2>${renderVideosGrid(quickVideos, false, true)}`;
+    }
+    else if (currentPage === 'my-channel') {
+        if (!currentUser) { document.getElementById('authModal').style.display = 'flex'; return; }
+        await loadMyChannelVideos();
+        let html = `<div style="width:100%;height:150px;background:linear-gradient(135deg,#ff0000,#cc0000,#667eea,#764ba2);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">📺 ${escapeHtml(currentUser.channel_name)}</div>`;
+        html += `<h2>📺 ${escapeHtml(currentUser.channel_name)}</h2>`;
+        html += `<p>${escapeHtml(currentUser.channel_description || 'Нет описания')}</p>`;
+        html += `<p>👥 ${currentUser.subscribers_count || 0} ${t('subscribers')}</p>`;
+        html += `<button class="chip" onclick="document.getElementById('editChannelModal').style.display='flex'">✏️ ${t('editChannel')}</button>`;
+        if (myChannelVideos.length > 0) html += `<div style="margin-top:32px;"><h2>📹 ${t('regularVideos')}</h2>${renderVideosGrid(myChannelVideos, true, false)}</div>`;
+        if (myChannelQuick.length > 0) html += `<div style="margin-top:32px;"><h2>⚡ ${t('quickVideos')}</h2>${renderVideosGrid(myChannelQuick, true, true)}</div>`;
+        if (myChannelVideos.length === 0 && myChannelQuick.length === 0) html += `<div class="empty-state">📭 ${t('noVideos')}</div>`;
+        contentDiv.innerHTML = html;
+    }
+    else if (currentPage === 'subscriptions') {
+        await loadMySubscriptions();
+        if (!token) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
+        if (subscriptionsList.length === 0) { contentDiv.innerHTML = `<div class="empty-state">⭐ ${t('subscriptions')}<br>Вы пока ни на кого не подписаны</div>`; return; }
+        let subsVideos = [];
+        for (let sub of subscriptionsList) {
+            const res = await fetch(`${API_URL}/api/videos`);
+            const data = await res.json();
+            const userVideos = (data.videos || []).filter(v => v.uploader_name === sub.username);
+            subsVideos.push(...userVideos);
+        }
+        subsVideos.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">⭐ ${t('subscriptions')}</h2>${renderVideosGrid(subsVideos, false)}`;
+    }
+    else if (currentPage === 'history') {
+        await loadMyHistory();
+        if (!token) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
+        if (watchHistory.length === 0) { contentDiv.innerHTML = `<div class="empty-state">📜 ${t('history')}<br>История просмотров пуста</div>`; return; }
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">📜 ${t('history')}</h2>${watchHistory.map(h => `<div style="display:flex;gap:16px;margin-bottom:12px;cursor:pointer;align-items:center;" onclick="openVideo('${h.video_id}')"><div style="width:160px;height:90px;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎬</div><div><h3>${escapeHtml(h.video_title)}</h3><p>${new Date(h.watched_at).toLocaleString()}</p></div></div>`).join('')}<button class="chip" onclick="clearHistory()">Очистить историю</button>`;
+    }
+    else if (currentPage === 'subscribers-list') {
+        if (!token) { contentDiv.innerHTML = `<div class="empty-state">👥 Мои подписчики<br><button class="chip" onclick="document.getElementById('authModal').style.display='flex'">Войдите</button></div>`; return; }
+        const subscribers = await loadMySubscribers();
+        if (subscribers.length === 0) { contentDiv.innerHTML = `<div class="empty-state">👥 У вас пока нет подписчиков</div>`; return; }
+        contentDiv.innerHTML = `<h2 style="margin-bottom:20px">👥 Мои подписчики (${subscribers.length})</h2>${subscribers.map(s => `<div class="subscriber-item"><div style="width:40px;height:40px;background:#ff0000;border-radius:50%;display:flex;align-items:center;justify-content:center;">👤</div><div><strong>${escapeHtml(s.username)}</strong></div></div>`).join('')}`;
+    }
+}
+</script>
