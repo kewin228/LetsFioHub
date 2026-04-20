@@ -514,3 +514,25 @@ loadCurrentUser().then(() => { renderPage(); loadNotifications(); setInterval(lo
 </script>
 </body>
 </html>
+<script>
+// Функция для переключения меню
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    if (sidebar.classList.contains('closed')) {
+        sidebar.classList.remove('closed');
+        if (overlay) overlay.classList.add('active');
+    } else {
+        sidebar.classList.add('closed');
+        if (overlay) overlay.classList.remove('active');
+    }
+}
+
+// Назначаем обработчик после загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const menuBtn = document.getElementById('menuToggle');
+    if (menuBtn) {
+        menuBtn.onclick = toggleMenu;
+    }
+});
+</script>
