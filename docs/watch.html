@@ -17,6 +17,59 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
+        /* Навигация */
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 20px;
+            background: #0f0f0f;
+            border-bottom: 1px solid #272727;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .back-btn {
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-btn:hover {
+            background: #2a2a2a;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-left: auto;
+        }
+        
+        .nav-links a {
+            color: #aaa;
+            text-decoration: none;
+        }
+        
+        .nav-links a:hover {
+            color: #fff;
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -34,6 +87,8 @@
         video {
             width: 100%;
             display: block;
+            min-height: 400px;
+            background: #000;
         }
         
         /* Информация */
@@ -80,6 +135,7 @@
             border-top: 1px solid #222;
             border-bottom: 1px solid #222;
             margin-bottom: 20px;
+            cursor: pointer;
         }
         
         .channel-left {
@@ -251,15 +307,42 @@
             padding: 12px;
             font-weight: 600;
         }
+        
+        /* Для видео сообщение */
+        .video-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            background: #000;
+            color: #666;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .retry-btn {
+            background: #3ea6ff;
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
+    <!-- Навигация -->
+    <div class="navbar">
+        <button class="back-btn" onclick="history.back()">← На главную</button>
+        <a href="/" class="logo">Let's FioHub</a>
+        <div class="nav-links">
+            <a href="/">Главная</a>
+            <a href="/channel.html">Мой канал</a>
+        </div>
+    </div>
+    
     <div class="container">
         <!-- Видео плеер -->
-        <div class="video-wrapper">
-            <video id="videoPlayer" controls poster="https://via.placeholder.com/1280x720/1a1a1a/666?text=Let's+FioHub">
-                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-                Ваш браузер не поддерживает видео
+        <div class="video-wrapper" id="videoWrapper">
+            <video id="videoPlayer" controls>
+                <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
             </video>
         </div>
         
@@ -275,8 +358,8 @@
             </div>
         </div>
         
-        <!-- Канал -->
-        <div class="channel">
+        <!-- Канал (кликабельный) -->
+        <div class="channel" id="channelLink">
             <div class="channel-left">
                 <div class="avatar"></div>
                 <div>
@@ -396,10 +479,22 @@
         const shareBtn = document.getElementById('shareBtn');
         const subscribeBtn = document.getElementById('subscribeBtn');
         const channelSubs = document.getElementById('channelSubs');
+        const channelLink = document.getElementById('channelLink');
         const commentInput = document.getElementById('commentInput');
         const submitCommentBtn = document.getElementById('submitCommentBtn');
         const commentsList = document.getElementById('commentsList');
         const commentsCount = document.getElementById('commentsCount');
+        
+        // Обработка ошибки видео
+        video.onerror = function() {
+            const wrapper = document.getElementById('videoWrapper');
+            wrapper.innerHTML = `
+                <div class="video-error">
+                    <span>⚠️ Не удалось загрузить видео</span>
+                    <button class="retry-btn" onclick="location.reload()">Повторить</button>
+                </div>
+            `;
+        };
         
         // Лайк
         likeBtn.onclick = () => {
@@ -420,7 +515,8 @@
         };
         
         // Подписка
-        subscribeBtn.onclick = () => {
+        subscribeBtn.onclick = (e) => {
+            e.stopPropagation();
             isSubscribed = !isSubscribed;
             if (isSubscribed) {
                 subscribeBtn.textContent = '✓ Подписан';
@@ -432,6 +528,13 @@
                 subscribers--;
             }
             channelSubs.textContent = `${subscribers} подписчиков`;
+        };
+        
+        // Переход на канал
+        channelLink.onclick = (e) => {
+            if (e.target !== subscribeBtn) {
+                window.location.href = '/channel.html?id=ivan_ozhigov';
+            }
         };
         
         // Отображение комментариев
@@ -515,14 +618,14 @@
             if (e.target.value === 'light') {
                 document.body.style.background = '#fff';
                 document.body.style.color = '#000';
-                document.querySelectorAll('button').forEach(btn => {
+                document.querySelectorAll('button, .back-btn, .settings-trigger').forEach(btn => {
                     btn.style.background = '#e0e0e0';
                     btn.style.color = '#000';
                 });
             } else {
                 document.body.style.background = '#0a0a0a';
                 document.body.style.color = '#fff';
-                document.querySelectorAll('button').forEach(btn => {
+                document.querySelectorAll('button, .back-btn, .settings-trigger').forEach(btn => {
                     btn.style.background = '#1a1a1a';
                     btn.style.color = '#fff';
                 });
@@ -557,6 +660,8 @@
         if (savedFont) { fontSelect.value = savedFont; fontSelect.dispatchEvent(new Event('change')); }
         const savedSubtitles = localStorage.getItem('subtitles') === 'true';
         if (savedSubtitles) subtitlesToggle.checked = true;
+        
+        console.log('Страница загружена!');
     </script>
 </body>
 </html>
