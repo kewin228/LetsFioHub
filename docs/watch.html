@@ -17,20 +17,18 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
-        /* Основной контейнер */
-        .main-container {
-            max-width: 1400px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
         
         /* Видео плеер */
-        .video-container {
+        .video-wrapper {
             background: #000;
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 20px;
-            position: relative;
         }
         
         video {
@@ -38,7 +36,7 @@
             display: block;
         }
         
-        /* Информация о видео */
+        /* Информация */
         .video-info {
             margin-bottom: 20px;
         }
@@ -51,13 +49,13 @@
             font-size: 14px;
         }
         
-        .buttons {
+        .action-buttons {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
         }
         
-        .btn {
+        button {
             background: #1a1a1a;
             color: #fff;
             border: none;
@@ -65,11 +63,12 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         
-        .btn:hover {
+        button:hover {
             background: #2a2a2a;
+            transform: scale(1.02);
         }
         
         /* Канал */
@@ -108,34 +107,27 @@
         
         .subscribe-btn {
             background: #cc0000;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
         }
         
         .subscribe-btn.subscribed {
             background: #2a2a2a;
         }
         
-        /* Описание */
         .description {
             margin-bottom: 30px;
             line-height: 1.5;
         }
         
         /* Комментарии */
-        .comments {
+        .comments-section {
             margin-top: 30px;
         }
         
-        .comments h3 {
+        .comments-section h3 {
             margin-bottom: 15px;
         }
         
-        .comment-input {
+        textarea {
             width: 100%;
             background: #1a1a1a;
             border: 1px solid #333;
@@ -163,18 +155,14 @@
         }
         
         /* Кнопка настроек */
-        .settings-btn {
+        .settings-trigger {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #1a1a1a;
-            color: #fff;
-            border: none;
             padding: 12px 24px;
             border-radius: 30px;
-            cursor: pointer;
             z-index: 100;
-            font-size: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
@@ -190,7 +178,7 @@
             display: none;
         }
         
-        .settings-menu {
+        .settings-panel {
             position: fixed;
             top: 0;
             right: -400px;
@@ -203,7 +191,7 @@
             padding: 24px;
         }
         
-        .settings-menu.open {
+        .settings-panel.open {
             right: 0;
         }
         
@@ -220,12 +208,9 @@
             margin-bottom: 20px;
         }
         
-        .close-btn {
+        .close-settings {
             background: none;
-            border: none;
-            color: #fff;
             font-size: 24px;
-            cursor: pointer;
         }
         
         .setting-item {
@@ -260,73 +245,64 @@
             margin-top: 10px;
         }
         
-        .save-btn {
+        .save-settings {
             background: #3ea6ff;
-            color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
             width: 100%;
-            font-size: 14px;
+            padding: 12px;
             font-weight: 600;
-        }
-        
-        .save-btn:hover {
-            background: #2d8fd9;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #aaa;
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="video-container">
-            <video id="videoPlayer" controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Crect width='100%25' height='100%25' fill='%231a1a1a'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23666' font-size='14' dy='.3em'%3E🎬 Видео%3C/text%3E%3C/svg%3E">
-                <source src="/api/video/stream/223a4337" type="video/mp4">
+    <div class="container">
+        <!-- Видео плеер -->
+        <div class="video-wrapper">
+            <video id="videoPlayer" controls poster="https://via.placeholder.com/1280x720/1a1a1a/666?text=Let's+FioHub">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видео
             </video>
         </div>
         
+        <!-- Информация -->
         <div class="video-info">
             <div class="stats">
-                <span>○ <span id="viewsCount">1.2K</span> просмотров</span>
-                <span>● <span id="subsCount">128</span> подписей</span>
+                <span>○ <span id="viewCount">1250</span> просмотров</span>
+                <span>● <span id="subCount">89</span> подписей</span>
             </div>
-            <div class="buttons">
-                <button class="btn" id="likeBtn">👍 <span id="likeCount">42</span></button>
-                <button class="btn" id="shareBtn">❤️ Поделиться</button>
+            <div class="action-buttons">
+                <button id="likeBtn">👍 <span id="likeCount">156</span></button>
+                <button id="shareBtn">❤️ Поделиться</button>
             </div>
         </div>
         
+        <!-- Канал -->
         <div class="channel">
             <div class="channel-left">
                 <div class="avatar"></div>
                 <div>
                     <div class="channel-name">Ivan Ozhigov</div>
-                    <div class="channel-subs" id="channelSubs">128 подписчиков</div>
+                    <div class="channel-subs" id="channelSubs">89 подписчиков</div>
                 </div>
             </div>
             <button class="subscribe-btn" id="subscribeBtn">🔔 Подписаться</button>
         </div>
         
+        <!-- Описание -->
         <div class="description">
-            🚗 Audi - немецкий автопроизводитель<br>
-            📍 Официальный канал<br>
-            🔔 Подпишись, чтобы не пропустить новые видео!
+            🎬 Добро пожаловать на канал Let's FioHub!<br>
+            📍 Здесь вы найдете лучшие видео<br>
+            🔔 Подпишитесь, чтобы не пропустить новые выпуски!
         </div>
         
-        <div class="comments">
-            <h3>Комментарии <span id="commentsCount">3</span></h3>
-            <textarea class="comment-input" id="commentInput" rows="3" placeholder="Напишите комментарий..."></textarea>
-            <button class="btn" id="submitCommentBtn">Отправить</button>
+        <!-- Комментарии -->
+        <div class="comments-section">
+            <h3>Комментарии <span id="commentsCount">4</span></h3>
+            <textarea id="commentInput" rows="3" placeholder="Напишите комментарий..."></textarea>
+            <button id="submitCommentBtn">Отправить</button>
             <div id="commentsList">
                 <div class="comment">
                     <div class="comment-author">Алексей</div>
-                    <div class="comment-text">Классное видео! 👍</div>
+                    <div class="comment-text">Отличное видео! 👍</div>
                 </div>
                 <div class="comment">
                     <div class="comment-author">Мария</div>
@@ -334,19 +310,25 @@
                 </div>
                 <div class="comment">
                     <div class="comment-author">Дмитрий</div>
-                    <div class="comment-text">Жду новых выпусков</div>
+                    <div class="comment-text">Жду новых видео</div>
+                </div>
+                <div class="comment">
+                    <div class="comment-author">Елена</div>
+                    <div class="comment-text">Класс! 🔥</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <button class="settings-btn" id="openSettingsBtn">⚙️ Настройки</button>
+    <!-- Кнопка настроек -->
+    <button class="settings-trigger" id="openSettingsBtn">⚙️ Настройки</button>
     
+    <!-- Меню настроек -->
     <div class="overlay" id="overlay"></div>
-    <div class="settings-menu" id="settingsMenu">
+    <div class="settings-panel" id="settingsPanel">
         <div class="settings-header">
             <h3>Настройки</h3>
-            <button class="close-btn" id="closeSettingsBtn">✕</button>
+            <button class="close-settings" id="closeSettingsBtn">✕</button>
         </div>
         
         <div class="setting-item">
@@ -392,18 +374,19 @@
             <input type="file" id="subtitleUpload" accept=".vtt">
         </div>
         
-        <button class="save-btn" id="saveSettingsBtn">Сохранить настройки</button>
+        <button class="save-settings" id="saveSettingsBtn">Сохранить настройки</button>
     </div>
     
     <script>
         // Данные
-        let likes = 42;
+        let likes = 156;
         let isSubscribed = false;
-        let subscribers = 128;
+        let subscribers = 89;
         let comments = [
-            { author: "Алексей", text: "Классное видео! 👍" },
+            { author: "Алексей", text: "Отличное видео! 👍" },
             { author: "Мария", text: "Спасибо за контент!" },
-            { author: "Дмитрий", text: "Жду новых выпусков" }
+            { author: "Дмитрий", text: "Жду новых видео" },
+            { author: "Елена", text: "Класс! 🔥" }
         ];
         
         // Элементы
@@ -419,25 +402,25 @@
         const commentsCount = document.getElementById('commentsCount');
         
         // Лайк
-        likeBtn.addEventListener('click', () => {
+        likeBtn.onclick = () => {
             likes++;
             likeCount.textContent = likes;
             likeBtn.style.transform = 'scale(1.1)';
             setTimeout(() => { likeBtn.style.transform = 'scale(1)'; }, 200);
-        });
+        };
         
         // Поделиться
-        shareBtn.addEventListener('click', async () => {
+        shareBtn.onclick = async () => {
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 alert('🔗 Ссылка скопирована!');
             } catch(e) {
                 prompt('Скопируйте ссылку:', window.location.href);
             }
-        });
+        };
         
         // Подписка
-        subscribeBtn.addEventListener('click', () => {
+        subscribeBtn.onclick = () => {
             isSubscribed = !isSubscribed;
             if (isSubscribed) {
                 subscribeBtn.textContent = '✓ Подписан';
@@ -449,9 +432,9 @@
                 subscribers--;
             }
             channelSubs.textContent = `${subscribers} подписчиков`;
-        });
+        };
         
-        // Комментарий
+        // Отображение комментариев
         function renderComments() {
             commentsList.innerHTML = comments.map(c => `
                 <div class="comment">
@@ -471,33 +454,33 @@
             });
         }
         
-        submitCommentBtn.addEventListener('click', () => {
+        // Добавление комментария
+        submitCommentBtn.onclick = () => {
             const text = commentInput.value.trim();
             if (!text) return;
             comments.unshift({ author: "Вы", text: text });
             renderComments();
             commentInput.value = '';
-        });
+        };
         
         renderComments();
         
         // Настройки
-        const settingsMenu = document.getElementById('settingsMenu');
+        const settingsPanel = document.getElementById('settingsPanel');
         const overlay = document.getElementById('overlay');
         const openSettingsBtn = document.getElementById('openSettingsBtn');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
         
-        function openSettings() {
-            settingsMenu.classList.add('open');
+        openSettingsBtn.onclick = () => {
+            settingsPanel.classList.add('open');
             overlay.classList.add('open');
-        }
+        };
         
         function closeSettings() {
-            settingsMenu.classList.remove('open');
+            settingsPanel.classList.remove('open');
             overlay.classList.remove('open');
         }
         
-        openSettingsBtn.onclick = openSettings;
         closeSettingsBtn.onclick = closeSettings;
         overlay.onclick = closeSettings;
         
@@ -505,13 +488,13 @@
         const subtitlesToggle = document.getElementById('subtitlesToggle');
         const subtitleUpload = document.getElementById('subtitleUpload');
         
-        subtitlesToggle.addEventListener('change', function(e) {
+        subtitlesToggle.onchange = (e) => {
             if (video.textTracks.length > 0) {
                 video.textTracks[0].mode = e.target.checked ? 'showing' : 'hidden';
             }
-        });
+        };
         
-        subtitleUpload.addEventListener('change', function(e) {
+        subtitleUpload.onchange = (e) => {
             const file = e.target.files[0];
             if (file && file.name.endsWith('.vtt')) {
                 const url = URL.createObjectURL(file);
@@ -522,41 +505,41 @@
                 video.appendChild(track);
                 alert('✅ Субтитры загружены');
             } else {
-                alert('❌ Пожалуйста, загрузите файл .vtt');
+                alert('❌ Загрузите файл .vtt');
             }
-        });
+        };
         
         // Тема
         const themeSelect = document.getElementById('themeSelect');
-        themeSelect.addEventListener('change', function(e) {
+        themeSelect.onchange = (e) => {
             if (e.target.value === 'light') {
                 document.body.style.background = '#fff';
                 document.body.style.color = '#000';
-                document.querySelectorAll('.btn, .settings-btn, .save-btn').forEach(el => {
-                    el.style.background = '#e0e0e0';
-                    el.style.color = '#000';
+                document.querySelectorAll('button').forEach(btn => {
+                    btn.style.background = '#e0e0e0';
+                    btn.style.color = '#000';
                 });
             } else {
                 document.body.style.background = '#0a0a0a';
                 document.body.style.color = '#fff';
-                document.querySelectorAll('.btn, .settings-btn, .save-btn').forEach(el => {
-                    el.style.background = '#1a1a1a';
-                    el.style.color = '#fff';
+                document.querySelectorAll('button').forEach(btn => {
+                    btn.style.background = '#1a1a1a';
+                    btn.style.color = '#fff';
                 });
             }
             localStorage.setItem('theme', e.target.value);
-        });
+        };
         
         // Шрифты
         const fontSelect = document.getElementById('fontSelect');
-        fontSelect.addEventListener('change', function(e) {
+        fontSelect.onchange = (e) => {
             if (e.target.value === 'large') document.body.style.fontSize = '18px';
             else if (e.target.value === 'small') document.body.style.fontSize = '12px';
             else document.body.style.fontSize = '14px';
             localStorage.setItem('font', e.target.value);
-        });
+        };
         
-        // Сохранение
+        // Сохранение настроек
         document.getElementById('saveSettingsBtn').onclick = () => {
             localStorage.setItem('theme', themeSelect.value);
             localStorage.setItem('language', document.getElementById('languageSelect').value);
@@ -574,13 +557,6 @@
         if (savedFont) { fontSelect.value = savedFont; fontSelect.dispatchEvent(new Event('change')); }
         const savedSubtitles = localStorage.getItem('subtitles') === 'true';
         if (savedSubtitles) subtitlesToggle.checked = true;
-        
-        // Обработка ошибки видео
-        video.onerror = () => {
-            console.log('Видео не загрузилось, но плеер работает');
-        };
-        
-        console.log('Страница загружена!');
     </script>
 </body>
 </html>
