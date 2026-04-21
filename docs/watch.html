@@ -17,59 +17,6 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
-        /* Навигация */
-        .navbar {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 15px 20px;
-            background: #0f0f0f;
-            border-bottom: 1px solid #272727;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .back-btn {
-            background: #1a1a1a;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .back-btn:hover {
-            background: #2a2a2a;
-        }
-        
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            text-decoration: none;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            margin-left: auto;
-        }
-        
-        .nav-links a {
-            color: #aaa;
-            text-decoration: none;
-        }
-        
-        .nav-links a:hover {
-            color: #fff;
-        }
-        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -88,63 +35,55 @@
             width: 100%;
             display: block;
             min-height: 400px;
-            background: #000;
         }
         
-        /* Информация */
-        .video-info {
-            margin-bottom: 20px;
-        }
-        
-        .stats {
+        /* Информация как на 2 скриншоте */
+        .info-row {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             margin-bottom: 15px;
             color: #aaa;
             font-size: 14px;
         }
         
-        .action-buttons {
+        .action-row {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 20px;
         }
         
-        button {
-            background: #1a1a1a;
+        .action-btn {
+            background: transparent;
             color: #fff;
             border: none;
             padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s;
         }
         
-        button:hover {
-            background: #2a2a2a;
-            transform: scale(1.02);
+        .action-btn:hover {
+            background: #1a1a1a;
         }
         
-        /* Канал */
-        .channel {
+        /* Канал как на 2 скриншоте */
+        .channel-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
+            border-top: 1px solid #272727;
+            border-bottom: 1px solid #272727;
             margin-bottom: 20px;
-            cursor: pointer;
         }
         
-        .channel-left {
+        .channel-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .avatar {
+        .channel-avatar {
             width: 48px;
             height: 48px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -152,41 +91,47 @@
         }
         
         .channel-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         
         .channel-subs {
             color: #aaa;
+            font-size: 13px;
+        }
+        
+        .subscribe-button {
+            background: #cc0000;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
             font-size: 14px;
         }
         
-        .subscribe-btn {
-            background: #cc0000;
-        }
-        
-        .subscribe-btn.subscribed {
-            background: #2a2a2a;
-        }
-        
+        /* Описание */
         .description {
-            margin-bottom: 30px;
+            color: #ddd;
             line-height: 1.5;
+            margin-bottom: 30px;
+            font-size: 14px;
         }
         
         /* Комментарии */
-        .comments-section {
-            margin-top: 30px;
+        .comments-header {
+            margin-bottom: 20px;
+            font-size: 16px;
         }
         
-        .comments-section h3 {
-            margin-bottom: 15px;
+        .comment-form {
+            margin-bottom: 20px;
         }
         
-        textarea {
+        .comment-input {
             width: 100%;
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: #121212;
+            border: 1px solid #272727;
             color: #fff;
             padding: 12px;
             border-radius: 8px;
@@ -195,49 +140,64 @@
             resize: vertical;
         }
         
+        .send-btn {
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
         .comment {
-            padding: 12px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #272727;
         }
         
         .comment-author {
             font-weight: 600;
             margin-bottom: 5px;
-            color: #3ea6ff;
+            font-size: 14px;
         }
         
         .comment-text {
             color: #ddd;
+            font-size: 14px;
         }
         
         /* Кнопка настроек */
-        .settings-trigger {
+        .settings-fab {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #1a1a1a;
+            color: #fff;
+            border: none;
             padding: 12px 24px;
             border-radius: 30px;
+            cursor: pointer;
             z-index: 100;
+            font-size: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
         /* Меню настроек */
-        .overlay {
+        .settings-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             z-index: 998;
             display: none;
         }
         
-        .settings-panel {
+        .settings-menu {
             position: fixed;
             top: 0;
-            right: -400px;
+            right: -380px;
             width: 380px;
             height: 100%;
             background: #1e1e1e;
@@ -247,11 +207,11 @@
             padding: 24px;
         }
         
-        .settings-panel.open {
+        .settings-menu.open {
             right: 0;
         }
         
-        .overlay.open {
+        .settings-overlay.open {
             display: block;
         }
         
@@ -264,25 +224,28 @@
             margin-bottom: 20px;
         }
         
-        .close-settings {
+        .settings-close {
             background: none;
+            border: none;
+            color: #fff;
             font-size: 24px;
+            cursor: pointer;
         }
         
-        .setting-item {
+        .settings-item {
             margin-bottom: 25px;
             padding-bottom: 20px;
             border-bottom: 1px solid #333;
         }
         
-        .setting-item label {
+        .settings-item label {
             display: block;
             margin-bottom: 10px;
             color: #aaa;
             font-size: 14px;
         }
         
-        .setting-item select {
+        .settings-item select {
             width: 100%;
             background: #2a2a2a;
             color: #fff;
@@ -291,7 +254,7 @@
             border-radius: 6px;
         }
         
-        .setting-item input[type="file"] {
+        .settings-item input[type="file"] {
             width: 100%;
             background: #2a2a2a;
             color: #fff;
@@ -301,120 +264,86 @@
             margin-top: 10px;
         }
         
-        .save-settings {
+        .settings-save {
             background: #3ea6ff;
-            width: 100%;
+            color: #fff;
+            border: none;
             padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
             font-weight: 600;
         }
         
-        /* Для видео сообщение */
-        .video-error {
+        .loading {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 400px;
             background: #000;
             color: #666;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .retry-btn {
-            background: #3ea6ff;
-            padding: 10px 20px;
-            border-radius: 20px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <!-- Навигация -->
-    <div class="navbar">
-        <button class="back-btn" onclick="history.back()">← На главную</button>
-        <a href="/" class="logo">Let's FioHub</a>
-        <div class="nav-links">
-            <a href="/">Главная</a>
-            <a href="/channel.html">Мой канал</a>
-        </div>
-    </div>
-    
     <div class="container">
         <!-- Видео плеер -->
-        <div class="video-wrapper" id="videoWrapper">
+        <div class="video-wrapper">
             <video id="videoPlayer" controls>
                 <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
             </video>
         </div>
         
-        <!-- Информация -->
-        <div class="video-info">
-            <div class="stats">
-                <span>○ <span id="viewCount">1250</span> просмотров</span>
-                <span>● <span id="subCount">89</span> подписей</span>
-            </div>
-            <div class="action-buttons">
-                <button id="likeBtn">👍 <span id="likeCount">156</span></button>
-                <button id="shareBtn">❤️ Поделиться</button>
-            </div>
+        <!-- Информация как на 2 скриншоте -->
+        <div class="info-row">
+            <span>○ 0 просмотров</span>
+            <span>● 0 подписей</span>
         </div>
         
-        <!-- Канал (кликабельный) -->
-        <div class="channel" id="channelLink">
-            <div class="channel-left">
-                <div class="avatar"></div>
+        <div class="action-row">
+            <button class="action-btn" id="likeBtn">👍 <span id="likeCount">0</span></button>
+            <button class="action-btn" id="subscribeMainBtn">● Подписаться</button>
+        </div>
+        
+        <!-- Канал -->
+        <div class="channel-bar">
+            <div class="channel-info">
+                <div class="channel-avatar"></div>
                 <div>
-                    <div class="channel-name">Ivan Ozhigov</div>
-                    <div class="channel-subs" id="channelSubs">89 подписчиков</div>
+                    <div class="channel-name">Канал</div>
+                    <div class="channel-subs">0 подписчиков</div>
                 </div>
             </div>
-            <button class="subscribe-btn" id="subscribeBtn">🔔 Подписаться</button>
         </div>
         
         <!-- Описание -->
         <div class="description">
-            🎬 Добро пожаловать на канал Let's FioHub!<br>
-            📍 Здесь вы найдете лучшие видео<br>
-            🔔 Подпишитесь, чтобы не пропустить новые выпуски!
+            Описание видео...
         </div>
         
         <!-- Комментарии -->
-        <div class="comments-section">
-            <h3>Комментарии <span id="commentsCount">4</span></h3>
-            <textarea id="commentInput" rows="3" placeholder="Напишите комментарий..."></textarea>
-            <button id="submitCommentBtn">Отправить</button>
-            <div id="commentsList">
-                <div class="comment">
-                    <div class="comment-author">Алексей</div>
-                    <div class="comment-text">Отличное видео! 👍</div>
-                </div>
-                <div class="comment">
-                    <div class="comment-author">Мария</div>
-                    <div class="comment-text">Спасибо за контент!</div>
-                </div>
-                <div class="comment">
-                    <div class="comment-author">Дмитрий</div>
-                    <div class="comment-text">Жду новых видео</div>
-                </div>
-                <div class="comment">
-                    <div class="comment-author">Елена</div>
-                    <div class="comment-text">Класс! 🔥</div>
-                </div>
-            </div>
+        <div class="comments-header">Комментарии 0</div>
+        <div class="comment-form">
+            <textarea class="comment-input" id="commentInput" rows="3" placeholder="Напишите комментарий..."></textarea>
+            <button class="send-btn" id="sendCommentBtn">Отправить</button>
         </div>
+        <div id="commentsList"></div>
     </div>
     
     <!-- Кнопка настроек -->
-    <button class="settings-trigger" id="openSettingsBtn">⚙️ Настройки</button>
+    <button class="settings-fab" id="openSettingsBtn">⚙️ Настройки</button>
     
     <!-- Меню настроек -->
-    <div class="overlay" id="overlay"></div>
-    <div class="settings-panel" id="settingsPanel">
+    <div class="settings-overlay" id="settingsOverlay"></div>
+    <div class="settings-menu" id="settingsMenu">
         <div class="settings-header">
             <h3>Настройки</h3>
-            <button class="close-settings" id="closeSettingsBtn">✕</button>
+            <button class="settings-close" id="closeSettingsBtn">✕</button>
         </div>
         
-        <div class="setting-item">
+        <div class="settings-item">
             <label>🎨 Тема</label>
             <select id="themeSelect">
                 <option value="dark">Тёмная</option>
@@ -422,7 +351,7 @@
             </select>
         </div>
         
-        <div class="setting-item">
+        <div class="settings-item">
             <label>🌐 Языки интерфейса</label>
             <select id="languageSelect">
                 <option value="ru">Русский</option>
@@ -430,7 +359,7 @@
             </select>
         </div>
         
-        <div class="setting-item">
+        <div class="settings-item">
             <label>🔤 Шрифты интерфейса</label>
             <select id="fontSelect">
                 <option value="default">Профессиональный</option>
@@ -439,7 +368,7 @@
             </select>
         </div>
         
-        <div class="setting-item">
+        <div class="settings-item">
             <label>📺 Качество видео</label>
             <select id="qualitySelect">
                 <option value="auto">Авто</option>
@@ -448,7 +377,7 @@
             </select>
         </div>
         
-        <div class="setting-item">
+        <div class="settings-item">
             <label>📝 Субтитры</label>
             <label style="display: flex; align-items: center;">
                 <input type="checkbox" id="subtitlesToggle">
@@ -457,95 +386,63 @@
             <input type="file" id="subtitleUpload" accept=".vtt">
         </div>
         
-        <button class="save-settings" id="saveSettingsBtn">Сохранить настройки</button>
+        <button class="settings-save" id="saveSettingsBtn">Сохранить настройки</button>
     </div>
     
     <script>
-        // Данные
-        let likes = 156;
+        // Переменные
+        let likes = 0;
         let isSubscribed = false;
-        let subscribers = 89;
-        let comments = [
-            { author: "Алексей", text: "Отличное видео! 👍" },
-            { author: "Мария", text: "Спасибо за контент!" },
-            { author: "Дмитрий", text: "Жду новых видео" },
-            { author: "Елена", text: "Класс! 🔥" }
-        ];
+        let subscribers = 0;
+        let comments = [];
         
         // Элементы
         const video = document.getElementById('videoPlayer');
         const likeBtn = document.getElementById('likeBtn');
         const likeCount = document.getElementById('likeCount');
-        const shareBtn = document.getElementById('shareBtn');
-        const subscribeBtn = document.getElementById('subscribeBtn');
-        const channelSubs = document.getElementById('channelSubs');
-        const channelLink = document.getElementById('channelLink');
+        const subscribeMainBtn = document.getElementById('subscribeMainBtn');
         const commentInput = document.getElementById('commentInput');
-        const submitCommentBtn = document.getElementById('submitCommentBtn');
+        const sendCommentBtn = document.getElementById('sendCommentBtn');
         const commentsList = document.getElementById('commentsList');
-        const commentsCount = document.getElementById('commentsCount');
         
-        // Обработка ошибки видео
-        video.onerror = function() {
-            const wrapper = document.getElementById('videoWrapper');
-            wrapper.innerHTML = `
-                <div class="video-error">
-                    <span>⚠️ Не удалось загрузить видео</span>
-                    <button class="retry-btn" onclick="location.reload()">Повторить</button>
-                </div>
-            `;
-        };
+        // Обновление UI
+        function updateUI() {
+            likeCount.textContent = likes;
+            subscribeMainBtn.textContent = isSubscribed ? '✓ Подписан' : '● Подписаться';
+            const subsText = document.querySelector('.channel-subs');
+            if (subsText) subsText.textContent = `${subscribers} подписчиков`;
+        }
         
         // Лайк
         likeBtn.onclick = () => {
             likes++;
-            likeCount.textContent = likes;
-            likeBtn.style.transform = 'scale(1.1)';
-            setTimeout(() => { likeBtn.style.transform = 'scale(1)'; }, 200);
-        };
-        
-        // Поделиться
-        shareBtn.onclick = async () => {
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                alert('🔗 Ссылка скопирована!');
-            } catch(e) {
-                prompt('Скопируйте ссылку:', window.location.href);
-            }
+            updateUI();
         };
         
         // Подписка
-        subscribeBtn.onclick = (e) => {
-            e.stopPropagation();
+        subscribeMainBtn.onclick = () => {
             isSubscribed = !isSubscribed;
             if (isSubscribed) {
-                subscribeBtn.textContent = '✓ Подписан';
-                subscribeBtn.classList.add('subscribed');
                 subscribers++;
             } else {
-                subscribeBtn.textContent = '🔔 Подписаться';
-                subscribeBtn.classList.remove('subscribed');
                 subscribers--;
             }
-            channelSubs.textContent = `${subscribers} подписчиков`;
-        };
-        
-        // Переход на канал
-        channelLink.onclick = (e) => {
-            if (e.target !== subscribeBtn) {
-                window.location.href = '/channel.html?id=ivan_ozhigov';
-            }
+            updateUI();
         };
         
         // Отображение комментариев
         function renderComments() {
+            if (comments.length === 0) {
+                commentsList.innerHTML = '';
+                return;
+            }
             commentsList.innerHTML = comments.map(c => `
                 <div class="comment">
                     <div class="comment-author">${escapeHtml(c.author)}</div>
                     <div class="comment-text">${escapeHtml(c.text)}</div>
                 </div>
             `).join('');
-            commentsCount.textContent = comments.length;
+            document.querySelector('.comments-header').textContent = `Комментарии ${comments.length}`;
         }
         
         function escapeHtml(text) {
@@ -558,10 +455,10 @@
         }
         
         // Добавление комментария
-        submitCommentBtn.onclick = () => {
+        sendCommentBtn.onclick = () => {
             const text = commentInput.value.trim();
             if (!text) return;
-            comments.unshift({ author: "Вы", text: text });
+            comments.push({ author: "Вы", text: text });
             renderComments();
             commentInput.value = '';
         };
@@ -569,23 +466,23 @@
         renderComments();
         
         // Настройки
-        const settingsPanel = document.getElementById('settingsPanel');
-        const overlay = document.getElementById('overlay');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const settingsOverlay = document.getElementById('settingsOverlay');
         const openSettingsBtn = document.getElementById('openSettingsBtn');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
         
         openSettingsBtn.onclick = () => {
-            settingsPanel.classList.add('open');
-            overlay.classList.add('open');
+            settingsMenu.classList.add('open');
+            settingsOverlay.classList.add('open');
         };
         
         function closeSettings() {
-            settingsPanel.classList.remove('open');
-            overlay.classList.remove('open');
+            settingsMenu.classList.remove('open');
+            settingsOverlay.classList.remove('open');
         }
         
         closeSettingsBtn.onclick = closeSettings;
-        overlay.onclick = closeSettings;
+        settingsOverlay.onclick = closeSettings;
         
         // Субтитры
         const subtitlesToggle = document.getElementById('subtitlesToggle');
@@ -618,15 +515,15 @@
             if (e.target.value === 'light') {
                 document.body.style.background = '#fff';
                 document.body.style.color = '#000';
-                document.querySelectorAll('button, .back-btn, .settings-trigger').forEach(btn => {
+                document.querySelectorAll('.action-btn, .send-btn, .settings-fab').forEach(btn => {
                     btn.style.background = '#e0e0e0';
                     btn.style.color = '#000';
                 });
             } else {
                 document.body.style.background = '#0a0a0a';
                 document.body.style.color = '#fff';
-                document.querySelectorAll('button, .back-btn, .settings-trigger').forEach(btn => {
-                    btn.style.background = '#1a1a1a';
+                document.querySelectorAll('.action-btn, .send-btn, .settings-fab').forEach(btn => {
+                    btn.style.background = 'transparent';
                     btn.style.color = '#fff';
                 });
             }
@@ -661,7 +558,11 @@
         const savedSubtitles = localStorage.getItem('subtitles') === 'true';
         if (savedSubtitles) subtitlesToggle.checked = true;
         
-        console.log('Страница загружена!');
+        // Обработка ошибки видео
+        video.onerror = () => {
+            const wrapper = document.querySelector('.video-wrapper');
+            wrapper.innerHTML = '<div class="loading">⚠️ Не удалось загрузить видео<br><small>Нажмите F5 для перезагрузки</small></div>';
+        };
     </script>
 </body>
 </html>
