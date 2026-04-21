@@ -700,3 +700,47 @@ def get_unread_count(authorization: str = Header(...)):
         return {"count": 0}
     count = sum(1 for n in notifications_db if n["user_id"] == user_id and not n["read"])
     return {"count": count}
+
+# ========== СУБТИТРЫ ==========
+import os
+from fastapi.responses import PlainTextResponse
+
+# Хранилище субтитров (временное, в памяти)
+subtitles_db = {}
+
+@app.post("/api/videos/{video_id}/subtitles")
+async def upload_subtitles(
+    video_id: str,
+    file: UploadFile = File(...),
+    authorization: str = Header(...)
+):
+    """Загрузка файла субтитров (.vtt) для видео"""
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user_id = decode_token(token)
+    if not user_id:
+        raise HTTPException(401, "Invalid token")
+    
+    # Проверяем, что видео принадлежит пользователю
+    video_exists = False
+    for v in videos_db + quick_videos_db:
+        if v["id"] == video_id and v["uploader_id"] == user_id:
+            video_exists = True
+            break
+    
+    if not video_exists:
+        raise HTTPException(404, "Video not found or you don't own it")
+    
+    # Читаем содержимое файла
+    content = await file.read()
+    subtitles_db[video_id] = content.decode('utf-8')
+    
+    return {"message": "Subtitles uploaded", "video_id": video_id}
+
+@app.get("/api/videos/{video_id}/subtitles")
+async def get_subtitles(video_id: str):
+    """Получение субтитров для видео"""
+    if video_id in subtitles_db:
+        return PlainTextResponse(subtitles_db[video_id], media_type="text/vtt")
+    return PlainTextResponse("", status_code=404)

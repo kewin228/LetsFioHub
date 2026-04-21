@@ -287,6 +287,7 @@
                 document.getElementById('commentText').value = '';
                 await loadComments();
                 renderComments();
+        addSubtitlesUploadButton();
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -300,6 +301,7 @@
             });
             await loadComments();
             renderComments();
+        addSubtitlesUploadButton();
         } catch(err) {}
     }
 
@@ -447,6 +449,7 @@
         if (subBtn) subBtn.onclick = toggleSubtitles;
         
         renderComments();
+        addSubtitlesUploadButton();
         
         // Применяем сохранённое состояние субтитров
         const video = document.getElementById('videoPlayer');
@@ -471,3 +474,54 @@
 </script>
 </body>
 </html>
+<script>
+// Функция для загрузки субтитров
+async function uploadSubtitles() {
+    if (!token) {
+        alert('Войдите, чтобы загрузить субтитры');
+        return;
+    }
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.vtt,.srt';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            const res = await fetch(`${API_URL}/api/videos/${videoId}/subtitles`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            
+            if (res.ok) {
+                alert('Субтитры загружены! Обновите страницу, чтобы увидеть.');
+                location.reload();
+            } else {
+                alert('Ошибка загрузки субтитров');
+            }
+        } catch(err) {
+            alert('Ошибка: ' + err.message);
+        }
+    };
+    input.click();
+}
+
+// Добавляем кнопку загрузки субтитров в интерфейс
+function addSubtitlesUploadButton() {
+    const videoWrapper = document.querySelector('.video-wrapper');
+    if (videoWrapper && !document.getElementById('uploadSubtitlesBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'uploadSubtitlesBtn';
+        btn.textContent = '📂 Загрузить субтитры';
+        btn.style.cssText = 'position: absolute; bottom: 20px; left: 20px; background: #272727; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 14px; z-index: 10;';
+        btn.onclick = uploadSubtitles;
+        videoWrapper.appendChild(btn);
+    }
+}
+</script>
