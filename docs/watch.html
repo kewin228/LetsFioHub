@@ -68,7 +68,6 @@
         .loading { text-align: center; padding: 60px; color: #aaa; }
         
         /* Кнопка субтитров */
-        .subtitles-menu {
             position: absolute;
             bottom: 70px;
             right: 20px;
@@ -80,7 +79,6 @@
             flex-direction: column;
             gap: 4px;
         }
-        .subtitles-menu button {
             background: none;
             border: none;
             color: white;
@@ -89,8 +87,6 @@
             border-radius: 8px;
             font-size: 14px;
         }
-        .subtitles-menu button:hover { background: #3f3f3f; }
-        .subtitles-btn {
             background: #272727;
             border: none;
             color: white;
@@ -103,6 +99,16 @@
             gap: 8px;
         }
         @media (max-width: 768px) { .container { padding: 0 16px; } }
+/* Стили для меню настроек */
+.settings-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; display: none; }
+.settings-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e1e1e; padding: 20px; border-radius: 10px; z-index: 1000; min-width: 300px; display: none; }
+.settings-panel.active, .settings-overlay.active { display: block; }
+.setting-item { margin: 15px 0; padding: 10px; border-bottom: 1px solid #333; }
+.settings-btn { background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+.close-settings-btn { background: #666; }
+.settings-icon { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; border: none; padding: 12px 20px; border-radius: 50px; cursor: pointer; z-index: 100; font-size: 16px; }
+.settings-icon:hover { background: #555; }
+
     </style>
 </head>
 <body>
@@ -135,7 +141,6 @@
     let likeCount = 0;
     let dislikeCount = 0;
     let subscriberCount = 0;
-    let subtitlesEnabled = localStorage.getItem('subtitlesEnabled') === 'true';
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -287,7 +292,7 @@
                 document.getElementById('commentText').value = '';
                 await loadComments();
                 renderComments();
-        addSubtitlesUploadButton();
+        // addSubtitlesUploadButton(); // Удалено по требованию - субтитры только в настройках
             }
         } catch(err) { alert('Ошибка'); }
     }
@@ -301,7 +306,7 @@
             });
             await loadComments();
             renderComments();
-        addSubtitlesUploadButton();
+        // addSubtitlesUploadButton(); // Удалено по требованию - субтитры только в настройках
         } catch(err) {}
     }
 
@@ -314,26 +319,19 @@
         const video = document.getElementById('videoPlayer');
         if (!video) return;
         
-        subtitlesEnabled = !subtitlesEnabled;
-        localStorage.setItem('subtitlesEnabled', subtitlesEnabled);
         
         // Ищем трек субтитров
         let track = null;
         for (let i = 0; i < video.textTracks.length; i++) {
-            if (video.textTracks[i].kind === 'subtitles') {
                 track = video.textTracks[i];
                 break;
             }
         }
         
         if (track) {
-            track.mode = subtitlesEnabled ? 'showing' : 'disabled';
         }
         
-        const subBtn = document.getElementById('subtitlesBtn');
         if (subBtn) {
-            subBtn.style.opacity = subtitlesEnabled ? '1' : '0.5';
-            subBtn.style.background = subtitlesEnabled ? '#ff0000' : '#272727';
         }
     }
 
@@ -397,10 +395,8 @@
             <div class="video-wrapper">
                 <video id="videoPlayer" controls autoplay>
                     <source src="${API_URL}/api/videos/${videoId}/stream" type="video/mp4">
-                    <track kind="subtitles" src="${API_URL}/api/videos/${videoId}/subtitles" srclang="ru" label="Русские" default>
                     Ваш браузер не поддерживает видео
                 </video>
-                <button class="subtitles-btn" id="subtitlesBtn" style="position: absolute; bottom: 20px; right: 20px; opacity: ${subtitlesEnabled ? '1' : '0.5'}; background: ${subtitlesEnabled ? '#ff0000' : '#272727'};">📝 Субтитры</button>
             </div>
             <div class="video-info-card">
                 <h1 class="video-title">${escapeHtml(currentVideo.title) || 'Без названия'}</h1>
@@ -444,20 +440,17 @@
         document.getElementById('channelLink').onclick = goToChannel;
         if (token) document.getElementById('submitCommentBtn').onclick = addComment;
         
-        // Субтитры
-        const subBtn = document.getElementById('subtitlesBtn');
+        // 
         if (subBtn) subBtn.onclick = toggleSubtitles;
         
         renderComments();
-        addSubtitlesUploadButton();
+        // addSubtitlesUploadButton(); // Удалено по требованию - субтитры только в настройках
         
         // Применяем сохранённое состояние субтитров
         const video = document.getElementById('videoPlayer');
         if (video) {
             video.addEventListener('loadedmetadata', () => {
                 for (let i = 0; i < video.textTracks.length; i++) {
-                    if (video.textTracks[i].kind === 'subtitles') {
-                        video.textTracks[i].mode = subtitlesEnabled ? 'showing' : 'disabled';
                         break;
                     }
                 }
@@ -472,6 +465,122 @@
     
     init();
 </script>
+<!-- Меню настроек -->
+<div class="settings-overlay" id="settingsOverlay"></div>
+<div class="settings-panel" id="settingsPanel">
+    <h3>⚙️ Настройки</h3>
+    
+    <div class="setting-item">
+        <label>🎨 Тема</label>
+        <select id="themeSelect">
+            <option value="dark">Тёмная</option>
+            <option value="light">Светлая</option>
+        </select>
+    </div>
+    
+    <div class="setting-item">
+        <label>📝 Субтитры</label>
+        <div>
+            <label>
+                <input type="checkbox" id="subtitlesToggle">
+                Включить субтитры
+            </label>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="uploadSubtitlesBtn" class="settings-btn">📁 Загрузить VTT файл</button>
+        </div>
+    </div>
+    
+    <div class="setting-item">
+        <button id="closeSettingsBtn" class="settings-btn close-settings-btn">Закрыть</button>
+    </div>
+</div>
+
+<script>
+// Функции для меню настроек
+function openSettings() {
+    document.getElementById("settingsOverlay").classList.add("active");
+    document.getElementById("settingsPanel").classList.add("active");
+}
+
+function closeSettings() {
+    document.getElementById("settingsOverlay").classList.remove("active");
+    document.getElementById("settingsPanel").classList.remove("active");
+}
+
+// Добавляем кнопку настроек
+const settingsIcon = document.createElement("button");
+settingsIcon.innerHTML = "⚙️ Настройки";
+settingsIcon.className = "settings-icon";
+settingsIcon.onclick = openSettings;
+document.body.appendChild(settingsIcon);
+
+// Закрытие по клику на оверлей
+document.getElementById("settingsOverlay").onclick = closeSettings;
+document.getElementById("closeSettingsBtn").onclick = closeSettings;
+
+// Управление субтитрами
+const subtitlesToggle = document.getElementById("subtitlesToggle");
+if (subtitlesToggle) {
+    subtitlesToggle.addEventListener("change", function(e) {
+        const video = document.querySelector("video");
+        if (video && video.textTracks.length > 0) {
+            video.textTracks[0].mode = e.target.checked ? "showing" : "hidden";
+        }
+    });
+}
+
+// Загрузка субтитров
+const uploadBtn = document.getElementById("uploadSubtitlesBtn");
+if (uploadBtn) {
+    uploadBtn.addEventListener("click", function() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".vtt";
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            const formData = new FormData();
+            formData.append("subtitles", file);
+            const videoId = new URLSearchParams(location.search).get("id");
+            formData.append("videoId", videoId);
+            
+            try {
+                const response = await fetch("/api/upload-subtitles", {
+                    method: "POST",
+                    body: formData
+                });
+                if (response.ok) {
+                    alert("✅ Субтитры загружены! Страница обновится.");
+                    location.reload();
+                } else {
+                    alert("❌ Ошибка загрузки");
+                }
+            } catch(err) {
+                alert("❌ Ошибка: " + err.message);
+            }
+        };
+        input.click();
+    });
+}
+
+// Сохранение темы
+const themeSelect = document.getElementById("themeSelect");
+if (themeSelect) {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) themeSelect.value = savedTheme;
+    themeSelect.addEventListener("change", function(e) {
+        localStorage.setItem("theme", e.target.value);
+        if (e.target.value === "light") {
+            document.body.style.background = "#fff";
+            document.body.style.color = "#000";
+        } else {
+            document.body.style.background = "#0a0a0a";
+            document.body.style.color = "#fff";
+        }
+    });
+}
+</script>
+
 </body>
 </html>
 <script>
@@ -493,14 +602,13 @@ async function uploadSubtitles() {
         formData.append('file', file);
         
         try {
-            const res = await fetch(`${API_URL}/api/videos/${videoId}/subtitles`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
             
             if (res.ok) {
-                alert('Субтитры загружены! Обновите страницу, чтобы увидеть.');
+                alert(' загружены! Обновите страницу, чтобы увидеть.');
                 location.reload();
             } else {
                 alert('Ошибка загрузки субтитров');
@@ -513,15 +621,6 @@ async function uploadSubtitles() {
 }
 
 // Добавляем кнопку загрузки субтитров в интерфейс
-function addSubtitlesUploadButton() {
-    const videoWrapper = document.querySelector('.video-wrapper');
-    if (videoWrapper && !document.getElementById('uploadSubtitlesBtn')) {
-        const btn = document.createElement('button');
-        btn.id = 'uploadSubtitlesBtn';
-        btn.textContent = '📂 Загрузить субтитры';
-        btn.style.cssText = 'position: absolute; bottom: 20px; left: 20px; background: #272727; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 14px; z-index: 10;';
-        btn.onclick = uploadSubtitles;
-        videoWrapper.appendChild(btn);
-    }
+    /* Функция addSubtitlesUploadButton удалена - субтитры только в настройках */
 }
 </script>
