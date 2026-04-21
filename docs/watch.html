@@ -4,18 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let's FioHub — просмотр видео</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/need-for-speed" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0f0f0f; color: #f1f1f1; transition: background 0.3s; }
-        body.light { background: #f9f9f9; color: #0f0f0f; }
-        body.light .video-info-card, body.light .comment { background: #fff; border-color: #e5e5e5; }
-        
-        .font-gamer { font-family: 'NeedForSpeed', 'Impact', sans-serif; letter-spacing: 1px; }
-        .font-slang { font-family: 'Comic Neue', cursive; }
-        .font-kids { font-family: 'Fredoka One', cursive; }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #f1f1f1; }
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 56px;
             background: #0f0f0f; display: flex; align-items: center;
@@ -24,18 +15,12 @@
         }
         .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .logo img { height: 32px; }
-        .back-link { margin-left: 24px; color: #aaa; text-decoration: none; font-size: 14px; }
-        .back-link:hover { color: white; }
-        .icon-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .icon-btn:hover { background: #272727; }
-        
-        .container { max-width: 1400px; margin: 72px auto 0; padding: 0 24px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
-        .video-wrapper { background: #000; border-radius: 16px; overflow: hidden; }
+        .back-link { margin-left: 24px; color: #aaa; text-decoration: none; }
+        .container { max-width: 1200px; margin: 80px auto 0; padding: 0 24px; }
+        .video-wrapper { background: #000; border-radius: 16px; overflow: hidden; position: relative; }
         .video-wrapper video { width: 100%; max-height: 70vh; }
-        
         .video-info-card { background: #1a1a1a; border-radius: 16px; padding: 20px; margin-top: 16px; }
-        .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; }
-        
+        .video-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
         .stats-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #303030; }
         .action-buttons { display: flex; gap: 12px; align-items: center; }
         .action-btn {
@@ -46,16 +31,14 @@
             border-radius: 40px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
         }
-        .action-btn:hover { background: #3f3f3f; transform: scale(1.02); }
+        .action-btn:hover { background: #3f3f3f; }
         .action-btn.liked { background: #ff0000; }
         .action-btn.disliked { background: #3f3f3f; color: #ff0000; }
-        
         .channel-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #303030; }
         .channel-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .channel-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #ff0000, #cc0000); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
@@ -69,45 +52,57 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
         }
         .subscribe-btn.subscribed { background: #272727; }
-        .subscribe-btn:hover { transform: scale(1.02); }
-        
-        .description { padding: 16px 0; font-size: 14px; line-height: 1.5; color: #ccc; }
-        
+        .description { padding: 16px 0; font-size: 14px; color: #ccc; }
         .comments-section { margin-top: 24px; }
-        .comments-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
         .comment-form { display: flex; gap: 12px; margin-bottom: 24px; }
-        .comment-form textarea { flex: 1; background: #121212; border: 1px solid #303030; border-radius: 20px; padding: 12px 16px; color: white; font-family: inherit; resize: vertical; }
-        .comment-form button { background: #ff0000; border: none; padding: 0 24px; border-radius: 40px; cursor: pointer; color: white; font-weight: 600; }
+        .comment-form textarea { flex: 1; background: #121212; border: 1px solid #303030; border-radius: 20px; padding: 12px; color: white; font-family: inherit; resize: vertical; }
+        .comment-form button { background: #ff0000; border: none; padding: 0 24px; border-radius: 40px; cursor: pointer; color: white; }
         .comment { background: #1a1a1a; padding: 16px; border-radius: 16px; margin-bottom: 12px; }
-        .comment-author { font-weight: 600; margin-bottom: 8px; color: #ff0000; }
-        .comment-text { margin-bottom: 8px; font-size: 14px; }
+        .comment-author { font-weight: bold; margin-bottom: 8px; color: #ff0000; }
+        .comment-text { margin-bottom: 8px; }
         .comment-meta { font-size: 12px; color: #aaa; display: flex; gap: 16px; margin-top: 8px; }
         .comment-like { cursor: pointer; }
         .comment-like:hover { color: #ff0000; }
+        .loading { text-align: center; padding: 60px; color: #aaa; }
         
-        .sidebar-videos { position: sticky; top: 72px; }
-        .sidebar-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-        .recommend-card { display: flex; gap: 12px; margin-bottom: 16px; cursor: pointer; transition: opacity 0.2s; }
-        .recommend-card:hover { opacity: 0.8; }
-        .recommend-thumb { width: 168px; height: 94px; background: linear-gradient(135deg, #2a2a2a, #1a1a1a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
-        .recommend-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-        .recommend-info p { font-size: 12px; color: #aaa; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; padding: 32px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
-        .modal-content h2 { margin-bottom: 20px; }
-        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin: 8px 0; background: #121212; border: 1px solid #303030; border-radius: 8px; color: white; }
-        .modal-content button { background: #ff0000; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 16px; }
-        .close-modal { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
-        
-        .settings-group { margin: 20px 0; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #303030; }
-        
-        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar-videos { display: none; } }
-        @media (max-width: 768px) { .container { padding: 0 16px; } .stats-row { flex-direction: column; align-items: flex-start; } }
+        /* Кнопка субтитров */
+        .subtitles-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 8px;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .subtitles-menu button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .subtitles-menu button:hover { background: #3f3f3f; }
+        .subtitles-btn {
+            background: #272727;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @media (max-width: 768px) { .container { padding: 0 16px; } }
     </style>
 </head>
 <body>
@@ -120,100 +115,11 @@
         </div>
         <a href="/letsfiohub" class="back-link">← На главную</a>
     </div>
-    <button class="icon-btn" id="settingsBtn">⚙️</button>
 </header>
 
-<div class="container">
-    <div>
-        <div class="video-wrapper">
-            <video id="videoPlayer" controls autoplay></video>
-        </div>
-        <div class="video-info-card" id="videoInfo">
-            <h1 class="video-title" id="videoTitle">Загрузка...</h1>
-            <div class="stats-row">
-                <span id="viewsCount">👁️ 0 просмотров</span>
-                <div class="action-buttons">
-                    <button class="action-btn" id="likeBtn">👍 <span id="likeCount">0</span></button>
-                    <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">0</span></button>
-                    <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
-                </div>
-            </div>
-            <div class="channel-row">
-                <div class="channel-info" id="channelLink">
-                    <div class="channel-avatar">📺</div>
-                    <div>
-                        <div class="channel-name" id="channelName"></div>
-                        <div class="channel-subscribers" id="channelSubs"></div>
-                    </div>
-                </div>
-                <button class="subscribe-btn" id="subscribeBtn">🔔 Подписаться</button>
-            </div>
-            <div class="description" id="videoDescription"></div>
-        </div>
-        <div class="comments-section">
-            <div class="comments-header">
-                <h3>💬 Комментарии</h3>
-                <span id="commentsCount">0</span>
-            </div>
-            <div class="comment-form" id="commentForm" style="display: none;">
-                <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
-                <button id="submitCommentBtn">Отправить</button>
-            </div>
-            <div id="commentsList"></div>
-        </div>
-    </div>
-    <div class="sidebar-videos">
-        <div class="sidebar-title">🔥 Рекомендации</div>
-        <div id="recommendations"></div>
-    </div>
-</div>
-
-<!-- Модальное окно настроек -->
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>⚙️ Настройки</h2>
-        <div class="settings-group">
-            <label>🎨 Тема</label>
-            <select id="themeSelect">
-                <option value="dark">Тёмная</option>
-                <option value="light">Светлая</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label>🌐 Языки интерфейса</label>
-            <select id="languageSelect">
-                <option value="professional">Профессиональный</option>
-                <option value="gamer">Геймерский</option>
-                <option value="slang">Сленговый</option>
-                <option value="kids">Детский</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label>✍️ Шрифты интерфейса</label>
-            <select id="fontSelect">
-                <option value="professional">Профессиональный</option>
-                <option value="gamer">Геймерский (Need for Speed)</option>
-                <option value="slang">Сленговый</option>
-                <option value="kids">Детский</option>
-            </select>
-        </div>
-        <div class="settings-group">
-            <label>📹 Качество видео</label>
-            <select id="qualitySelect">
-                <option value="auto">Авто</option>
-                <option value="1080p">1080p</option>
-                <option value="720p">720p</option>
-                <option value="480p">480p</option>
-            </select>
-        </div>
-        <div class="setting-row">
-            <span>📝 Субтитры</span>
-            <label><input type="checkbox" id="subtitlesCheckbox"> Включить</label>
-        </div>
-        <button id="saveSettingsBtn">Сохранить настройки</button>
-    </div>
-</div>
+<main class="container" id="app">
+    <div class="loading">⏳ Загрузка видео...</div>
+</main>
 
 <script>
     const API_URL = 'https://letsfiohub-api.onrender.com';
@@ -229,16 +135,7 @@
     let likeCount = 0;
     let dislikeCount = 0;
     let subscriberCount = 0;
-    let allVideos = [];
-    let currentLanguage = localStorage.getItem('language') || 'professional';
-    let currentFont = localStorage.getItem('font') || 'professional';
-
-    function applyFont(font) {
-        document.body.classList.remove('font-gamer', 'font-slang', 'font-kids');
-        if (font === 'gamer') document.body.classList.add('font-gamer');
-        if (font === 'slang') document.body.classList.add('font-slang');
-        if (font === 'kids') document.body.classList.add('font-kids');
-    }
+    let subtitlesEnabled = localStorage.getItem('subtitlesEnabled') === 'true';
 
     async function loadCurrentUser() {
         if (!token) return;
@@ -253,7 +150,7 @@
 
     async function loadVideo() {
         if (!videoId) {
-            document.getElementById('videoTitle').textContent = '❌ Видео не найдено';
+            document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
             return;
         }
         try {
@@ -268,42 +165,13 @@
                     await checkSubscribed();
                 }
                 await loadComments();
-                await loadRecommendations();
                 renderPage();
             } else {
-                document.getElementById('videoTitle').textContent = '❌ Видео не найдено';
+                document.getElementById('app').innerHTML = '<div class="loading">❌ Видео не найдено</div>';
             }
         } catch (err) {
-            console.error('Error:', err);
+            document.getElementById('app').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
         }
-    }
-
-    async function loadRecommendations() {
-        try {
-            const res = await fetch(`${API_URL}/api/videos`);
-            const data = await res.json();
-            allVideos = (data.videos || []).filter(v => v.id !== videoId).slice(0, 5);
-            renderRecommendations();
-        } catch(e) {}
-    }
-
-    function renderRecommendations() {
-        const container = document.getElementById('recommendations');
-        if (!container) return;
-        if (allVideos.length === 0) {
-            container.innerHTML = '<div style="color:#aaa;">Нет рекомендаций</div>';
-            return;
-        }
-        container.innerHTML = allVideos.map(v => `
-            <div class="recommend-card" onclick="openVideo('${v.id}')">
-                <div class="recommend-thumb">🎬</div>
-                <div class="recommend-info">
-                    <h4>${escapeHtml(v.title)}</h4>
-                    <p>${escapeHtml(v.uploader_name)}</p>
-                    <p>👁️ ${formatViews(v.views)}</p>
-                </div>
-            </div>
-        `).join('');
     }
 
     async function checkLiked() {
@@ -353,7 +221,7 @@
                 dislikeCount = data.dislikes;
                 updateButtons();
             }
-        } catch(err) { alert('Ошибка: ' + err.message); }
+        } catch(err) { alert('Ошибка'); }
     }
 
     async function dislikeVideo() {
@@ -372,44 +240,24 @@
                 dislikeCount = data.dislikes;
                 updateButtons();
             }
-        } catch(err) { alert('Ошибка: ' + err.message); }
+        } catch(err) { alert('Ошибка'); }
     }
 
     async function subscribe() {
-        console.log("Subscribe button clicked");
-        if (!token) { 
-            alert('Войдите, чтобы подписаться'); 
-            return; 
-        }
-        if (!currentVideo) return;
-        if (currentUser && currentUser.id === currentVideo.uploader_id) {
-            alert('Нельзя подписаться на самого себя');
-            return;
-        }
-        
+        if (!token) { alert('Войдите, чтобы подписаться'); return; }
         try {
             const method = isSubscribed ? 'DELETE' : 'POST';
             const res = await fetch(`${API_URL}/api/subscribe/${currentVideo.uploader_id}`, {
                 method: method,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
             if (res.ok) {
                 const data = await res.json();
                 isSubscribed = !isSubscribed;
                 subscriberCount = data.subscribers_count;
                 updateSubscribeButton();
-                // Сохраняем состояние в localStorage для синхронизации с каналом
-                localStorage.setItem(`sub_${currentVideo.uploader_id}`, isSubscribed ? 'true' : 'false');
-                alert(isSubscribed ? 'Вы подписались! Страница обновится' : 'Вы отписались! Страница обновится'); setTimeout(() => { location.reload(); }, 500);
-            } else {
-                const error = await res.json();
-                alert('Ошибка: ' + (error.detail || 'Неизвестная ошибка'));
             }
-        } catch(err) { 
-            console.error("Subscribe error:", err); 
-            alert('Ошибка: ' + err.message); 
-        }
+        } catch(err) { alert('Ошибка'); }
     }
 
     function goToChannel() {
@@ -456,9 +304,35 @@
     }
 
     function shareVideo() {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url);
-        alert('Ссылка на видео скопирована!');
+        navigator.clipboard.writeText(window.location.href);
+        alert('Ссылка скопирована!');
+    }
+
+    function toggleSubtitles() {
+        const video = document.getElementById('videoPlayer');
+        if (!video) return;
+        
+        subtitlesEnabled = !subtitlesEnabled;
+        localStorage.setItem('subtitlesEnabled', subtitlesEnabled);
+        
+        // Ищем трек субтитров
+        let track = null;
+        for (let i = 0; i < video.textTracks.length; i++) {
+            if (video.textTracks[i].kind === 'subtitles') {
+                track = video.textTracks[i];
+                break;
+            }
+        }
+        
+        if (track) {
+            track.mode = subtitlesEnabled ? 'showing' : 'disabled';
+        }
+        
+        const subBtn = document.getElementById('subtitlesBtn');
+        if (subBtn) {
+            subBtn.style.opacity = subtitlesEnabled ? '1' : '0.5';
+            subBtn.style.background = subtitlesEnabled ? '#ff0000' : '#272727';
+        }
     }
 
     function formatViews(views) {
@@ -488,12 +362,10 @@
     function updateSubscribeButton() {
         const subBtn = document.getElementById('subscribeBtn');
         const subsSpan = document.getElementById('channelSubs');
-        if (subBtn) {
-            subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
-            if (isSubscribed) subBtn.classList.add('subscribed');
-            else subBtn.classList.remove('subscribed');
-        }
-        if (subsSpan) subsSpan.textContent = `${subscriberCount} подписчиков`;
+        subBtn.textContent = isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться';
+        if (isSubscribed) subBtn.classList.add('subscribed');
+        else subBtn.classList.remove('subscribed');
+        subsSpan.textContent = `${subscriberCount} подписчиков`;
     }
 
     function renderComments() {
@@ -517,101 +389,85 @@
     function renderPage() {
         if (!currentVideo) return;
         
-        // Проверяем, не свой ли канал
         const isOwnChannel = currentUser && currentUser.id === currentVideo.uploader_id;
         
-        document.getElementById('videoTitle').textContent = currentVideo.title || 'Без названия';
-        document.getElementById('viewsCount').innerHTML = `👁️ ${formatViews(currentVideo.views)} просмотров`;
-        document.getElementById('likeCount').textContent = likeCount;
-        document.getElementById('dislikeCount').textContent = dislikeCount;
-        document.getElementById('channelName').textContent = currentVideo.uploader_name;
-        document.getElementById('channelSubs').textContent = `${subscriberCount} подписчиков`;
-        document.getElementById('videoDescription').innerHTML = escapeHtml(currentVideo.description) || 'Нет описания';
-        document.getElementById('commentForm').style.display = token ? 'flex' : 'none';
+        document.getElementById('app').innerHTML = `
+            <div class="video-wrapper">
+                <video id="videoPlayer" controls autoplay>
+                    <source src="${API_URL}/api/videos/${videoId}/stream" type="video/mp4">
+                    <track kind="subtitles" src="${API_URL}/api/videos/${videoId}/subtitles" srclang="ru" label="Русские" default>
+                    Ваш браузер не поддерживает видео
+                </video>
+                <button class="subtitles-btn" id="subtitlesBtn" style="position: absolute; bottom: 20px; right: 20px; opacity: ${subtitlesEnabled ? '1' : '0.5'}; background: ${subtitlesEnabled ? '#ff0000' : '#272727'};">📝 Субтитры</button>
+            </div>
+            <div class="video-info-card">
+                <h1 class="video-title">${escapeHtml(currentVideo.title) || 'Без названия'}</h1>
+                <div class="stats-row">
+                    <span id="viewsCount">👁️ ${formatViews(currentVideo.views)} просмотров</span>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="likeBtn">👍 <span id="likeCount">${likeCount}</span></button>
+                        <button class="action-btn" id="dislikeBtn">👎 <span id="dislikeCount">${dislikeCount}</span></button>
+                        <button class="action-btn" id="shareBtn">🔗 Поделиться</button>
+                    </div>
+                </div>
+                <div class="channel-row">
+                    <div class="channel-info" id="channelLink">
+                        <div class="channel-avatar">📺</div>
+                        <div>
+                            <div class="channel-name">${escapeHtml(currentVideo.uploader_name)}</div>
+                            <div class="channel-subscribers" id="channelSubs">${subscriberCount} подписчиков</div>
+                        </div>
+                    </div>
+                    ${!isOwnChannel ? `<button class="subscribe-btn ${isSubscribed ? 'subscribed' : ''}" id="subscribeBtn">${isSubscribed ? '✓ Вы подписаны' : '🔔 Подписаться'}</button>` : ''}
+                </div>
+                <div class="description">${escapeHtml(currentVideo.description) || 'Нет описания'}</div>
+            </div>
+            <div class="comments-section">
+                <h3 style="margin-bottom: 16px;">💬 Комментарии <span id="commentsCount">${comments.length}</span></h3>
+                ${token ? `
+                    <div class="comment-form">
+                        <textarea id="commentText" placeholder="Напишите комментарий..." rows="2"></textarea>
+                        <button id="submitCommentBtn">Отправить</button>
+                    </div>
+                ` : '<p style="margin: 16px 0;"><a href="#" onclick="alert(\'Войдите, чтобы оставить комментарий\'); return false;">Войдите</a>, чтобы оставить комментарий</p>'}
+                <div id="commentsList"></div>
+            </div>
+        `;
         
-        // Скрываем кнопку подписки, если это свой канал
-        const subscribeBtn = document.getElementById('subscribeBtn');
-        if (isOwnChannel) {
-            subscribeBtn.style.display = 'none';
-        } else {
-            subscribeBtn.style.display = 'flex';
-        }
-        
-        updateButtons();
-        updateSubscribeButton();
-        renderComments();
-        
-        const videoPlayer = document.getElementById('videoPlayer');
-        videoPlayer.src = `${API_URL}/api/videos/${videoId}/stream`;
-        videoPlayer.load();
-        
+        // Привязываем обработчики
         document.getElementById('likeBtn').onclick = likeVideo;
         document.getElementById('dislikeBtn').onclick = dislikeVideo;
         document.getElementById('shareBtn').onclick = shareVideo;
-        document.getElementById('subscribeBtn').onclick = subscribe;
+        if (!isOwnChannel) document.getElementById('subscribeBtn').onclick = subscribe;
         document.getElementById('channelLink').onclick = goToChannel;
-        if (token) {
-            document.getElementById('submitCommentBtn').onclick = addComment;
+        if (token) document.getElementById('submitCommentBtn').onclick = addComment;
+        
+        // Субтитры
+        const subBtn = document.getElementById('subtitlesBtn');
+        if (subBtn) subBtn.onclick = toggleSubtitles;
+        
+        renderComments();
+        
+        // Применяем сохранённое состояние субтитров
+        const video = document.getElementById('videoPlayer');
+        if (video) {
+            video.addEventListener('loadedmetadata', () => {
+                for (let i = 0; i < video.textTracks.length; i++) {
+                    if (video.textTracks[i].kind === 'subtitles') {
+                        video.textTracks[i].mode = subtitlesEnabled ? 'showing' : 'disabled';
+                        break;
+                    }
+                }
+            });
         }
     }
 
-    // Настройки
-    async function loadSettings() {
-        if (!token) return;
-        try {
-            const res = await fetch(`${API_URL}/api/settings`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (res.ok) {
-                const s = await res.json();
-                document.getElementById('themeSelect').value = s.theme || 'dark';
-                document.getElementById('languageSelect').value = s.language || 'professional';
-                document.getElementById('fontSelect').value = s.font_style || 'professional';
-                document.getElementById('qualitySelect').value = s.video_quality || 'auto';
-                document.getElementById('subtitlesCheckbox').checked = s.subtitles || false;
-                currentLanguage = s.language || 'professional';
-                applyFont(s.font_style || 'professional');
-                if (s.theme === 'light') document.body.classList.add('light');
-                else document.body.classList.remove('light');
-            }
-        } catch(e) {}
+    async function init() {
+        await loadCurrentUser();
+        await loadVideo();
     }
-
-    async function saveSettings() {
-        if (!token) return;
-        const settings = {
-            theme: document.getElementById('themeSelect').value,
-            language: document.getElementById('languageSelect').value,
-            font_style: document.getElementById('fontSelect').value,
-            video_quality: document.getElementById('qualitySelect').value,
-            subtitles: document.getElementById('subtitlesCheckbox').checked
-        };
-        try {
-            const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(settings) });
-            if (res.ok) {
-                currentLanguage = settings.language;
-                applyFont(settings.font_style);
-                if (settings.theme === 'light') document.body.classList.add('light');
-                else document.body.classList.remove('light');
-                alert('Настройки сохранены');
-            }
-        } catch(e) { alert('Ошибка'); }
-    }
-
-    window.openVideo = function(id) {
-        window.location.href = `/letsfiohub/watch.html?id=${id}`;
-    }
-    window.likeComment = likeComment;
-
-    // Инициализация
-    const settingsModal = document.getElementById('settingsModal');
-    document.getElementById('settingsBtn').onclick = async () => { await loadSettings(); settingsModal.style.display = 'flex'; };
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.onclick = () => { settingsModal.style.display = 'none'; };
-    });
-    document.getElementById('saveSettingsBtn').onclick = saveSettings;
-    window.onclick = (e) => { if (e.target === settingsModal) settingsModal.style.display = 'none'; };
-
-    applyFont(currentFont);
-    loadCurrentUser().then(() => { loadVideo(); });
+    
+    init();
 </script>
 </body>
 </html>
