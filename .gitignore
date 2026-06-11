@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+*.egg-info/
+.env
+
+# Node
+node_modules/
+npm-debug.log*
+.next/
+
+# C++
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+build/
+
+# Media
+media/uploads/*
+!media/uploads/.gitkeep
+media/processed/*
+!media/processed/.gitkeep
+*.mp4
+*.avi
+*.mov
+
+# Database
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
