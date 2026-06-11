@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+const API_URL = 'https://letsfiohub.onrender.com/api/v1';
+
 export default function Home() {
   const [videos, setVideos] = useState([]);
   const [theme, setTheme] = useState('default');
@@ -19,8 +21,19 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('gamerTheme') || 'default';
       changeTheme(saved);
+      fetchVideos();
     }
   }, []);
+
+  const fetchVideos = async () => {
+    try {
+      const res = await fetch(`${API_URL}/video`);
+      const data = await res.json();
+      setVideos(data);
+    } catch (err) {
+      console.error('Error fetching videos:', err);
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', padding: '20px', background: 'var(--bg, #0F0F0F)', color: 'white' }}>
@@ -63,17 +76,27 @@ export default function Home() {
       <h2 style={{ marginBottom: '20px' }}>📺 Рекомендовано для вас</h2>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-        <div style={{ background: '#1a1a1a', borderRadius: '10px', overflow: 'hidden', transition: 'transform 0.3s' }}
-             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <div style={{ aspectRatio: '16/9', background: 'linear-gradient(135deg, var(--primary, #FF0000), var(--secondary, #CC0000))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: '64px' }}>🎥</span>
+        {videos.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', background: '#1a1a1a', borderRadius: '10px' }}>
+            <p style={{ color: '#888' }}>Загрузка видео...</p>
           </div>
-          <div style={{ padding: '15px' }}>
-            <h3 style={{ margin: '0 0 10px 0' }}>Пример видео</h3>
-            <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>👁 0 просмотров • 👍 0 лайков</p>
-          </div>
-        </div>
+        ) : (
+          videos.map((video) => (
+            <div key={video.id} style={{ background: '#1a1a1a', borderRadius: '10px', overflow: 'hidden', transition: 'transform 0.3s' }}
+                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+              <div style={{ aspectRatio: '16/9', background: 'linear-gradient(135deg, var(--primary, #FF0000), var(--secondary, #CC0000))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '64px' }}>🎥</span>
+              </div>
+              <div style={{ padding: '15px' }}>
+                <h3 style={{ margin: '0 0 10px 0' }}>{video.title}</h3>
+                <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>
+                  👁 {video.views_count || 0} просмотров • 👍 {video.likes_count || 0} лайков
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <style jsx global>{`
