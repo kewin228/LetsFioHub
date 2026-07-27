@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100vh', padding: '20px', background: 'var(--bg, #0F0F0F)', color: 'white' }}>
       <Head>
-        <title>Let'sFioHub - Let's-1.0</title>
+        <title>Let'sFioHub</title>
       </Head>
 
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', padding: '20px', background: '#000', borderRadius: '10px' }}>
