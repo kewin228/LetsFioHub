@@ -4,7 +4,7 @@ from database import engine, Base, get_db
 from models import User
 from auth import get_current_user
 
-# Создаём таблицы ДО импорта роутов
+# Создаём таблицы
 Base.metadata.create_all(bind=engine)
 
 from routes.auth import router as auth_router
