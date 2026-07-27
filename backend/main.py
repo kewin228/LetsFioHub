@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, get_db
 from models import User
 from auth import get_current_user
-from routes import auth
 
+# Создаём таблицы ДО импорта роутов
 Base.metadata.create_all(bind=engine)
+
+from routes.auth import router as auth_router
 
 app = FastAPI(title="Let'sFioHub API")
 
@@ -17,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 @app.get("/")
 def root():
