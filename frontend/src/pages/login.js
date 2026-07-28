@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-const API_URL = '/api';
+const API_URL = 'https://letsfiohub-1.onrender.com/api';
 
 export default function Login() {
   const router = useRouter();
