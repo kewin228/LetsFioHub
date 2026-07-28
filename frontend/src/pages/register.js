@@ -51,3 +51,4 @@ export default function Register() {
     </div>
   );
 }
+// Trigger Vercel rebuild
