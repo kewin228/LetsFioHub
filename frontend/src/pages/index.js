@@ -12,35 +12,40 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    checkAuth();
+    loadVideos();
+  }, [selectedStyle]);
+
+  const checkAuth = async () => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch(API_URL + '/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (res.ok) return res.json();
-          throw new Error('Not authorized');
-        })
-        .then(data => {
-          setUser(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-          setLoading(false);
+      try {
+        const res = await fetch(API_URL + '/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
         });
-    } else {
-      setLoading(false);
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          localStorage.removeItem('token');
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        localStorage.removeItem('token');
+      }
     }
+    setLoading(false);
+  };
 
-    // Загрузка видео
-    fetch(API_URL + '/videos/?style=' + selectedStyle)
-      .then(res => res.json())
-      .then(data => {
-        setVideos(data);
-      })
-      .catch(err => console.error('Error loading videos:', err));
-  }, [selectedStyle]);
+  const loadVideos = async () => {
+    try {
+      const res = await fetch(API_URL + '/videos/?style=' + selectedStyle);
+      const data = await res.json();
+      setVideos(data);
+    } catch (err) {
+      console.error('Video error:', err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -62,35 +67,32 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: '#0F0F0F', color: 'white' }}>
       <Head><title>LetsFioHub</title></Head>
       
-      {/* Шапка */}
       <header style={{ padding: '20px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: '#FF6B00', margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => router.push('/')}>
+        <h1 style={{ color: '#FF6B00', margin: 0, cursor: 'pointer' }} onClick={() => router.push('/')}>
           🎬 LetsFioHub
         </h1>
         <div style={{ display: 'flex', gap: '10px' }}>
           {user ? (
-            <>
+            <React.Fragment>
               <span style={{ padding: '8px 16px', color: '#FF6B00' }}>Привет, {user.display_name || user.username}!</span>
               <button onClick={handleLogout} style={{ padding: '8px 16px', background: '#333', color: 'white', border: '1px solid #FF6B00', borderRadius: '8px', cursor: 'pointer' }}>
                 Выйти
               </button>
-            </>
+            </React.Fragment>
           ) : (
-            <>
+            <React.Fragment>
               <button onClick={() => router.push('/login')} style={{ padding: '8px 16px', background: 'transparent', color: 'white', border: '1px solid #FF6B00', borderRadius: '8px', cursor: 'pointer' }}>
                 Войти
               </button>
               <button onClick={() => router.push('/register')} style={{ padding: '8px 16px', background: '#FF6B00', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
                 Регистрация
               </button>
-            </>
+            </React.Fragment>
           )}
         </div>
       </header>
 
-      {/* Основной контент */}
       <main style={{ padding: '40px 20px' }}>
-        {/* Геймерские стили */}
         <div style={{ marginBottom: '40px' }}>
           <h3 style={{ marginBottom: '15px' }}>🎮 Геймерские стили:</h3>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -104,8 +106,7 @@ export default function Home() {
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s'
+                  cursor: 'pointer'
                 }}
               >
                 {style}
@@ -114,7 +115,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Видео */}
         <div>
           <h2>Рекомендовано для вас</h2>
           {videos.length === 0 ? (
