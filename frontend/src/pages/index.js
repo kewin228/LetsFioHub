@@ -1,105 +1,90 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Link from 'next/link';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL + '/api';
+const API_URL = 'https://letsfiohub-1.onrender.com/api';
 
 export default function Home() {
-  const [videos, setVideos] = useState([]);
-  const [theme, setTheme] = useState('default');
+  const router = useRouter();
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const themes = ['default', 'cyberpunk', 'cod', 'fortnite', 'minecraft', 'valorant', 'lol', 'darksouls', 'apex'];
-
-  const changeTheme = (newTheme) => {
-    setTheme(newTheme);
-    if (typeof window !== 'undefined') {
-      document.body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('gamerTheme', newTheme);
-    }
-  };
-
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('gamerTheme') || 'default';
-      changeTheme(saved);
-      fetchVideos();
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Загружаем профиль пользователя
+      fetch(API_URL + '/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          if (res.ok) return res.json();
+          throw new Error('Не авторизован');
+        })
+        .then(data => {
+          setUser(data);
+          setLoading(false);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const fetchVideos = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(API_URL + '/video');
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setVideos(data);
-      } else if (data.videos && Array.isArray(data.videos)) {
-        setVideos(data.videos);
-      } else {
-        setVideos([]);
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      setVideos([]);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.reload(); // Перезагружаем страницу
   };
 
-  return (
-    <div style={{ minHeight: '100vh', padding: '20px', background: 'var(--bg, #0F0F0F)', color: 'white' }}>
-      <Head><title>LetsFioHub</title></Head>
+  if (loading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0F0F0F', color: 'white' }}>Загрузка...</div>;
+  }
 
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', padding: '20px', background: '#000', borderRadius: '10px' }}>
-        <h1 style={{ color: 'var(--primary, #FF0000)', margin: 0 }}>🎬 LetsFioHub</h1>
+  return (
+    <div style={{ minHeight: '100vh', background: '#0F0F0F', color: 'white' }}>
+      <Head><title>LetsFioHub</title></Head>
+      
+      {/* Шапка */}
+      <header style={{ padding: '20px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ color: '#FF0000', margin: 0, cursor: 'pointer' }} onClick={() => router.push('/')}>LetsFioHub</h1>
         <div>
-          <Link href="/login" style={{ marginRight: '10px', padding: '10px 20px', background: 'var(--primary, #FF0000)', color: 'white', border: 'none', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>Войти</Link>
-          <Link href="/register" style={{ padding: '10px 20px', background: 'var(--primary, #FF0000)', color: 'white', border: 'none', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>Регистрация</Link>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <span>Привет, <b>{user.display_name || user.username}</b>!</span>
+              <button onClick={handleLogout} style={{ padding: '8px 16px', background: '#333', color: 'white', border: '1px solid #FF0000', borderRadius: '8px', cursor: 'pointer' }}>
+                Выйти
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => router.push('/login')} style={{ padding: '8px 16px', background: 'transparent', color: 'white', border: '1px solid #FF0000', borderRadius: '8px', cursor: 'pointer' }}>
+                Войти
+              </button>
+              <button onClick={() => router.push('/register')} style={{ padding: '8px 16px', background: '#FF0000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                Регистрация
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
-      <div style={{ marginBottom: '30px', padding: '20px', background: '#1a1a1a', borderRadius: '10px' }}>
-        <h3 style={{ marginTop: 0 }}>🎮 Геймерские стили:</h3>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          {themes.map(t => (
-            <button key={t} onClick={() => changeTheme(t)} style={{ padding: '8px 16px', background: theme === t ? 'var(--primary, #FF0000)' : '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', textTransform: 'capitalize' }}>{t}</button>
-          ))}
-        </div>
-      </div>
-
-      <h2 style={{ marginBottom: '20px' }}> Рекомендовано для вас</h2>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', background: '#1a1a1a', borderRadius: '10px' }}><p style={{ color: '#888' }}>Загрузка видео...</p></div>
-        ) : videos.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', background: '#1a1a1a', borderRadius: '10px' }}><p style={{ color: '#888' }}>Нет доступных видео</p></div>
+      {/* Основной контент */}
+      <main style={{ padding: '40px 20px', textAlign: 'center' }}>
+        {user ? (
+          <div>
+            <h2>Добро пожаловать в твой профиль!</h2>
+            <p>Email: {user.email}</p>
+            <p>Имя пользователя: {user.username}</p>
+          </div>
         ) : (
-          videos.map((video) => (
-            <div key={video.id || Math.random()} style={{ background: '#1a1a1a', borderRadius: '10px', overflow: 'hidden', transition: 'transform 0.3s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-              <div style={{ aspectRatio: '16/9', background: 'linear-gradient(135deg, var(--primary, #FF0000), var(--secondary, #CC0000))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '64px' }}>🎥</span></div>
-              <div style={{ padding: '15px' }}>
-                <h3 style={{ margin: '0 0 10px 0' }}>{video.title}</h3>
-                <p style={{ color: '#888', margin: 0, fontSize: '14px' }}>👁 {video.views_count || 0} просмотров • 👍 {video.likes_count || 0} лайков</p>
-              </div>
-            </div>
-          ))
+          <div>
+            <h2>Добро пожаловать в LetsFioHub</h2>
+            <p>Войдите или зарегистрируйтесь, чтобы получить доступ к видео.</p>
+          </div>
         )}
-      </div>
-
-      <style jsx global>{`
-        :root { --primary: #FF0000; --secondary: #CC0000; --bg: #0F0F0F; }
-        [data-theme="cyberpunk"] { --primary: #00FFFF; --secondary: #FF00FF; --bg: #0A0A0F; }
-        [data-theme="cod"] { --primary: #FF6B00; --secondary: #FFD700; --bg: #1C1C1C; }
-        [data-theme="fortnite"] { --primary: #9D4EDD; --secondary: #00F5FF; --bg: #2D1B4E; }
-        [data-theme="minecraft"] { --primary: #5D8C3A; --secondary: #8B7355; --bg: #1E1E1E; }
-        [data-theme="valorant"] { --primary: #FF4655; --secondary: #FFFFFF; --bg: #0F1923; }
-        [data-theme="lol"] { --primary: #C8AA6E; --secondary: #0AC8B9; --bg: #091428; }
-        [data-theme="darksouls"] { --primary: #8B0000; --secondary: #FFD700; --bg: #0D0D0D; }
-        [data-theme="apex"] { --primary: #F26522; --secondary: #FFFFFF; --bg: #1A1A1A; }
-        body { background: var(--bg); color: white; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-      `}</style>
+      </main>
     </div>
   );
 }
