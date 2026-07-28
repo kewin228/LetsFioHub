@@ -1,12 +1,10 @@
 from datetime import datetime
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
 from sqlalchemy.sql import func
 from database import Base
 
 class User(Base):
     __tablename__ = "users"
-
     id: int = Column(Integer, primary_key=True, index=True)
     email: str = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password: str = Column(String(255), nullable=False)
@@ -21,7 +19,6 @@ class User(Base):
     last_login: DateTime = Column(DateTime(timezone=True), nullable=True)
     country: str = Column(String(100), nullable=True)
     birth_date: DateTime = Column(DateTime, nullable=True)
-
 class Video(Base):
     __tablename__ = "videos"
     
