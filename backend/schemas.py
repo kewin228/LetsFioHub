@@ -32,3 +32,24 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: Optional[int] = None
+
+class VideoCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    url: str
+    thumbnail: Optional[str] = None
+    style: str
+
+class VideoResponse(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    url: str
+    thumbnail: Optional[str]
+    style: str
+    views: int
+    created_at: datetime
+    user_id: Optional[int]
+
+    class Config:
+        from_attributes = True
