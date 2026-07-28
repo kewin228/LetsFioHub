@@ -10,6 +10,7 @@ Base.metadata.create_all(bind=engine)
 from routes.auth import router as auth_router
 
 app = FastAPI(title="Let'sFioHub API")
+print("FastAPI app created!")
 
 app.add_middleware(
     CORSMiddleware,
