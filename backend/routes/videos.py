@@ -21,10 +21,3 @@ def create_video(video: VideoCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_video)
     return db_video
-
-@router.get("/{video_id}", response_model=VideoResponse)
-def get_video(video_id: int, db: Session = Depends(get_db)):
-    video = db.query(Video).filter(Video.id == video_id).first()
-    if not video:
-        raise HTTPException(status_code=404, detail="Video not found")
-    return video

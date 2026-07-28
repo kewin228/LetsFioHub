@@ -11,7 +11,7 @@ export default function Home() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(function() {
     const token = localStorage.getItem('token');
     if (token) {
       fetch(API_URL + '/auth/me', {
@@ -34,11 +34,23 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
+  useEffect(function() {
     fetch(API_URL + '/videos/?style=' + selectedStyle)
-      .then(function(res) { return res.json(); })
-      .then(function(data) { setVideos(data); })
-      .catch(function(err) { console.error('Video error:', err); });
+      .then(function(res) {
+        if (!res.ok) return [];
+        return res.json();
+      })
+      .then(function(data) {
+        if (Array.isArray(data)) {
+          setVideos(data);
+        } else {
+          setVideos([]);
+        }
+      })
+      .catch(function(err) {
+        console.error('Video error:', err);
+        setVideos([]);
+      });
   }, [selectedStyle]);
 
   const handleLogout = function() {
