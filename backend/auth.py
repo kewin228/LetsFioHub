@@ -73,17 +73,13 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)) -> U
     auth_header = request.headers.get("authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    
     token = auth_header.split(" ", 1)[1]
     decoded = decode_token(token, "access")
-    
     if decoded is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    
     user = db.query(User).filter(User.id == decoded["user_id"]).first()
     if user is None or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
-    
     return user
 
 def require_role(required_role: UserRole):
