@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status, Header, Request
+from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User, RefreshToken, AuditLog, UserRole
@@ -69,16 +69,21 @@ def log_audit_event(db: Session, user_id: Optional[int], action: str, request: R
     db.add(log)
     db.commit()
 
-async def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> User:
-    if not authorization or not authorization.startswith("Bearer "):
+async def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    auth_header = request.headers.get("authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    token = authorization.split(" ", 1)[1]
+    
+    token = auth_header.split(" ", 1)[1]
     decoded = decode_token(token, "access")
+    
     if decoded is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    
     user = db.query(User).filter(User.id == decoded["user_id"]).first()
     if user is None or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+    
     return user
 
 def require_role(required_role: UserRole):
