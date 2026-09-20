@@ -10,7 +10,7 @@ from schemas import (
 )
 from auth import (
     get_password_hash, verify_password, create_access_token, create_refresh_token,
-    decode_token, generate_verification_code, get_device_fingerprint, log_audit_event,
+    decode_access_token, generate_verification_code, get_device_fingerprint, log_audit,
     get_current_user, require_role, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS,
     MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION_MINUTES
 )
@@ -36,7 +36,7 @@ def register(user: UserCreate, db: Session = Depends(get_db), request: Request =
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    log_audit_event(db, db_user.id, "REGISTER", request, f"User registered with email {user.email}")
+    log_audit(db, db_user.id, "REGISTER", request, f"User registered with email {user.email}")
     print(f"Verification code for {user.email}: {verification_code}")
     return db_user
 
@@ -52,7 +52,7 @@ def verify_email(code: VerifyEmail, current_user: User = Depends(get_current_use
     current_user.verification_code = None
     current_user.verification_code_expires = None
     db.commit()
-    log_audit_event(db, current_user.id, "EMAIL_VERIFIED", request)
+    log_audit(db, current_user.id, "EMAIL_VERIFIED", request)
     return {"message": "Email verified successfully"}
 
 @router.post("/login", response_model=TokenPair)
@@ -66,7 +66,7 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db), request: R
             user.failed_login_attempts += 1
             if user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
                 user.locked_until = datetime.utcnow() + timedelta(minutes=LOCKOUT_DURATION_MINUTES)
-                log_audit_event(db, user.id, "ACCOUNT_LOCKED", request, f"Locked after {MAX_LOGIN_ATTEMPTS} failed attempts")
+                log_audit(db, user.id, "ACCOUNT_LOCKED", request, f"Locked after {MAX_LOGIN_ATTEMPTS} failed attempts")
             db.commit()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
     user.failed_login_attempts = 0
@@ -84,12 +84,12 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db), request: R
     )
     db.add(refresh_token_obj)
     db.commit()
-    log_audit_event(db, user.id, "LOGIN", request, f"Device: {device_fp}")
+    log_audit(db, user.id, "LOGIN", request, f"Device: {device_fp}")
     return {"access_token": access_token, "refresh_token": refresh_token_obj.token, "token_type": "bearer", "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
 @router.post("/refresh", response_model=TokenPair)
 def refresh_token(body: TokenRefresh, db: Session = Depends(get_db), request: Request = None):
-    decoded = decode_token(body.refresh_token, "refresh")
+    decoded = decode_access_token(body.refresh_token, "refresh")
     if decoded is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
     db_token = db.query(RefreshToken).filter(RefreshToken.token == body.refresh_token, RefreshToken.is_revoked == False, RefreshToken.expires_at > datetime.utcnow()).first()
@@ -112,7 +112,7 @@ def logout(body: TokenRefresh, current_user: User = Depends(get_current_user), d
     if db_token:
         db_token.is_revoked = True
         db.commit()
-    log_audit_event(db, current_user.id, "LOGOUT", request)
+    log_audit(db, current_user.id, "LOGOUT", request)
     return {"message": "Logged out successfully"}
 
 @router.get("/me", response_model=UserProfileResponse)
@@ -127,7 +127,7 @@ def update_profile(profile: UserUpdate, current_user: User = Depends(get_current
     if profile.country is not None: current_user.country = profile.country
     db.commit()
     db.refresh(current_user)
-    log_audit_event(db, current_user.id, "PROFILE_UPDATED", request)
+    log_audit(db, current_user.id, "PROFILE_UPDATED", request)
     return current_user
 
 @router.post("/forgot-password")
@@ -140,7 +140,7 @@ def forgot_password(body: PasswordReset, db: Session = Depends(get_db), request:
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.commit()
     print(f"Password reset token for {body.email}: {reset_token}")
-    log_audit_event(db, user.id, "PASSWORD_RESET_REQUESTED", request)
+    log_audit(db, user.id, "PASSWORD_RESET_REQUESTED", request)
     return {"message": "If email exists, reset link has been sent"}
 
 @router.post("/reset-password")
@@ -152,7 +152,7 @@ def reset_password(body: PasswordResetConfirm, db: Session = Depends(get_db), re
     user.reset_token = None
     user.reset_token_expires = None
     db.commit()
-    log_audit_event(db, user.id, "PASSWORD_CHANGED", request)
+    log_audit(db, user.id, "PASSWORD_CHANGED", request)
     return {"message": "Password reset successfully"}
 
 @router.get("/users", response_model=List[UserResponse])
@@ -168,7 +168,7 @@ def admin_update_user(user_id: int, updates: AdminUserUpdate, current_user: User
     if updates.is_active is not None: user.is_active = updates.is_active
     db.commit()
     db.refresh(user)
-    log_audit_event(db, current_user.id, "ADMIN_USER_UPDATED", request, f"Updated user {user_id}")
+    log_audit(db, current_user.id, "ADMIN_USER_UPDATED", request, f"Updated user {user_id}")
     return user
 
 @router.get("/audit-logs")
