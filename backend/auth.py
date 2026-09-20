@@ -8,6 +8,9 @@ from database import get_db
 from models import User, RefreshToken, AuditLog, UserRole
 import secrets
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 SECRET_KEY = "super-secret-key-for-letsfiohub-2026-production-ready"
 ALGORITHM = "HS256"
@@ -40,8 +43,10 @@ def decode_access_token(token: str) -> Optional[int]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
+        logger.info(f"Decoded token: sub={user_id}")
         return int(user_id) if user_id else None
-    except Exception:
+    except Exception as e:
+        logger.error(f"Token decode error: {e}")
         return None
 
 def get_device_fingerprint(request: Request) -> str:
@@ -58,13 +63,27 @@ def log_audit(db: Session, user_id: Optional[int], action: str, request: Request
 
 async def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     auth = request.headers.get("authorization", "")
+    logger.info(f"Auth header: {auth[:50] if auth else 'EMPTY'}...")
+    
     if not auth.startswith("Bearer "):
+        logger.error("No Bearer token found")
         raise HTTPException(status_code=401, detail="Not authenticated")
+    
     token = auth.split(" ", 1)[1]
+    logger.info(f"Token extracted: {token[:30]}...")
+    
     user_id = decode_access_token(token)
+    logger.info(f"Decoded user_id: {user_id}")
+    
     if user_id is None:
+        logger.error("User ID is None after decoding")
         raise HTTPException(status_code=401, detail="Invalid token")
+    
     user = db.query(User).filter(User.id == user_id).first()
+    logger.info(f"User found: {user is not None}, active: {user.is_active if user else 'N/A'}")
+    
     if not user or not user.is_active:
+        logger.error(f"User not found or inactive: id={user_id}")
         raise HTTPException(status_code=401, detail="User not found")
+    
     return user
