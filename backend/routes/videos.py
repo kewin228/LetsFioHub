@@ -5,7 +5,7 @@ from database import get_db
 from models import Video
 from schemas import VideoCreate, VideoResponse
 
-router = APIRouter(prefix="/api/videos", tags=["videos"])
+router = APIRouter(tags=["videos"])
 
 @router.get("/", response_model=List[VideoResponse])
 def get_videos(style: str = None, db: Session = Depends(get_db)):
