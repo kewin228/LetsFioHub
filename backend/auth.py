@@ -71,3 +71,11 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)) -> U
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+def require_role(required_role: UserRole):
+    async def role_checker(current_user: User = Depends(get_current_user)):
+        role_hierarchy = {UserRole.USER: 0, UserRole.MODERATOR: 1, UserRole.ADMIN: 2}
+        if role_hierarchy.get(current_user.role, 0) < role_hierarchy.get(required_role, 0):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        return current_user
+    return role_checker
