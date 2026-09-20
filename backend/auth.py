@@ -6,7 +6,6 @@ from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User, RefreshToken, AuditLog, UserRole
-from schemas import TokenData
 import secrets
 import hashlib
 
@@ -25,67 +24,47 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire, "type": "access"})
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
-    to_encode.update({"exp": expire, "type": "refresh", "jti": secrets.token_hex(16)})
+    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire, "jti": secrets.token_hex(16)})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def decode_token(token: str, expected_type: str = "access"):
+def decode_access_token(token: str) -> Optional[int]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("type") != expected_type:
-            return None
         user_id = payload.get("sub")
-        if user_id is None:
-            return None
-        return {"user_id": int(user_id), "payload": payload}
-    except (JWTError, ValueError, TypeError):
+        return int(user_id) if user_id else None
+    except Exception:
         return None
 
-def generate_verification_code() -> str:
-    return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
-
 def get_device_fingerprint(request: Request) -> str:
-    user_agent = request.headers.get("user-agent", "")
+    ua = request.headers.get("user-agent", "")
     ip = request.client.host if request.client else "unknown"
-    fingerprint_data = f"{user_agent}:{ip}"
-    return hashlib.sha256(fingerprint_data.encode()).hexdigest()[:32]
+    return hashlib.sha256(f"{ua}:{ip}".encode()).hexdigest()[:32]
 
-def log_audit_event(db: Session, user_id: Optional[int], action: str, request: Request, details: str = None):
-    log = AuditLog(
-        user_id=user_id,
-        action=action,
-        ip_address=request.client.host if request.client else None,
-        user_agent=request.headers.get("user-agent"),
-        details=details
-    )
+def log_audit(db: Session, user_id: Optional[int], action: str, request: Request):
+    log = AuditLog(user_id=user_id, action=action,
+                   ip_address=request.client.host if request.client else None,
+                   user_agent=request.headers.get("user-agent"))
     db.add(log)
     db.commit()
 
 async def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
-    auth_header = request.headers.get("authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    token = auth_header.split(" ", 1)[1]
-    decoded = decode_token(token, "access")
-    if decoded is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user = db.query(User).filter(User.id == decoded["user_id"]).first()
-    if user is None or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+    auth = request.headers.get("authorization", "")
+    if not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = auth.split(" ", 1)[1]
+    user_id = decode_access_token(token)
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=401, detail="User not found")
     return user
-
-def require_role(required_role: UserRole):
-    async def role_checker(current_user: User = Depends(get_current_user)):
-        role_hierarchy = {UserRole.USER: 0, UserRole.MODERATOR: 1, UserRole.ADMIN: 2}
-        if role_hierarchy.get(current_user.role, 0) < role_hierarchy.get(required_role, 0):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
-        return current_user
-    return role_checker
