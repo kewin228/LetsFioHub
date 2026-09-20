@@ -44,6 +44,9 @@ def decode_access_token(token: str) -> Optional[int]:
     except Exception:
         return None
 
+def generate_verification_code() -> str:
+    return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+
 def get_device_fingerprint(request: Request) -> str:
     ua = request.headers.get("user-agent", "")
     ip = request.client.host if request.client else "unknown"
