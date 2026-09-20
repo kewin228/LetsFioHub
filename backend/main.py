@@ -8,6 +8,7 @@ from auth import get_current_user
 Base.metadata.create_all(bind=engine)
 
 from routes.auth import router as auth_router
+from routes.videos import router as videos_router
 
 app = FastAPI(title="Let'sFioHub API")
 
@@ -21,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+app.include_router(videos_router, prefix="/api/videos", tags=["videos"])
 
 @app.get("/")
 def root():
