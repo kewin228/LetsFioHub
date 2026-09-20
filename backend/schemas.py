@@ -1,17 +1,55 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+from models import UserRole
 
+# --- Auth Schemas ---
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
     display_name: Optional[str] = None
+    
+    @validator('password')
+    def password_strength(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        if not any(c.isupper() for c in v):
+            raise ValueError('Password must contain uppercase letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain digit')
+        return v
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    expires_in: int = 900
+
+class TokenRefresh(BaseModel):
+    refresh_token: str
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+    
+    @validator('new_password')
+    def password_strength(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        return v
+
+class VerifyEmail(BaseModel):
+    code: str
+
+# --- Response Schemas ---
 class UserResponse(BaseModel):
     id: int
     email: str
@@ -19,6 +57,7 @@ class UserResponse(BaseModel):
     display_name: Optional[str]
     bio: Optional[str]
     avatar_url: Optional[str]
+    role: UserRole
     is_verified: bool
     created_at: datetime
     country: Optional[str]
@@ -26,13 +65,22 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+class UserProfileResponse(UserResponse):
+    last_login: Optional[datetime]
+    updated_at: Optional[datetime]
 
-class TokenData(BaseModel):
-    user_id: Optional[int] = None
+# --- Admin Schemas ---
+class UserUpdate(BaseModel):
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+    country: Optional[str] = None
 
+class AdminUserUpdate(BaseModel):
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
+
+# --- Video Schemas ---
 class VideoCreate(BaseModel):
     title: str
     description: Optional[str] = None

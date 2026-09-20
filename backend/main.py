@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, get_db
-from models import User
+from models import User, Video, RefreshToken, AuditLog
 from auth import get_current_user
 
 # Создаём таблицы
@@ -10,9 +10,9 @@ Base.metadata.create_all(bind=engine)
 from routes.auth import router as auth_router
 from routes.videos import router as videos_router
 
-app = FastAPI(title="Let'sFioHub API")
+app = FastAPI(title="Let'sFioHub API", version="2.0.0")
 
-# CORS middleware - ДОЛЖЕН БЫТЬ ПЕРВЫМ!
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,11 +26,11 @@ app.include_router(videos_router, prefix="/api/videos", tags=["videos"])
 
 @app.get("/")
 def root():
-    return {"message": "Let'sFioHub API is running"}
+    return {"message": "Let'sFioHub API v2.0 is running", "docs": "/docs"}
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "2.0.0"}
 
 @app.get("/api/auth/me")
 def get_me(current_user: User = Depends(get_current_user)):
@@ -41,7 +41,9 @@ def get_me(current_user: User = Depends(get_current_user)):
         "display_name": current_user.display_name,
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
+        "role": current_user.role.value,
         "is_verified": current_user.is_verified,
         "created_at": current_user.created_at,
         "country": current_user.country,
+        "last_login": current_user.last_login,
     }
