@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from database import get_db
 from models import User, RefreshToken, UserRole
 from schemas import (
-    UserCreate, UserLogin, TokenPair, TokenRefresh, 
+    UserCreate, UserLogin, TokenPair, TokenRefresh,
     PasswordReset, PasswordResetConfirm, VerifyEmail,
     UserResponse, UserProfileResponse, UserUpdate, AdminUserUpdate
 )
@@ -20,15 +20,10 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db), request: Request = None):
-    # Проверка существующего email
     if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-    
-    # Проверка существующего username
     if db.query(User).filter(User.username == user.username).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken")
-    
-    # Создание пользователя
     verification_code = generate_verification_code()
     db_user = User(
         email=user.email,
@@ -41,46 +36,31 @@ def register(user: UserCreate, db: Session = Depends(get_db), request: Request =
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    
-    # Логирование
     log_audit_event(db, db_user.id, "REGISTER", request, f"User registered with email {user.email}")
-    
-    # TODO: Отправить email с кодом подтверждения
     print(f"Verification code for {user.email}: {verification_code}")
-    
     return db_user
 
 @router.post("/verify-email")
 def verify_email(code: VerifyEmail, current_user: User = Depends(get_current_user), db: Session = Depends(get_db), request: Request = None):
     if current_user.is_verified:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already verified")
-    
     if current_user.verification_code != code.code:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid verification code")
-    
     if current_user.verification_code_expires < datetime.utcnow():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification code expired")
-    
     current_user.is_verified = True
     current_user.verification_code = None
     current_user.verification_code_expires = None
     db.commit()
-    
     log_audit_event(db, current_user.id, "EMAIL_VERIFIED", request)
     return {"message": "Email verified successfully"}
 
 @router.post("/login", response_model=TokenPair)
 def login(user_credentials: UserLogin, db: Session = Depends(get_db), request: Request = None):
     user = db.query(User).filter(User.email == user_credentials.email).first()
-    
-    # Проверка блокировки аккаунта
     if user and user.locked_until and user.locked_until > datetime.utcnow():
         minutes_left = int((user.locked_until - datetime.utcnow()).total_seconds() / 60)
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Account locked. Try again in {minutes_left} minutes"
-        )
-    
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=f"Account locked. Try again in {minutes_left} minutes")
     if not user or not verify_password(user_credentials.password, user.hashed_password):
         if user:
             user.failed_login_attempts += 1
@@ -89,14 +69,10 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db), request: R
                 log_audit_event(db, user.id, "ACCOUNT_LOCKED", request, f"Locked after {MAX_LOGIN_ATTEMPTS} failed attempts")
             db.commit()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
-    
-    # Сброс счётчика попыток при успешном входе
     user.failed_login_attempts = 0
     user.locked_until = None
     user.last_login = datetime.utcnow()
     db.commit()
-    
-    # Создание токенов
     device_fp = get_device_fingerprint(request)
     access_token = create_access_token(data={"sub": user.id})
     refresh_token_obj = RefreshToken(
@@ -108,67 +84,34 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db), request: R
     )
     db.add(refresh_token_obj)
     db.commit()
-    
     log_audit_event(db, user.id, "LOGIN", request, f"Device: {device_fp}")
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token_obj.token,
-        "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    }
+    return {"access_token": access_token, "refresh_token": refresh_token_obj.token, "token_type": "bearer", "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
 @router.post("/refresh", response_model=TokenPair)
 def refresh_token(body: TokenRefresh, db: Session = Depends(get_db), request: Request = None):
     decoded = decode_token(body.refresh_token, "refresh")
     if decoded is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-    
-    # Поиск токена в БД
-    db_token = db.query(RefreshToken).filter(
-        RefreshToken.token == body.refresh_token,
-        RefreshToken.is_revoked == False,
-        RefreshToken.expires_at > datetime.utcnow()
-    ).first()
-    
+    db_token = db.query(RefreshToken).filter(RefreshToken.token == body.refresh_token, RefreshToken.is_revoked == False, RefreshToken.expires_at > datetime.utcnow()).first()
     if not db_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired or revoked")
-    
     user = db.query(User).filter(User.id == decoded["user_id"]).first()
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
-    
-    # Отзыв старого токена (rotation)
     db_token.is_revoked = True
     db.commit()
-    
-    # Создание новых токенов
     new_access_token = create_access_token(data={"sub": user.id})
-    new_refresh_token = RefreshToken(
-        token=create_refresh_token(data={"sub": user.id}),
-        user_id=user.id,
-        device_info=db_token.device_info,
-        ip_address=request.client.host if request.client else None,
-        expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    )
+    new_refresh_token = RefreshToken(token=create_refresh_token(data={"sub": user.id}), user_id=user.id, device_info=db_token.device_info, ip_address=request.client.host if request.client else None, expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
     db.add(new_refresh_token)
     db.commit()
-    
-    return {
-        "access_token": new_access_token,
-        "refresh_token": new_refresh_token.token,
-        "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
-    }
+    return {"access_token": new_access_token, "refresh_token": new_refresh_token.token, "token_type": "bearer", "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
 
 @router.post("/logout")
 def logout(body: TokenRefresh, current_user: User = Depends(get_current_user), db: Session = Depends(get_db), request: Request = None):
-    # Отзыв refresh token
     db_token = db.query(RefreshToken).filter(RefreshToken.token == body.refresh_token).first()
     if db_token:
         db_token.is_revoked = True
         db.commit()
-    
     log_audit_event(db, current_user.id, "LOGOUT", request)
     return {"message": "Logged out successfully"}
 
@@ -178,18 +121,12 @@ def get_me(current_user: User = Depends(get_current_user)):
 
 @router.put("/profile", response_model=UserResponse)
 def update_profile(profile: UserUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db), request: Request = None):
-    if profile.display_name is not None:
-        current_user.display_name = profile.display_name
-    if profile.bio is not None:
-        current_user.bio = profile.bio
-    if profile.avatar_url is not None:
-        current_user.avatar_url = profile.avatar_url
-    if profile.country is not None:
-        current_user.country = profile.country
-    
+    if profile.display_name is not None: current_user.display_name = profile.display_name
+    if profile.bio is not None: current_user.bio = profile.bio
+    if profile.avatar_url is not None: current_user.avatar_url = profile.avatar_url
+    if profile.country is not None: current_user.country = profile.country
     db.commit()
     db.refresh(current_user)
-    
     log_audit_event(db, current_user.id, "PROFILE_UPDATED", request)
     return current_user
 
@@ -197,39 +134,27 @@ def update_profile(profile: UserUpdate, current_user: User = Depends(get_current
 def forgot_password(body: PasswordReset, db: Session = Depends(get_db), request: Request = None):
     user = db.query(User).filter(User.email == body.email).first()
     if not user:
-        # Не раскрываем существует ли email
         return {"message": "If email exists, reset link has been sent"}
-    
     reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.commit()
-    
-    # TODO: Отправить email со ссылкой
     print(f"Password reset token for {body.email}: {reset_token}")
-    
     log_audit_event(db, user.id, "PASSWORD_RESET_REQUESTED", request)
     return {"message": "If email exists, reset link has been sent"}
 
 @router.post("/reset-password")
 def reset_password(body: PasswordResetConfirm, db: Session = Depends(get_db), request: Request = None):
-    user = db.query(User).filter(
-        User.reset_token == body.token,
-        User.reset_token_expires > datetime.utcnow()
-    ).first()
-    
+    user = db.query(User).filter(User.reset_token == body.token, User.reset_token_expires > datetime.utcnow()).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token")
-    
     user.hashed_password = get_password_hash(body.new_password)
     user.reset_token = None
     user.reset_token_expires = None
     db.commit()
-    
     log_audit_event(db, user.id, "PASSWORD_CHANGED", request)
     return {"message": "Password reset successfully"}
 
-# --- Admin Endpoints ---
 @router.get("/users", response_model=List[UserResponse])
 def list_users(current_user: User = Depends(require_role(UserRole.ADMIN)), db: Session = Depends(get_db)):
     return db.query(User).all()
@@ -239,15 +164,10 @@ def admin_update_user(user_id: int, updates: AdminUserUpdate, current_user: User
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    if updates.role is not None:
-        user.role = updates.role
-    if updates.is_active is not None:
-        user.is_active = updates.is_active
-    
+    if updates.role is not None: user.role = updates.role
+    if updates.is_active is not None: user.is_active = updates.is_active
     db.commit()
     db.refresh(user)
-    
     log_audit_event(db, current_user.id, "ADMIN_USER_UPDATED", request, f"Updated user {user_id}")
     return user
 

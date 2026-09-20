@@ -10,7 +10,6 @@ from schemas import TokenData
 import secrets
 import hashlib
 
-# Конфигурация
 SECRET_KEY = "super-secret-key-for-letsfiohub-2026-production-ready"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
@@ -70,20 +69,16 @@ def log_audit_event(db: Session, user_id: Optional[int], action: str, request: R
     db.add(log)
     db.commit()
 
-async def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db), request: Request = None) -> User:
+async def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> User:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    
     token = authorization.split(" ", 1)[1]
     decoded = decode_token(token, "access")
-    
     if decoded is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    
     user = db.query(User).filter(User.id == decoded["user_id"]).first()
     if user is None or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
-    
     return user
 
 def require_role(required_role: UserRole):

@@ -3,13 +3,11 @@ from datetime import datetime
 from typing import Optional, List
 from models import UserRole
 
-# --- Auth Schemas ---
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
     display_name: Optional[str] = None
-    
     @validator('password')
     def password_strength(cls, v):
         if len(v) < 8:
@@ -39,7 +37,6 @@ class PasswordReset(BaseModel):
 class PasswordResetConfirm(BaseModel):
     token: str
     new_password: str
-    
     @validator('new_password')
     def password_strength(cls, v):
         if len(v) < 8:
@@ -49,7 +46,6 @@ class PasswordResetConfirm(BaseModel):
 class VerifyEmail(BaseModel):
     code: str
 
-# --- Response Schemas ---
 class UserResponse(BaseModel):
     id: int
     email: str
@@ -61,7 +57,6 @@ class UserResponse(BaseModel):
     is_verified: bool
     created_at: datetime
     country: Optional[str]
-
     class Config:
         from_attributes = True
 
@@ -69,7 +64,6 @@ class UserProfileResponse(UserResponse):
     last_login: Optional[datetime]
     updated_at: Optional[datetime]
 
-# --- Admin Schemas ---
 class UserUpdate(BaseModel):
     display_name: Optional[str] = None
     bio: Optional[str] = None
@@ -80,7 +74,6 @@ class AdminUserUpdate(BaseModel):
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
 
-# --- Video Schemas ---
 class VideoCreate(BaseModel):
     title: str
     description: Optional[str] = None
@@ -98,6 +91,5 @@ class VideoResponse(BaseModel):
     views: int
     created_at: datetime
     user_id: Optional[int]
-
     class Config:
         from_attributes = True
