@@ -26,6 +26,7 @@ def register(user: UserCreate, db: Session = Depends(get_db), request: Request =
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken")
     verification_code = generate_verification_code()
     db_user = User(
+        role=UserRole.USER,
         email=user.email,
         hashed_password=get_password_hash(user.password),
         username=user.username,
@@ -36,7 +37,7 @@ def register(user: UserCreate, db: Session = Depends(get_db), request: Request =
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    log_audit(db, db_user.id, "REGISTER", request, f"User registered with email {user.email}")
+    log_audit(db, db_user.id, "REGISTER", request)
     print(f"Verification code for {user.email}: {verification_code}")
     return db_user
 
